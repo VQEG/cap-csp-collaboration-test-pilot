@@ -1,46 +1,57 @@
 # VQEG CAP–CSP Collaboration Test Pilot
 
-This repository hosts the code for the test pilot implementing CAP–CSP collaboration frameworks.
+This repository contains the code and design for the VQEG CAP–CSP collaboration test pilot.
 
 ## Background
 
-The [_VQEG White Paper onQuality of Experience-Aware Management for Collaboration Between Network and Application Providers_](https://vqeg.org/media/ioypjcll/vqeg-qoe-management-white-paper.pdf) explicitly calls for: "Perform a short term validation on the idea: proof of concept and test or simulation of basic conditions of the use case." This repository contains the code for the test pilot implementing CAP–CSP collaboration frameworks.
+The [_VQEG White Paper on Quality of Experience-Aware Management for Collaboration Between Network and Application Providers_](https://vqeg.org/media/ioypjcll/vqeg-qoe-management-white-paper.pdf) calls for a proof of concept under basic test and simulation conditions.
 
-The first stage is a test pilot focusing on the following use case:
+The first stage focuses on:
 
-- Short form video
+- Short-form video
 - 5G network transmission
 - Simple bandwidth profiles
 - Simple CAP–CSP information exchange
 
-Future stages will extend the test pilot to include more complex use cases.
-A description of this test pilot can be found in [this Google Doc](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.0).
+Future stages may extend the pilot to other use cases. See the [working Google Doc](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.0) for the research scope.
 
 ## Requirements
 
-*to be done*
+> [!NOTE]
+> Nothing has been built yet. The repository currently contains the FikoRE submodule and the design specifications.
+
+Building FikoRE requires the tools listed in its [README](5g-network-emulator/README.md). The proposed test harness uses Python 3.14 and `uv`.
 
 ## Usage
 
-*to be done*
+Start with these documents:
+
+- [Specification Overview](docs/README.md): system summary and index of all design documents
+- [Architecture](docs/architecture.md): components, ownership, time, and execution modes
+- [Decision Status](docs/decision-status-and-todos.md): unresolved decisions and implementation action items
+
+The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Results
 
-*to be done*
+No pilot results exist yet.
 
 ## Contributing
 
-To contribute, please open a pull request or submit an issue. We welcome contributions from the community to improve the test pilot and expand its capabilities.
-Note that by contributing source code, you are consenting to license your contributions under the MIT License as below. Also, should any contribution contain third-party code, you must ensure that you have the right to license it under the MIT License.
-If your contribution contains any IPR, we ask that you disclose it in the pull request or issue.
+Open a pull request or submit an issue to contribute.
 
-## Authors
+By contributing source code, you agree to license your work under the MIT License below. If your contribution contains third-party code, ensure you have the right to license it under MIT. Disclose any intellectual property rights (IPR) in your pull request or issue.
+
+## Authors and Contributors
 
 - Werner Robitza, AVEQ GmbH (maintainer)
+- Pablo Perez, Nokia
+- Michael Seufert, Uni Augsburg
+- *add your name here!*
 
 ## License
 
-Copyright (c) 2026, VQEG Contributors (see AUTHORS file)
+Copyright (c) 2026, VQEG Contributors (see above)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
