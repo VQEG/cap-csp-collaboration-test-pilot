@@ -15,6 +15,8 @@ The runner derives independent pseudo-random streams from the primary seed for:
 
 Paired comparisons across signaling levels share identical random seeds to isolate information exchange from network or user variance.
 
+The first two streams live inside FikoRE and depend on the run seed specified in the [co-simulation design](fikore-cosim.md#seeds). Without it the emulator can be made repeatable or random, but not repeatable in thirty different ways, and the repeatable setting also switches off the traffic, backhaul-jitter and retransmission variances.
+
 ## Cell Runs
 
 A cell run models all video UEs competing within a shared network instance. Milestone 1 assumes four homogeneous video UEs per cell with matching player policies, signaling levels, and swipe profiles. Mixed-policy cells are deferred to later milestones.
@@ -36,15 +38,18 @@ conditions:
       rtt_ms: 25
       loss_percent: 0
     synthetic_delay_ms: 25
+    sender_max_bytes_in_flight: 131072
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
+      metric_type: 6            # proportional fair; round robin ignores priority
       video_ues:
         count: 4
         mobility: static
         priority: 4
+        dl_target_mbps: 0       # driven entirely by the harness
+        pkt_delay_budget_s: 30  # see fikore-cosim.md#concurrent-object-scheduling
       background_ues:
         count: 0
-      sender_max_bytes_in_flight: 131072
     trace:
       file_pattern: traces/C1_fullbuffer_seed{seed}.txt
 
@@ -55,18 +60,23 @@ conditions:
       rtt_ms: 60
       loss_percent: 1
     synthetic_delay_ms: 60
+    sender_max_bytes_in_flight: 131072
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
+      metric_type: 6
       video_ues:
         count: 4
         mobility: static
         priority: 4
+        dl_target_mbps: 0
+        pkt_delay_budget_s: 30
       background_ues:
         count: 20
         downlink_target_mbps: 20
         priority: 1
-      sender_max_bytes_in_flight: 131072
 ```
+
+`sender_max_bytes_in_flight` is adapter policy and stays in the harness configuration: FikoRE imposes no ceiling of its own on injected traffic. Under congestion the window interacts with the PDCP delay budget, which is why driven UEs raise it; see [concurrent object scheduling](fikore-cosim.md#concurrent-object-scheduling).
 
 The runner automatically generates FikoRE `.ini` files from the base template and condition overrides without manual file editing.
 
@@ -125,6 +135,8 @@ The runner validates configurations before spawning child processes:
 - Durations, byte counts, bitrates, and sender windows must be positive.
 - `sync_ms` must be a positive multiple of the FikoRE radio tick.
 - Telemetry intervals must align with `sync_ms` boundaries.
+- FikoRE conditions must select the proportional fair scheduler, or `priority` and any L3 control silently do nothing.
+- Concurrent runs must get distinct socket paths, telemetry ports and working directories.
 - UE IDs must be unique across the cell.
 - Every referenced video segment and quality level must exist in the content registry.
 - Selected conditions must supply all required fields for the active backend.

@@ -91,7 +91,9 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
 
 `NetworkEvent` is an internal Python union. Each backend creates these events from its native telemetry: the FikoRE adapter translates wire reports, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
 
-`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it.
+`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For the FikoRE adapter it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
+
+`rtt_ms` stays `None` under FikoRE co-simulation: the emulator measures one-way latency, and doubling it would fabricate a value the backend did not observe.
 
 ## Common Semantics
 

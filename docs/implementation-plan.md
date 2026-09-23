@@ -58,7 +58,7 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 2. Per-segment session records, request logs, baseline scoring functions, and deterministic test fixtures.
 3. Trace replay backend, shared-state gating, and L0, L1, L2, and L4 policy inputs.
 4. Co-simulation message models, FikoRE mock adapter, FikoRE backend, process wrapper, and multi-UE tests against the mock.
-5. Integration with Pablo's FikoRE adapter and co-simulation acceptance testing.
+5. Integration against the real emulator and co-simulation acceptance testing, once the FikoRE-side capabilities listed in the [adapter requirements](fikore-cosim.md#adapter-requirements) are available in the emulator submodule.
 6. Real HTTP origin server and live traffic path through FikoRE in emulated mode.
 7. L3 controller design and network-side adaptation hooks.
 8. Multi-video dash.js extension (with Michi), policy porting to JavaScript, and offline-versus-real validation runs.
@@ -67,7 +67,7 @@ Each milestone delivers a runnable test harness. Steps 1 through 4 proceed indep
 
 ## FikoRE Mock Adapter
 
-The mock implements the candidate wire protocol over a local Unix domain socket. It models deterministic byte allocation across multiple UEs, concurrent objects, cancellation tails, and telemetry fixtures.
+The mock implements the [`fikore-control-1` wire protocol](fikore-cosim-messages.md) over a local Unix domain socket, playing FikoRE's side of it: greeting, acknowledgements, the credit barrier, and a `state` block. It models deterministic byte allocation across multiple UEs, concurrent objects, cancellation tails, and telemetry fixtures.
 
 Purposes:
 
@@ -81,7 +81,7 @@ The mock is a development tool and is never used to generate research results.
 
 - **Unit tests**: buffer states, stall transitions, swipe handling with active downloads, prefetch budgeting, cancellation waste attribution, signaling-level gating, configuration validation, and scoring computations.
 - **Contract tests**: enforce semantic consistency across constant-rate, trace, mock, and FikoRE backends.
-- **Integration tests**: multi-UE concurrency, report 0 startup, session termination, seeded reproducibility, adapter error recovery, 10 ms versus 1 ms synchronization checks, and legacy FikoRE non-cosim regression checks.
+- **Integration tests**: multi-UE concurrency, startup before time advances, session termination, seeded reproducibility, adapter error recovery, 10 ms versus 1 ms synchronization checks, and legacy FikoRE non-cosim regression checks.
 
 ## Real-Traffic Validation
 
@@ -94,7 +94,7 @@ JavaScript policy ports occur only after Python baseline algorithms are verified
 ## Team Roles
 
 - **Werner**: Python architecture, mock adapter, player engine, experiment runner, scoring, and documentation.
-- **Pablo**: FikoRE core adapter, packet attribution, cancellation draining, radio telemetry, and seed management.
+- **Pablo**: FikoRE core changes (run seed, per-tag packet attribution, radio telemetry, fail-stop) and the co-simulation adapter in `capcsp/network/`.
 - **Michi**: Short-form state machine design, policy observation schemas, adaptation heuristics, and multi-video dash.js integration.
 
 ## Documentation Maintenance

@@ -56,7 +56,7 @@ Every backend reports elapsed time starting from `0.0` seconds and stamps all ev
 
 The runner maintains no independent clock. Playback progress, stalls, user swipes, and download decisions advance strictly from the backend timestamp.
 
-FikoRE simulates 1 ms radio slots internally and exchanges reports with the harness at a configurable interval (proposed default: 10 ms).
+FikoRE simulates 1 ms radio slots internally. The harness grants it credit to advance one synchronisation window at a time (proposed default: 10 ms) and reads state at the end of each window.
 
 ## Main Loop
 
