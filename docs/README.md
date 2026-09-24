@@ -23,7 +23,7 @@ flowchart TB
     N --> T[Recorded trace]
     N --> FA[FikoRE adapter]
     N --> H[Real HTTP]
-    FA <-->|Candidate co-simulation protocol| F[FikoRE offline]
+    FA <-->|fikore-control-1 protocol| F[FikoRE offline]
     H --> FE[FikoRE emulated mode]
     FE --> HS[HTTP origin]
     S <-->|CAP / CSP fields| X[Shared state table]
@@ -42,7 +42,7 @@ Offline FikoRE does not receive video payloads. The harness requests delivery of
 - A common **network-backend interface** abstracts constant rate, trace replay, FikoRE co-simulation, and real HTTP.
 - FikoRE drives virtual time in offline mode; the player makes playback and swipe decisions against this clock.
 - Offline co-simulation tracks byte progress without simulating HTTP or TCP handshakes.
-- A standalone adapter will isolate FikoRE's core interface from pilot-specific logic.
+- A Python adapter in the harness isolates FikoRE's general-purpose control interface from pilot-specific logic; the emulator learns nothing about videos, objects or requests.
 - Real-time emulation remains available to validate policies against real traffic using real players (e.g., dash.js).
 - Real HTTP traffic routes through FikoRE in emulated mode to an HTTP origin server.
 - Validated Python algorithms will be ported to an extended multi-video dash.js player for real-HTTP benchmarking.

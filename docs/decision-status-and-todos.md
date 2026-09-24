@@ -17,13 +17,16 @@ Owner: Michi
 
 Owner: Pablo
 
-- [ ] Build the Unix socket adapter and its newline-delimited JSON parser ([FikoRE Co-simulation](fikore-cosim.md#transport-protocol), [Message Reference](fikore-cosim-messages.md)).
-- [ ] Choose where the adapter hooks into FikoRE and where each request ID is stored ([FikoRE Co-simulation](fikore-cosim.md#adapter-requirements)).
-- [ ] Check that the per-UE queue is the right cancellation boundary, then add it ([Network Backend API](network-backend-api.md#cancellation-and-waste-accounting), [FikoRE Co-simulation](fikore-cosim.md#request-cancellation)).
-- [ ] Check that round-robin packet generation and a configurable 128 KiB sender window fit the current code ([FikoRE Co-simulation](fikore-cosim.md#concurrent-object-scheduling)).
-- [ ] Split the run seed into separate seeds for fading, mobility, and background load ([FikoRE Co-simulation](fikore-cosim.md#configuration), [Experiments](experiments.md#reproducibility)).
-- [ ] List the latency and rate metrics FikoRE can measure, and expose only those ([FikoRE Co-simulation](fikore-cosim.md#telemetry), [Signaling](signaling.md#csp-telemetry-fields)).
-- [ ] Compare 10 ms reports with 1 ms runs and agree on an acceptable difference ([FikoRE Co-simulation](fikore-cosim.md#acceptance-criteria)).
+- [x] Settle the co-simulation wire format ([FikoRE Co-simulation](fikore-cosim.md#transport-protocol), [Message Reference](fikore-cosim-messages.md)). It is `fikore-control-1`, newline-delimited JSON over a Unix socket with a credit barrier and tagged byte injection; the pilot adopts it instead of specifying a second protocol. Writing the client for it is harness-side work.
+- [x] Choose where the adapter hooks into FikoRE and where each request ID is stored ([FikoRE Co-simulation](fikore-cosim.md#adapter-requirements)). The hook is the start of each simulation step, where scheduled commands are applied before the TTI runs. Request IDs stay in the Python adapter; only a four-byte tag travels on the data path.
+- [x] Check that the per-UE queue is the right cancellation boundary, then add it ([Network Backend API](network-backend-api.md#cancellation-and-waste-accounting), [FikoRE Co-simulation](fikore-cosim.md#request-cancellation)). Nothing to add: the adapter stops injecting and the queue drains, which makes the sender window the real boundary and the in-flight tail exactly known.
+- [x] Check that round-robin packet generation and a configurable 128 KiB sender window fit the design ([FikoRE Co-simulation](fikore-cosim.md#concurrent-object-scheduling)). They fit, and both live in the harness. The window collides with the PDCP delay budget under congestion, which is why driven UEs raise it.
+- [x] Add the run seed, mixed per stream for fading, mobility and background load ([FikoRE Co-simulation](fikore-cosim.md#seeds), [Experiments](experiments.md#reproducibility)). Bigger than it looked: a boolean `random_v` cannot express the grid, and its reproducible setting also zeroes several variances. `[Global] seed` now sets it, and each stream is derived from it so that a seed sweep moves every generator independently.
+- [x] Expose mean SINR and retransmitted bytes in the `state` block, alongside the byte, queue and latency counters the pilot asked for ([FikoRE Co-simulation](fikore-cosim.md#telemetry), [Signaling](signaling.md#csp-telemetry-fields)). Note there is no RTT anywhere in the emulator, only one-way latency.
+- [x] Add per-tag byte accounting ([FikoRE Co-simulation](fikore-cosim.md#who-retransmits), [Message Reference](fikore-cosim-messages.md#inject)). A `get` returns delivered, expired, dropped and CE bytes per tag, with the drop broken down into queue and radio, and `forget` releases the tag.
+- [ ] Add adapter-side recovery of lost bytes ([FikoRE Co-simulation](fikore-cosim.md#who-retransmits)). Harness-side work, and the half of the previous entry that the emulator cannot do for us: read the tag's lost bytes and reinject that many, so the object completes in full.
+- [ ] Compare 10 ms windows with 1 ms runs and agree on an acceptable difference; measure the per-window round-trip cost before committing to a pushed report ([FikoRE Co-simulation](fikore-cosim.md#acceptance-criteria)).
+- [x] Land the FikoRE-side capabilities listed in the [adapter requirements](fikore-cosim.md#adapter-requirements) in this repo's emulator submodule, which step 5 of the [build sequence](implementation-plan.md#build-sequence) depends on. The submodule now tracks `dev` on `nokia/5g-network-emulator`, which is where the pilot's emulator work lives until it reaches `main`.
 
 ## Baseline Policies and Player Heuristics
 
@@ -41,7 +44,7 @@ Owners: Pablo and Werner
 
 - [ ] Turn each `CapReport` into scheduler weights and `rmax_mbps` caps ([Signaling](signaling.md#l3-network-controller-interface)).
 - [ ] Choose how often the controller runs, how quickly it may change values, and how long changes remain active ([Signaling](signaling.md#l3-network-controller-interface)).
-- [ ] Add the network-control hook to the FikoRE adapter ([Network Backend API](network-backend-api.md#interface-definition), [Message Reference](fikore-cosim-messages.md#control-command)).
+- [ ] Add the network-control hook to the FikoRE adapter ([Network Backend API](network-backend-api.md#interface-definition), [Message Reference](fikore-cosim-messages.md#set)). The network-side action space is settled by the control protocol: priority and rate cap per UE at a stated TTI, plus SINR offset, mobility, background rate and delay budget. Conditions must use the proportional fair scheduler or priority is ignored.
 
 ## L4 Lookahead Capacity Oracle
 

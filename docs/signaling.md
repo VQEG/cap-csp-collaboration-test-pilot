@@ -33,6 +33,10 @@ class CspFields:
 
 Field mappings from backend telemetry to `CspFields` are logged explicitly. For example, radio packet drop rate maps to `loss_rate` only when configured for that experiment.
 
+Under FikoRE co-simulation, `rtt_ms` has no source: the emulator measures one-way latency. Either the field stays `None` or the experiment states the assumption used to derive a round trip from it, and records that assumption with the run.
+
+FikoRE additionally knows each UE's CQI, MCS, spectral efficiency and rank, which yield an achievable rate for that UE's current channel. That is neither measured throughput nor an oracle, and it is closer to what a real CSP could publish than either. It is a candidate additional L2 field, kept out of `CspFields` until an experiment needs it.
+
 ## CAP Telemetry Reports
 
 ```python
@@ -79,6 +83,8 @@ All telemetry records use backend simulation or elapsed run time.
 ## L3 Network Controller Interface
 
 The architecture reserves a `UeControl` structure for dynamic scheduling adjustments (scheduler priority and rate caps).
+
+The network-side mechanism is specified: both parameters are written per UE at runtime through the [control protocol](fikore-cosim-messages.md#set), applied at a stated TTI and acknowledged with the exact instant of application. SINR offset, mobility, background traffic rate and the delay budget are in the same knob catalogue, so the controller's action space is not limited by the interface. What this section still owes is the controller itself.
 
 Specification of L3 requires defining:
 

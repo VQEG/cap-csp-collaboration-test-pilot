@@ -1,200 +1,294 @@
 # FikoRE Co-Simulation Message Reference
 
-This document defines the candidate version 1 JSON wire format for [FikoRE Offline Co-Simulation](fikore-cosim.md).
+This document defines the wire format for [FikoRE Offline Co-Simulation](fikore-cosim.md).
 
-Protocol evolution:
-- Changing field semantics or required schemas increments `protocol_version`.
-- Adding optional fields does not increment `protocol_version`.
+The format is `fikore-control-1`, FikoRE's runtime control protocol. This reference
+specifies it to the level both sides can be written against: the framing rules, every
+message the pilot uses, the knob catalogue it touches, and the synchronisation loop built
+from them.
+
+Protocol evolution: there is no negotiation. The emulator announces a protocol string and
+the client must answer with the same string, so a mismatch is a deployment error rather
+than a degraded session.
 
 ## Common Rules
 
-- Every message contains a `type` string property.
-- Time values represent seconds in simulation time unless the field name ends in `_ms`.
-- Byte counts are integers. Bitrates ending in `_mbps` represent Mbit/s.
-- Numeric fields must be finite and non-negative unless explicitly specified.
-- UE IDs are integer numbers (or decimal string keys when used as JSON object keys).
-- Request IDs contain up to 32 characters matching `[A-Za-z0-9_.-]`.
-- Parsers ignore unknown fields and reject missing required fields.
+- Every message is a single-line UTF-8 JSON object terminated by `\n`.
+- The canonical instant is `at_tti`, an integer count of 1 ms slots. `at_t`, in seconds,
+  is accepted and converted; `at_tti` wins when both are present.
+- Units are part of the field or knob name, and they are the units of the `.ini` file,
+  not the emulator's internal ones.
+- Directional knobs carry a mandatory `dl.` or `ul.` prefix. There is no unprefixed form.
+- Byte counts are integers. Rates ending in `_mbps` are Mbit/s.
+- UE IDs are integers, addressed as the target string `ue/<id>`.
+- A message is validated whole before anything is applied, so a `ue/*` carrying one bad
+  value never leaves half the UEs updated.
+- There is no deduplication by `id` and there are no incremental operators. A correct
+  client is assumed.
+- The channel is bidirectional and asymmetric: the harness sends commands, the emulator
+  sends the greeting, one `ack` per command message, and errors. Every example below is
+  labelled with its direction, and no code block mixes the two.
 
 ## `hello`
 
-FikoRE transmits `hello` immediately upon socket connection.
+FikoRE transmits `hello` immediately upon socket connection. The harness answers with the
+same protocol string or the connection is closed.
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `type` | string | Constant `"hello"` |
-| `protocol_version` | integer | Wire version (`1`) |
-| `tick_ms` | float | Internal radio simulation tick |
-| `sync_ms` | float | Report interval |
-| `telemetry_ms` | float | Telemetry aggregation interval |
-| `external_ue_ids` | integer array | Active external UE IDs driven by harness |
-| `seed` | integer | Emulator seed |
-| `duration_s` | float | Scheduled simulation duration |
+Emulator → harness, on connection:
 
 ```json
-{"type":"hello","protocol_version":1,"tick_ms":1.0,"sync_ms":10.0,"telemetry_ms":500.0,"external_ue_ids":[0,1,2,3],"seed":17,"duration_s":300.0}
+{"op":"hello","proto":"fikore-control-1"}
 ```
 
-## `ready`
-
-The harness responds to `hello` with the negotiated protocol version.
-
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `type` | string | Constant `"ready"` |
-| `protocol_version` | integer | Negotiated wire version (must match `hello`) |
+Harness → emulator, in reply:
 
 ```json
-{"type":"ready","protocol_version":1}
+{"proto":"fikore-control-1"}
 ```
 
-## `report`
+Only one client is served at a time. A second connection receives
+`{"op":"error","reason":"control channel already in use"}` and is closed.
 
-FikoRE emits sequence 0 at `t = 0.0` s. Subsequent reports summarize progress across each elapsed `sync_ms` window.
+Run-level metadata that the spec's `hello` carried is read instead with `get cell`
+(see [`get`](#get)), which returns the tick, the scheduled duration, the scheduler type
+and the cell's radio configuration.
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `type` | string | Constant `"report"` |
-| `sequence` | integer | Monotonically increasing sequence number starting at 0 |
-| `sim_time_s` | float | Simulation timestamp at end of interval |
-| `ue_reports` | object | Per-UE delivery status |
-| `telemetry` | object or absent | Per-UE telemetry dictionary (emitted on telemetry boundaries) |
+## Command Envelope
 
-Each entry in `ue_reports` contains:
+The harness sends commands; the emulator answers each message with one [`ack`](#ack).
 
 | Field | Type | Description |
 | :-- | :-- | :-- |
-| `bytes_delivered` | object | Mapping of active request ID to cumulative delivered bytes |
-| `completed` | string array | Request IDs completed during this interval |
-| `cancelled` | object | Mapping of cancelled request ID to final cumulative delivered bytes |
+| `id` | integer | Correlation identifier, echoed in the `ack` |
+| `at_tti` | integer, optional | TTI at which to apply. Absent means "on the next tick" |
+| `at_t` | float, optional | Same instant in seconds; `at_tti` wins if both are present |
+| `cmds` | object array | Commands, applied in order at that instant |
 
-Completed requests do not appear in `bytes_delivered`; their delivered byte count equals `bytes_total`.
+Each command carries `op` (defaulting to `"set"`) and `target`, one of `ue/<id>`,
+`ue/*` or `cell`.
 
-Telemetry objects contain:
-
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `throughput_mbps` | float | Delivered downlink throughput over window |
-| `ip_latency_ms` | float | Mean IP one-way delay of delivered packets |
-| `pdcp_latency_ms` | float | Mean PDCP delay of delivered packets |
-| `ce_rate` | float | Fraction of packets marked congestion experienced |
-| `drop_rate` | float | Fraction of radio packets dropped |
-| `retransmitted_bytes` | integer | Bytes retransmitted in window |
-| `sinr_db` | float | Mean UE SINR |
-| `queue_bytes` | integer | Bytes in UE downlink queue at window close |
+Harness → emulator:
 
 ```json
-{"type":"report","sequence":1234,"sim_time_s":12.35,"ue_reports":{"3":{"bytes_delivered":{"v8.s0.q2.a0":184320},"completed":["v7.s2.q1.a0"],"cancelled":{"v7.s3.q1.a0":61440}}},"telemetry":{"3":{"throughput_mbps":8.24,"ip_latency_ms":38.9,"pdcp_latency_ms":41.2,"ce_rate":0.031,"drop_rate":0.004,"retransmitted_bytes":1460,"sinr_db":11.7,"queue_bytes":122880}}}
+{"id":42,"at_tti":5000,"cmds":[{"target":"ue/3","set":{"priority":4.0,"dl.rmax_mbps":25.0}}]}
 ```
 
-## `commands`
+## `set`
 
-The harness answers every `report` with a matching `commands` message (which may contain an empty array).
+Writes knobs from the catalogue. `describe` returns the authoritative catalogue at
+runtime; the knobs this pilot uses are:
+
+| Knob | Unit | Meaning |
+| :-- | :-- | :-- |
+| `priority` | — | Scheduling priority. **Absolute**: replaces the `.ini` value, it does not multiply it. Ignored by the round-robin scheduler |
+| `dl.rmax_mbps` | Mbps | Rate cap over the air. `0` removes the cap |
+| `dl.inject_bytes` | bytes | Hands N bytes to the UE now. **Incremental**; its read returns the cumulative total |
+| `pkt_delay_budget_s` | s | PDCP delay budget, `0.001`–`60`. See [delivery](fikore-cosim.md#delivery-guarantees) |
+| `enabled` | bool | Attaches or detaches the UE |
+
+Uplink equivalents carry the `ul.` prefix. Mobility, SINR offset and background traffic
+rate are also in the catalogue and are not used by this pilot.
+
+## `inject`
+
+Injection of bytes belonging to one object. The `tag` is an opaque integer that the
+emulator attaches to the generated packets and uses to attribute delivery.
 
 | Field | Type | Description |
 | :-- | :-- | :-- |
-| `type` | string | Constant `"commands"` |
-| `sequence` | integer | Sequence number matching the answered report |
-| `commands` | object array | List of operations to execute in order |
+| `op` | string | Constant `"inject"` |
+| `target` | string | `ue/<id>` |
+| `tag` | integer | Object tag, `1`–`2^32-1`. `0` is reserved for generator traffic |
+| `dl.bytes` | integer | Bytes to hand over now |
+
+Harness → emulator:
 
 ```json
-{"type":"commands","sequence":1234,"commands":[]}
+{"id":43,"cmds":[{"op":"inject","target":"ue/3","tag":7,"dl.bytes":12000}]}
 ```
 
-## `request` Command
+The harness owns the mapping from its own `request_id` (`v8.s1.q2.a0`) to the integer
+tag. FikoRE never sees the request identifier, and stores four bytes per packet rather
+than a string.
 
-Initiates transfer of an anonymous byte object.
+Untagged injection through `set` is equivalent to `tag: 0`.
+
+## `forget`
+
+Releases a tag's counters. The emulator cannot know when an object is finished — it does
+not know `bytes_total` — so the harness, which does, says when it may forget.
 
 | Field | Type | Description |
 | :-- | :-- | :-- |
-| `op` | string | Constant `"request"` |
-| `ue_id` | integer | Target external UE ID |
-| `request_id` | string | Unique request identifier for this UE |
-| `bytes_total` | integer | Total object size in bytes |
+| `op` | string | Constant `"forget"` |
+| `target` | string | `ue/<id>` |
+| `tag` | integer | Tag to release. Unknown tags are a no-op |
+
+## `get`
+
+Reads knob values plus a `state` block. `ue/*` returns every UE in one reply, which is
+what makes one round trip per synchronisation window enough.
+
+Harness → emulator:
 
 ```json
-{"op":"request","ue_id":3,"request_id":"v8.s1.q2.a0","bytes_total":940000}
+{"id":44,"at_tti":5009,"cmds":[{"op":"get","target":"ue/*"}]}
 ```
 
-The harness resolves object sizes from its content registry. FikoRE treats `request_id` as an opaque token without parsing video metadata.
+Each entry of the result carries every readable knob, plus `state.dl` and `state.ul`:
 
-## `cancel` Command
-
-Halts generation of new packets for an in-flight object. Cancelling an unknown or completed request is a no-op.
-
-| Field | Type | Description |
+| Field | Unit | Description |
 | :-- | :-- | :-- |
-| `op` | string | Constant `"cancel"` |
-| `ue_id` | integer | Target external UE ID |
-| `request_id` | string | Active request identifier to cancel |
+| `injected_bytes_total` | bytes | What the emulator says it received |
+| `delivered_bytes_total` | bytes | What reached the far end, after air and backhaul |
+| `expired_bytes_total` | bytes | Sat longer than `pkt_delay_budget_s`. Deterministic, and about that packet's own age |
+| `dropped_bytes_total` | bytes | Every other loss. The sum of the two below |
+| `queue_dropped_bytes_total` | bytes | The AQM asked the sender to slow down, a full buffer tail-dropped, or the UE was detached |
+| `radio_dropped_bytes_total` | bytes | HARQ retransmissions exhausted. The only loss that means the link is bad |
+| `ce_packets_total` | packets | Marked congestion-experienced |
+| `pending_bytes`, `pending_packets` | bytes, packets | Still queued |
+| `oldest_age_s` | s | Age of the oldest queued packet; margin against the budget |
+| `latency_s` | s | Recent mean **one-way** IP latency |
+| `sinr_db` | dB | Mean SINR over the recent window |
+| `retransmitted_bytes_total` | bytes | Bytes that went over the air more than once. Reads zero while the radio carries no HARQ error model; see [who retransmits](fikore-cosim.md#who-retransmits) |
+| `objects` | — | Per-tag counters, see below |
+
+All counters are cumulative and monotonic, so the harness differences two reads and a
+lost read costs nothing. They are resolved when the `get` is applied, at the start of
+that TTI's simulation step, and stamped in simulation time.
+
+`objects` maps each live tag to the same three terminal counters. Emulator → harness, as
+a fragment of the `ack` result:
 
 ```json
-{"op":"cancel","ue_id":3,"request_id":"v7.s3.q1.a0"}
+{"objects":{"7":{"delivered_bytes":184320,"dropped_bytes":0,"expired_bytes":1500,"queue_dropped_bytes":0,"radio_dropped_bytes":0}}}
 ```
 
-## `control` Command
+`get cell` returns the run's metadata: `scenario_type`, `frequency_hz`, `bandwidth_hz`,
+`numerology`, `n_freq_rbg`, `metric_type`, `period_ms`, `duration_s`, `map_file`,
+`realtime`, `n_ues`, `n_ues_enabled` and `apothem_m`.
 
-Proposed L3 command to adjust radio scheduling for a UE.
+## `grant`
+
+Advances the barrier. The emulator runs TTI `n` only while `n <= credit_until_tti`.
 
 | Field | Type | Description |
 | :-- | :-- | :-- |
-| `op` | string | Constant `"control"` |
-| `ue_id` | integer | Target external UE ID |
-| `priority` | float or absent | Updated scheduler weight |
-| `rmax_mbps` | float, null, or absent | Updated rate cap (`null` removes cap; absent leaves unchanged) |
+| `op` | string | Constant `"grant"` |
+| `until_tti` | integer | Last TTI the emulator may execute |
+
+Harness → emulator:
 
 ```json
-{"op":"control","ue_id":3,"priority":2.0,"rmax_mbps":25.0}
+{"id":45,"op":"grant","until_tti":1500}
 ```
 
-## `end`
+Credit is absolute and monotonic. Granting into the past is a no-op answered with `ok`
+and the credit in force, which is what a client retrying after a timeout needs. The
+initial credit is `-1`, so with `sync_mode: barrier` the emulator stops before TTI 0 and
+the harness can submit its first requests before time advances.
 
-FikoRE transmits `end` after receiving an empty command response to the final report, or after an abort.
+A `grant` takes effect as soon as it is accepted, not at a scheduled instant: it is what
+releases the barrier, so it cannot wait for simulated time to advance.
+
+## `describe` and `ping`
+
+`describe` returns the knob catalogue — name, type, unit, range and description — which
+is the authoritative contract at runtime. `ping` returns the current TTI and simulation
+time.
+
+## `ack`
+
+The emulator answers every command message.
 
 | Field | Type | Description |
 | :-- | :-- | :-- |
-| `type` | string | Constant `"end"` |
-| `sim_time_s` | float | Final simulation timestamp |
-| `reason` | string | `"duration_reached"` or `"aborted"` |
+| `id` | integer | Echoed from the command |
+| `status` | string | `"ok"` or `"error"` |
+| `tti` | integer | TTI at which it was applied |
+| `t` | float | Simulation time at which it was applied |
+| `errors` | array, optional | `{"key", "reason"}` per rejected value |
+| `credit_until_tti` | integer, optional | Credit in force after a `grant` |
+| `result` | object, optional | Payload of `get` or `describe` |
 
-## `abort`
+Emulator → harness:
 
-The harness transmits `abort` instead of `commands` to terminate simulation early. FikoRE stops and responds with `end`.
+```json
+{"id":42,"status":"ok","tti":5000,"t":5.0}
+```
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `type` | string | Constant `"abort"` |
-| `reason` | string | Error or cancellation summary |
+The `ack` states the exact instant of application, so the harness never has to infer when
+a command took effect.
 
 ## `error`
 
-Transmitted when receiving an invalid message. Protocol errors terminate execution immediately.
+Sent when a line cannot be parsed or the protocol is violated. Emulator → harness,
+unsolicited and without an `id`:
 
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `type` | string | Constant `"error"` |
-| `message` | string | Error description |
+```json
+{"op":"error","reason":"control channel already in use"}
+```
 
-## Example Protocol Trace
+## Synchronisation Loop
+
+One window of `sync_ms` costs two lines out and two lines back. The `get` is scheduled on
+the **last TTI of the window** so that its reply arrives while the emulator still holds
+credit, which is what lets the harness read state and grant the next window without
+deadlocking.
+
+Emulator → harness, on connection:
+
+```json
+{"op":"hello","proto":"fikore-control-1"}
+```
+
+Harness → emulator, the reply and then the whole window, written without reading in
+between:
 
 ```jsonl
-{"type":"hello","protocol_version":1,"tick_ms":1.0,"sync_ms":10.0,"telemetry_ms":500.0,"external_ue_ids":[3],"seed":17,"duration_s":300.0}
-{"type":"ready","protocol_version":1}
-{"type":"report","sequence":0,"sim_time_s":0.0,"ue_reports":{}}
-{"type":"commands","sequence":0,"commands":[{"op":"request","ue_id":3,"request_id":"v0.s0.q2.a0","bytes_total":940000},{"op":"request","ue_id":3,"request_id":"v1.s0.q1.a0","bytes_total":610000}]}
-{"type":"report","sequence":1,"sim_time_s":0.01,"ue_reports":{"3":{"bytes_delivered":{"v0.s0.q2.a0":12000,"v1.s0.q1.a0":12000},"completed":[],"cancelled":{}}}}
-{"type":"commands","sequence":1,"commands":[]}
+{"proto":"fikore-control-1"}
+{"id":1,"cmds":[{"op":"inject","target":"ue/3","tag":7,"dl.bytes":12000},{"op":"get","target":"ue/*"}],"at_tti":9}
+{"id":2,"op":"grant","until_tti":9}
 ```
+
+Emulator → harness, one `ack` per command message, in either order:
+
+```jsonl
+{"id":1,"status":"ok","tti":9,"t":0.009,"result":[{"target":"ue/3","priority":4.0,"state":{"dl":{"delivered_bytes_total":8192,"objects":{"7":{"delivered_bytes":8192,"dropped_bytes":0,"expired_bytes":0}}}}}]}
+{"id":2,"status":"ok","tti":9,"t":0.009,"credit_until_tti":9}
+```
+
+The reply reports the state after TTI 8, one slot before the window closes. Over a 10 ms
+window that is a 1 ms lag in the observation, which the harness records and the policy
+ignores.
+
+Two rules the adapter has to get right, both consequences of when a command is applied
+and when it is acknowledged:
+
+- **Do not wait for the acknowledgement of a scheduled command before granting the credit
+  that applies it.** A command carrying `at_tti` is applied when the emulator reaches that
+  TTI, and in barrier mode it gets there only on credit. Write the commands, write the
+  `grant`, then read. Blocking on the first acknowledgement deadlocks the run until
+  `credit_timeout_ms` expires.
+- **Match acknowledgements by `id`, not by order.** A `grant` is acknowledged as soon as
+  it is accepted, while every other command is acknowledged when it is applied, so
+  replies do not necessarily come back in the order they were sent.
+
+If measurement shows the two round trips per window dominate run time, the alternative is
+a report pushed by the emulator at the barrier, carrying the same `state` payload without
+being asked. That is an optimisation, not a prerequisite, and it is deferred until the
+harness is running.
 
 ## Validation Errors
 
-The following conditions trigger immediate protocol errors:
+The following conditions are rejected:
 
-- Version mismatch in `ready`
-- Command sequence number not matching the active report
-- Duplicate request ID for the same UE
-- Command addressing an unconfigured UE ID
-- Non-positive `bytes_total`
-- Empty `control` payload or negative parameter value
-- Non-empty command payload following terminal report
-- Socket closed prematurely before `end` exchange
+- Protocol string mismatch in the reply to `hello`
+- A second simultaneous connection
+- Unknown target, unknown knob, or a value out of range
+- `set` with no values, or a command with no target
+- `grant` without `until_tti`
+- Non-positive injection sizes
+
+Whether a protocol error ends the run is governed by `on_timeout` and `on_peer_loss`; see
+[termination](fikore-cosim.md#termination-and-error-handling).
