@@ -86,7 +86,7 @@ FikoRE provides the following semantics:
 - Multiple active tags per UE make concurrent progress within the same window.
 - Progress counters are cumulative and monotonically non-decreasing.
 - Radio drops and retransmissions do not increment delivered bytes.
-- Every byte handed to the emulator ends in exactly one terminal state: delivered, dropped, or expired against the delay budget. The three are counted separately.
+- Every byte handed to the emulator ends in exactly one terminal state: delivered, dropped, or expired against the delay budget. The three are counted separately, and `dropped` is broken down further into whether the queue or the radio caused it.
 - Object submission order does not guarantee delivery order.
 - Identical configuration and seeds yield identical event sequences and byte counts.
 
@@ -118,6 +118,8 @@ FikoRE's PDCP layer discards any packet that has waited longer than `pkt_delay_b
 At the congested end a 128 KiB window loses half of itself to the budget, and a 940 kB segment injected in one go evaporates almost entirely. A real TCP flow has no such ceiling: it does not discard a segment for having sat 350 ms in a queue.
 
 Experiments therefore raise `pkt_delay_budget_s` for the UEs the harness drives, so that the sender window is the only limiter, and keep the budget as a real mechanism on background UEs. The setting is recorded with the run. `expired_bytes_total` staying at zero for driven UEs is the check that this was done right.
+
+That check says the budget is out of the way. It does **not** say nothing was lost to congestion: the AQM works off its own target, 15 ms by default, so it drops well before the budget would and raising the budget does not stop it. Congestion loss on driven UEs shows up in `queue_dropped_bytes_total`, which is expected to be non-zero at the congested end.
 
 ## Request Cancellation
 

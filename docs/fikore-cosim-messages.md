@@ -141,8 +141,10 @@ Each entry of the result carries every readable knob, plus `state.dl` and `state
 | :-- | :-- | :-- |
 | `injected_bytes_total` | bytes | What the emulator says it received |
 | `delivered_bytes_total` | bytes | What reached the far end, after air and backhaul |
-| `expired_bytes_total` | bytes | Discarded against the delay budget: the client is overfeeding |
-| `dropped_bytes_total` | bytes | Discarded by AQM or by exhausting HARQ: the radio is doing badly |
+| `expired_bytes_total` | bytes | Sat longer than `pkt_delay_budget_s`. Deterministic, and about that packet's own age |
+| `dropped_bytes_total` | bytes | Every other loss. The sum of the two below |
+| `queue_dropped_bytes_total` | bytes | The AQM asked the sender to slow down, a full buffer tail-dropped, or the UE was detached |
+| `radio_dropped_bytes_total` | bytes | HARQ retransmissions exhausted. The only loss that means the link is bad |
 | `ce_packets_total` | packets | Marked congestion-experienced |
 | `pending_bytes`, `pending_packets` | bytes, packets | Still queued |
 | `oldest_age_s` | s | Age of the oldest queued packet; margin against the budget |
@@ -159,7 +161,7 @@ that TTI's simulation step, and stamped in simulation time.
 a fragment of the `ack` result:
 
 ```json
-{"objects":{"7":{"delivered_bytes":184320,"dropped_bytes":0,"expired_bytes":1500}}}
+{"objects":{"7":{"delivered_bytes":184320,"dropped_bytes":0,"expired_bytes":1500,"queue_dropped_bytes":0,"radio_dropped_bytes":0}}}
 ```
 
 `get cell` returns the run's metadata: `scenario_type`, `frequency_hz`, `bandwidth_hz`,
