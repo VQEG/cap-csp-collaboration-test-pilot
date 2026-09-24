@@ -126,7 +126,18 @@ In real HTTP runs, the client measures bytes delivered to the application layer 
 - `FikoreCosimBackend`: synchronizes requests and telemetry with the FikoRE adapter over a Unix socket, using FikoRE as the master clock.
 - `HttpBackend`: issues HTTP requests through FikoRE in real-time emulation, recording actual application-level byte deliveries.
 
+Constant-rate, trace, and FikoRE backends can also serve as links under a transport model; see [Transport Models](#transport-models).
+
 `HttpBackend` defines an interface contract. The reference validator implements the client inside the extended multi-video dash.js player, bridging request events and telemetry back to the harness.
+
+## Transport Models
+
+Proposed: a `TransportBackend` implements `NetworkBackend` on top of a link that accepts segments at a slot and returns arrivals by a slot. The transport model and the link are chosen independently in the experiment configuration:
+
+- Transport models: TCP (Reno, CUBIC, Prague), an ideal fixed window, and open-loop UDP
+- Links: FikoRE, constant rate, trace, and a deterministic loopback link for tests
+
+The fixed-window model corresponds to the sender window and loss recovery described in [FikoRE Co-simulation](fikore-cosim.md#concurrent-object-scheduling). The transport models live in the FikoRE repository. Pablo will specify them in detail.
 
 ## Latency Decomposition
 
@@ -152,4 +163,4 @@ dash.js in UE network namespace
 
 The origin serves segment payloads matching byte sizes from `content.yaml` (using synthetic payloads or real encoded media). FikoRE schedules, shapes, delays, and drops packets in real time.
 
-Once algorithms are proven in Python, the multi-video dash.js player (to be developed!) runs this pipeline, providing empirical validation of TCP slow start, connection reuse, and transport multiplexing against offline simulation models.
+The multi-video dash.js player runs this pipeline, providing empirical validation of TCP slow start, connection reuse, and transport multiplexing against offline simulation models.

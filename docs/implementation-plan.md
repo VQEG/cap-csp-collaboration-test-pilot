@@ -7,15 +7,11 @@ The implementation starts with a minimal closed-loop player-network runner. Fiko
 ```text
 cap-csp-collaboration-test-pilot/
   5g-network-emulator/          # FikoRE submodule
+  sfv-reference-implementation/ # JavaScript player submodule
   capcsp/
     data_models.py
     player/
-      engine.py
-      video_feed.py
-      swipe_models.py
-      policies/
-        simple.py
-        preload.py
+      bridge.py                 # Node.js player process behind the Network Backend API
     network/
       api.py
       constant_rate.py
@@ -54,14 +50,14 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 
 ## Build Sequence
 
-1. Core package skeleton, data models, configuration parser, player engine, swipe model, B1/B2 baseline policies, and constant-rate network backend.
+1. Core package skeleton, data models, configuration parser, bridge to the JavaScript player, and constant-rate network backend.
 2. Per-segment session records, request logs, baseline scoring functions, and deterministic test fixtures.
 3. Trace replay backend, shared-state gating, and L0, L1, L2, and L4 policy inputs.
 4. Co-simulation message models, FikoRE mock adapter, FikoRE backend, process wrapper, and multi-UE tests against the mock.
 5. Integration against the real emulator and co-simulation acceptance testing, once the FikoRE-side capabilities listed in the [adapter requirements](fikore-cosim.md#adapter-requirements) are available in the emulator submodule.
 6. Real HTTP origin server and live traffic path through FikoRE in emulated mode.
 7. L3 controller design and network-side adaptation hooks.
-8. Multi-video dash.js extension (with Michi), policy porting to JavaScript, and offline-versus-real validation runs.
+8. Real-HTTP runs with the multi-video dash.js player (with Michi) and offline-versus-real validation runs.
 
 Each milestone delivers a runnable test harness. Steps 1 through 4 proceed independently of FikoRE C++ development.
 
@@ -87,15 +83,15 @@ The mock is a development tool and is never used to generate research results.
 
 Validation runs use an HTTP origin server behind FikoRE in real-time emulation. The origin delivers byte payloads matching sizes defined in `content.yaml`.
 
-The multi-video dash.js player issues HTTP requests through the emulator. Transport configuration (HTTP version, TCP congestion control, connection pools) remains fixed per test grid and is logged with session records. This setup measures transport dynamics absent in offline co-simulation: TCP slow start, TLS/HTTP handshakes, loss recovery, and head-of-line blocking.
+The multi-video dash.js player issues HTTP requests through the emulator. Transport configuration (HTTP version, TCP congestion control, connection pools) remains fixed per test grid and is logged with session records. This setup measures transport dynamics that offline runs model only in part or not at all: TCP slow start, TLS/HTTP handshakes, loss recovery, and head-of-line blocking.
 
-JavaScript policy ports occur only after Python baseline algorithms are verified. The dash.js player manages multiple HTML5 video elements alongside a centralized short-form controller governing playback queues, swipes, prefetching, and cancellation.
+The dash.js player manages multiple HTML5 video elements alongside a centralized short-form controller governing playback queues, swipes, prefetching, and cancellation.
 
 ## Team Roles
 
-- **Werner**: Python architecture, mock adapter, player engine, experiment runner, scoring, and documentation.
-- **Pablo**: FikoRE core changes (run seed, per-tag packet attribution, radio telemetry, fail-stop) and the generic `fikore-control-1` Python client in the FikoRE repository. The pilot-specific FikoRE backend built on that client lives in `capcsp/network/`.
-- **Michi**: Short-form state machine design, policy observation schemas, adaptation heuristics, and multi-video dash.js integration.
+- **Werner**: Python architecture, mock adapter, JavaScript player bridge, experiment runner, scoring, and documentation.
+- **Pablo**: FikoRE core changes (run seed, per-tag packet attribution, radio telemetry, fail-stop) and the generic `fikore-control-1` Python client and transport models in the FikoRE repository. The pilot-specific FikoRE backend built on that client lives in `capcsp/network/`.
+- **Michi**: JavaScript player (engine, B1/B2 policies, multi-video dash.js integration) and its connection to the Network Backend API.
 
 ## Documentation Maintenance
 

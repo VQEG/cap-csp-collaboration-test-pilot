@@ -164,6 +164,6 @@ Signaling levels provide additional telemetry fields to policies. A policy that 
 
 ## Multi-Video dash.js Integration
 
-The live HTTP validator should then port validated Python heuristics to dash.js. The implementation coordinates multiple `MediaPlayer` instances under a centralized short-form controller responsible for feed queues, user swipes, cross-video prefetching, and cancellation. Real requests route through FikoRE in emulation mode to an HTTP origin server.
+The player is Michi's [SFV reference implementation](https://github.com/micseu/SFV-Reference-Implementation): a patched dash.js that lets a centralized short-form controller own all manifest and segment requests, the B1/B2 policies, and a Node.js engine that shares the same policy code. The controller is responsible for feed queues, user swipes, cross-video prefetching, and cancellation.
 
-Michi has initial ideas on this, which involve a wrapper around dash.js that would control its manifest and segment (pre)fetching behavior.
+Offline, the Node.js engine connects to the harness through the [Network Backend API](network-backend-api.md). In real-HTTP runs, the browser player's requests route through FikoRE in emulation mode to an HTTP origin server.

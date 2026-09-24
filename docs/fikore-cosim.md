@@ -1,6 +1,6 @@
 # FikoRE Offline Co-Simulation
 
-Offline co-simulation connects the experiment harness to FikoRE without transferring real video payloads or running HTTP/TCP stacks. The harness submits anonymous object requests with explicit byte sizes. FikoRE converts these objects into packet streams, simulates the radio link, and reports cumulative byte delivery.
+Offline co-simulation connects the experiment harness to FikoRE without transferring real video payloads or running an HTTP stack. The harness submits anonymous object requests with explicit byte sizes. FikoRE converts these objects into packet streams, simulates the radio link, and reports cumulative byte delivery.
 
 This document defines required delivery semantics and the adapter specification. See the [Message Reference](fikore-cosim-messages.md) for the wire format.
 
@@ -92,7 +92,7 @@ FikoRE provides the following semantics:
 
 ### Who retransmits
 
-There is no transport layer in offline co-simulation, so a byte that is lost is lost for good and an object would never reach `bytes_total`. The adapter recovers it: it reads the tag's `dropped_bytes` and `expired_bytes` and reinjects that many bytes. The object is therefore always delivered in full, at whatever delay the losses cost, which is what a real TCP flow would show the player.
+Without a [transport model](network-backend-api.md#transport-models), a byte that is lost is lost for good and an object would never reach `bytes_total`. The adapter recovers it: it reads the tag's `dropped_bytes` and `expired_bytes` and reinjects that many bytes. The object is therefore always delivered in full, at whatever delay the losses cost, which is what a real TCP flow would show the player.
 
 FikoRE's radio carries no HARQ error model — the BLER-driven retransmission path in `harq_handler` is compiled out — so the radio never asks for a second attempt and never exhausts its retransmissions: `retransmitted_bytes_total` reads zero and radio drops do not occur. The delay budget is therefore the loss mechanism, which makes the interaction below the one that decides how much the adapter has to recover.
 

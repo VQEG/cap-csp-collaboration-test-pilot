@@ -30,7 +30,7 @@ flowchart TB
     S --> O[Session records and scores]
 ```
 
-The Python harness manages experiment and application state during modeled and offline runs. A multi-video dash.js player manages application state during real-HTTP validation. FikoRE manages radio models and queues in both modes, and virtual time in offline mode.
+The Python harness manages experiment state, network backends, shared state, and scoring. A JavaScript player manages application state in all modes: as a Node.js process behind the network backend interface in modeled and offline runs, and as a multi-video dash.js player during real-HTTP validation. FikoRE manages radio models and queues in both modes, and virtual time in offline mode.
 
 Offline FikoRE does not receive video payloads. The harness requests delivery of an opaque object of a given byte size, retaining the mapping from request ID to video metadata, segment, quality, and score metrics.
 
@@ -41,11 +41,11 @@ Offline FikoRE does not receive video payloads. The harness requests delivery of
 - Segments from multiple videos can transfer concurrently.
 - A common **network-backend interface** abstracts constant rate, trace replay, FikoRE co-simulation, and real HTTP.
 - FikoRE drives virtual time in offline mode; the player makes playback and swipe decisions against this clock.
-- Offline co-simulation tracks byte progress without simulating HTTP or TCP handshakes.
+- Offline runs do not simulate HTTP. A configurable transport model (for example TCP) carries bytes over the selected link.
 - A Python adapter in the harness isolates FikoRE's general-purpose control interface from pilot-specific logic; the emulator learns nothing about videos, objects or requests.
 - Real-time emulation remains available to validate policies against real traffic using real players (e.g., dash.js).
 - Real HTTP traffic routes through FikoRE in emulated mode to an HTTP origin server.
-- Validated Python algorithms will be ported to an extended multi-video dash.js player for real-HTTP benchmarking.
+- The same JavaScript policy code runs in offline simulation and in the multi-video dash.js player for real-HTTP benchmarking.
 
 ## Document Map
 
