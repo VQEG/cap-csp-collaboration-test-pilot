@@ -9,7 +9,7 @@ The pilot evaluates how short-form video players and a mobile network share info
 - Keep radio details out of the player; the player observes byte arrivals and permitted CSP fields.
 - Support multiple UEs and concurrent requests per UE.
 - Ensure offline runs are deterministic from configuration and seed.
-- Keep policy interfaces portable to JavaScript for dash.js integration.
+- Run the same JavaScript policy code offline and in dash.js.
 - Record per-segment logs to explain every quality score and wasted byte.
 
 ## Component Ownership
@@ -41,7 +41,7 @@ FikoRE manages radio states, radio queues, scheduling, channel models, and the o
 | :-- | :-- | :-- | :-- |
 | Constant rate | Logical time | Linear byte delivery | Player unit and integration tests |
 | Trace replay | Logical time | Recorded rate profile | Fast open-loop experiments |
-| FikoRE offline | FikoRE simulation clock | Radio scheduling without TCP/HTTP stack | Multi-UE closed-loop experiments |
+| FikoRE offline | FikoRE simulation clock | Radio scheduling with a modeled transport, no HTTP stack | Multi-UE closed-loop experiments |
 | HTTP via FikoRE | Monotonic wall clock | Real HTTP, kernel TCP/IP, or QUIC | dash.js validation runs |
 
 The backends share event semantics but are not expected to yield identical traces. Real HTTP introduces connection handshakes, slow start, loss recovery, and server multiplexing that the offline model abstracts.
@@ -100,9 +100,9 @@ The request identifier is an opaque correlation key that the network does not in
 
 ## Offline Simulation and Validation Paths
 
-The initial implementation is a lightweight Python player model. It tracks playback state, buffer occupancy, and prefetch logic without requiring browser runtime overhead or media decoding.
+The player is a JavaScript implementation based on dash.js. In modeled and offline runs, its Node.js engine runs as a subprocess of the harness. It receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md). It never sees backend-specific messages such as the FikoRE wire protocol.
 
-Once validated in Python, policies will be ported to an extended dash.js player supporting multi-video short-form playback. That player manages multiple video elements through a unified short-form adaptation controller with access to the feed queue, download history, and active network requests.
+The same policy code runs in the browser in a patched dash.js player supporting multi-video short-form playback. That player lets a short-form controller own all requests, with access to the feed queue, download history, and active network requests.
 
 The dash.js client runs against the real-HTTP backend, routing traffic through FikoRE in real-time emulation to an origin web server.
 
@@ -111,7 +111,7 @@ The dash.js client runs against the real-HTTP backend, routing traffic through F
 The first milestone excludes:
 
 - Video decoding in offline runs
-- TCP, QUIC, or HTTP handshakes in offline FikoRE
+- HTTP, TLS, or QUIC in offline runs
 - Cross-backend numerical identity
 - Distributed databases or remote message brokers
 - Standardized L3 network-control algorithms
