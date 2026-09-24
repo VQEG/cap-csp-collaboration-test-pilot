@@ -94,7 +94,7 @@ JavaScript policy ports occur only after Python baseline algorithms are verified
 ## Team Roles
 
 - **Werner**: Python architecture, mock adapter, player engine, experiment runner, scoring, and documentation.
-- **Pablo**: FikoRE core changes (run seed, per-tag packet attribution, radio telemetry, fail-stop) and the co-simulation adapter in `capcsp/network/`.
+- **Pablo**: FikoRE core changes (run seed, per-tag packet attribution, radio telemetry, fail-stop) and the generic `fikore-control-1` Python client in the FikoRE repository. The pilot-specific FikoRE backend built on that client lives in `capcsp/network/`.
 - **Michi**: Short-form state machine design, policy observation schemas, adaptation heuristics, and multi-video dash.js integration.
 
 ## Documentation Maintenance

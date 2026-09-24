@@ -10,13 +10,13 @@ The core architecture requires an object-level boundary: the harness provides a 
 
 The wire format is `fikore-control-1`, FikoRE's runtime control protocol: newline-delimited JSON over a Unix domain socket, with a credit barrier that lets an external controller own simulated time. It is a general-purpose control plane for the emulator rather than a pilot-specific one, and this specification adopts it instead of defining a second protocol.
 
-The adapter is a Python component of the harness, not a C++ module inside FikoRE. It holds everything the pilot knows and the emulator does not: the object lifecycle, the mapping from request IDs to tags, the sender window, the pacing policy, and recovery of lost bytes. FikoRE's role stays what it is for any other client of the control plane: move bytes for whoever asks.
+The adapter is a Python component of the harness, not a C++ module inside FikoRE. It holds everything the pilot knows and the emulator does not: the object lifecycle, the mapping from request IDs to tags, the sender window, the pacing policy, and recovery of lost bytes. FikoRE only moves bytes for whoever asks.
 
-The split follows one rule: the emulator keeps what is radio and network behaviour, and the harness keeps what is pilot policy. The sender window, the cancellation boundary, the scheduling policy across concurrent objects and the loss-recovery rule are policy, not network behaviour, and they are still open questions in this pilot, so they sit on the side that the experiments can iterate on.
+The generic `fikore-control-1` client lives in the FikoRE repository and is maintained there. The pilot-specific adapter that implements the [Network Backend API](network-backend-api.md) on top of it lives in the harness.
+
+The emulator keeps radio and network behaviour; the harness keeps pilot policy. The sender window, the cancellation boundary, the scheduling across concurrent objects and the loss-recovery rule are policy and still open questions, so they sit on the side that experiments can iterate on.
 
 FikoRE retains its standard behaviour unchanged when the control plane is disabled.
-
-> **Scope.** This document defines the co-simulation semantics; the [Message Reference](fikore-cosim-messages.md) defines the wire format in full — framing, every message the pilot uses, the knob catalogue it touches, and the synchronisation loop built from them. Both sides can be written against them, including the harness-side mock.
 
 ## Component Responsibilities
 
@@ -92,9 +92,9 @@ FikoRE provides the following semantics:
 
 ### Who retransmits
 
-There is no transport layer in offline co-simulation, so a byte that is lost is lost for good and an object would never reach `bytes_total`. **The adapter recovers it**: it reads the tag's `dropped_bytes` and `expired_bytes` and reinjects that many bytes. The object is therefore always delivered in full, at whatever delay the losses cost, which is what a real TCP flow would show the player.
+There is no transport layer in offline co-simulation, so a byte that is lost is lost for good and an object would never reach `bytes_total`. The adapter recovers it: it reads the tag's `dropped_bytes` and `expired_bytes` and reinjects that many bytes. The object is therefore always delivered in full, at whatever delay the losses cost, which is what a real TCP flow would show the player.
 
-Worth knowing where those losses actually come from. FikoRE's radio carries no HARQ error model — the BLER-driven retransmission path in `harq_handler` is compiled out — so the radio never asks for a second attempt and never exhausts its retransmissions: `retransmitted_bytes_total` reads zero and radio drops do not occur. The delay budget is therefore the loss mechanism, which makes the interaction below the one that decides how much the adapter has to recover.
+FikoRE's radio carries no HARQ error model — the BLER-driven retransmission path in `harq_handler` is compiled out — so the radio never asks for a second attempt and never exhausts its retransmissions: `retransmitted_bytes_total` reads zero and radio drops do not occur. The delay budget is therefore the loss mechanism, which makes the interaction below the one that decides how much the adapter has to recover.
 
 A request is complete when the adapter has seen `delivered_bytes == bytes_total` for its tag. It then issues `forget` to release the tag's counters, because FikoRE does not know the object's size and cannot tell on its own that it is finished.
 
@@ -113,13 +113,13 @@ FikoRE's PDCP layer discards any packet that has waited longer than `pkt_delay_b
 | Condition | Rate per video UE | In flight without expiry |
 | :-- | :-- | :-- |
 | Healthy cell, 60 Mbps shared by 4 UEs | ~15 Mbps | ~560 KiB |
-| Congested cell, 6 Mbps shared by 4 UEs | ~1.5 Mbps | **~64 KiB** |
+| Congested cell, 6 Mbps shared by 4 UEs | ~1.5 Mbps | ~64 KiB |
 
 At the congested end a 128 KiB window loses half of itself to the budget, and a 940 kB segment injected in one go evaporates almost entirely. A real TCP flow has no such ceiling: it does not discard a segment for having sat 350 ms in a queue.
 
 Experiments therefore raise `pkt_delay_budget_s` for the UEs the harness drives, so that the sender window is the only limiter, and keep the budget as a real mechanism on background UEs. The setting is recorded with the run. `expired_bytes_total` staying at zero for driven UEs is the check that this was done right.
 
-That check says the budget is out of the way. It does **not** say nothing was lost to congestion: the AQM works off its own target, 15 ms by default, so it drops well before the budget would and raising the budget does not stop it. Congestion loss on driven UEs shows up in `queue_dropped_bytes_total`, which is expected to be non-zero at the congested end.
+That check says the budget is out of the way. It does not say nothing was lost to congestion: the AQM works off its own target, 15 ms by default, so it drops well before the budget would and raising the budget does not stop it. Congestion loss on driven UEs shows up in `queue_dropped_bytes_total`, which is expected to be non-zero at the congested end.
 
 ## Request Cancellation
 
@@ -144,14 +144,14 @@ Milestone 1 uses the first for comparability across backends and records the cho
 
 Telemetry consumed by player policies is delivered in the `get` reply and stamped in simulation time.
 
-It is **cumulative counters, not per-window means**. The harness differences two reads and picks its own window; a lost read costs nothing and the emulator keeps no "since last time" state. It also has to be triggered and stamped in simulation time: FikoRE's monitoring path, the UDP/Influx stream meant for live dashboards, flushes on the wall clock and is of no use in fast mode.
+It consists of cumulative counters, not per-window means. The harness differences two reads and picks its own window; a lost read costs nothing and the emulator keeps no "since last time" state. It also has to be triggered and stamped in simulation time: FikoRE's monitoring path, the UDP/Influx stream meant for live dashboards, flushes on the wall clock and is of no use in fast mode.
 
 The counters FikoRE measures, and therefore the only ones exposed, are listed in the [Message Reference](fikore-cosim-messages.md#get). In summary: bytes injected, delivered, expired, dropped and retransmitted; packets marked congestion-experienced; bytes and packets queued; age of the oldest queued packet; mean one-way IP latency; mean SINR.
 
 Two cautions carried over into the field mapping:
 
 - Delivered throughput is measured delivery. It is not spare capacity and not the maximum channel rate.
-- FikoRE measures **one-way** latency. `CspFields.rtt_ms` cannot be filled from it without stating the assumption used to get from one to the other.
+- FikoRE measures one-way latency. `CspFields.rtt_ms` cannot be filled from it without stating the assumption used to get from one to the other.
 
 FikoRE also knows each UE's CQI, MCS, spectral efficiency and rank, from which an achievable rate can be derived. That is a genuine CSP-side quantity, distinct from both measured throughput and an oracle, and it is a candidate L2 field beyond the current signalling design.
 
@@ -198,7 +198,7 @@ The runner generates one `.ini` per run from a base template. Three emulator det
 
 At the scheduled duration FikoRE ends the run and closes the socket. Remaining active objects convert to local cancellation events in the harness.
 
-A run that loses its controller must **fail stop**, not carry on: 200 s of simulation with no requests would otherwise be written out as if it were data. Two settings govern this, and both are set to `abort` for experiments:
+A run that loses its controller must fail stop, not carry on: 200 s of simulation with no requests would otherwise be written out as if it were data. Two settings govern this, and both are set to `abort` for experiments:
 
 - `on_timeout: abort` ends the run when no credit arrives within `credit_timeout_ms`.
 - `on_peer_loss: abort` ends the run when a controller that had connected goes away. The alternative, carrying on free-running to the scheduled duration, suits an operator watching a single live run rather than a grid of unattended ones.
