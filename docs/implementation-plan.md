@@ -4,22 +4,26 @@ The implementation starts with a minimal closed-loop player-network runner. Fiko
 
 ## Proposed Package Layout
 
+Entries marked with `*` exist; the rest are planned.
+
 ```text
 cap-csp-collaboration-test-pilot/
-  5g-network-emulator/          # FikoRE submodule
-    transport/                  # Generic transport, Links and TransportBackend
-  sfv-reference-implementation/ # SFV player submodule: engine, B1/B2 rules, dash.js patch, session records
+  5g-network-emulator/          # * FikoRE submodule
+    transport/                  # * Generic transport, Links and TransportBackend
+  sfv-reference-implementation/ # * SFV player submodule: engine, B1/B2 rules, dash.js patch, session records
+  Dockerfile                    # * Linux image with FikoRE, Node.js and capcsp
   capcsp/
+    cli.py                      # * capcsp run, capcsp report
     data_models.py
     player/
-      bridge.py                 # Node.js player process behind the Network Backend API
-      js/                       # NetworkStep harness around the SFV engine
+      bridge.py                 # * Node.js player process behind the Network Backend API
+      js/                       # * NetworkStep harness around the SFV engine
     network/
-      api.py
-      mock.py
+      api.py                    # * Network Backend API types
+      mock.py                   # * Backend `mock`
       constant_rate.py
       trace.py
-      transport_fikore.py       # Thin wiring to submodule TransportBackend
+      transport_fikore.py       # * Backend `transport_fikore`: wiring to submodule TransportBackend
       http.py
     exchange/
       shared_state.py
@@ -32,16 +36,17 @@ cap-csp-collaboration-test-pilot/
       p1204_1_pv.py
       aggregate.py
     runner/
-      config.py
-      cell.py
+      run.py                    # * One experiment: backend, player process, outputs
+      kpis.py                   # * Per-UE KPI table
+      report.py                 # * Markdown report over one or more runs
       grid.py
-      fikore_process.py
       l3_controller.py
   configs/
     content.yaml
     network_conditions.yaml
-    experiments/
+    experiments/                # * Example B1/B2 runs on `mock` and `transport_fikore`
     fikore/
+  tests/                        # * API contract and end-to-end runs
   results/
   analysis/
   docs/
@@ -65,7 +70,7 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 7. L3 controller design and network-side adaptation hooks.
 8. Real-HTTP runs with the multi-video dash.js player (with Michi) and offline-versus-real validation runs.
 
-The FikoRE-side control plane, generic client and transport models needed by steps 4 and 5 are now available in the pinned submodule. The common harness wiring remains to be implemented.
+Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records, a KPI table and a report. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
 
 ## Mock Backend
 

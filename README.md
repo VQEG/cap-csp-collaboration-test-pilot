@@ -24,6 +24,24 @@ Clone with `git clone --recurse-submodules`, or run `git submodule update --init
 
 ## Usage
 
+Run the example with two UEs (B1 and B2) on the deterministic mock backend. This needs `uv` and Node.js 20 or newer:
+
+```bash
+uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json output/mock
+```
+
+The output directory holds the run manifest, one session record per UE, the `NetworkStep` transcript, `kpis.csv` and `report.md`. `uv run capcsp report output/run-a output/run-b -o report.md` compares several runs.
+
+Runs on FikoRE need Linux. On macOS, build the container and run inside it:
+
+```bash
+docker build -t capcsp .
+docker run --rm -v "$PWD/output:/pilot/output" capcsp \
+  capcsp run configs/experiments/b1-b2-two-ue-fikore.json output/fikore
+```
+
+Run the tests with `uv run pytest`, or with `docker run --rm capcsp pytest` to include the FikoRE test.
+
 Start with these documents:
 
 - [Specification Overview](docs/README.md): system summary and index of all design documents
@@ -35,7 +53,7 @@ The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Current Validation
 
-The generic SFV v0.7.2 Python–Node bridge has been exercised with both its deterministic mock and FikoRE's `TransportBackend`. This validates the integration seam, multi-UE requests, prefetching and cancellation accounting; it is not yet the full pilot experiment matrix.
+The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations and byte accounting. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, and L1 to L4 are not connected.
 
 ## Contributing
 

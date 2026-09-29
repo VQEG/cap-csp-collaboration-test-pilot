@@ -4,7 +4,7 @@ This procedure validates the SFV v0.7.2 generic `NetworkBackend` seam first with
 
 The mock is a contract baseline, not a radio or TCP model. Matching request decisions in the short fixture does not imply that both networks are equivalent.
 
-This procedure uses Michi's external SFV-VQEG repository and Pablo's `validate_sfv.py`. It records the first integration proof and will be replaced by the runner in `capcsp/`, which uses the `sfv-reference-implementation` submodule instead of a sibling checkout. Backend names also differ until then: the SFV-VQEG fixture calls the mock `constant_rate_mock`, and its session records store `network_backend: external` for both runs. The harness records `mock` and `transport_fikore` as defined in the [Network Backend API](network-backend-api.md#backend-implementations).
+This procedure uses Michi's external SFV-VQEG repository and Pablo's `validate_sfv.py`. It records the first integration proof. The same check now runs in this repository with `capcsp run` on `configs/experiments/b1-b2-two-ue-mock.json` and `configs/experiments/b1-b2-two-ue-fikore.json` (see the [README](../README.md#usage)), using the `sfv-reference-implementation` submodule instead of a sibling checkout. Backend names differ between the two procedures: the SFV-VQEG fixture calls the mock `constant_rate_mock`, and its session records store `network_backend: external` for both runs. The harness records `mock` and `transport_fikore` as defined in the [Network Backend API](network-backend-api.md#backend-implementations).
 
 ## Revisions
 

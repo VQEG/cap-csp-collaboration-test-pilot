@@ -4,6 +4,8 @@ The network backend abstracts network dynamics from player logic. It accepts opa
 
 ## Interface Definition
 
+The Python reference for these types is [`transport/fikore_transport/backend.py`](../5g-network-emulator/transport/fikore_transport/backend.py) in the FikoRE submodule.
+
 ```python
 from dataclasses import dataclass
 from typing import Protocol, TypeAlias
@@ -94,15 +96,6 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
 `ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
 
 Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's acknowledgement path. It is not obtained by doubling FikoRE's one-way `pdcp_latency_ms`; both measurements remain separate.
-
-## Reference Definitions
-
-This document is the normative definition of the API. Changes start here and then go to the two Python copies:
-
-- `capcsp/network/api.py` in this repository (planned). All backends and the player bridge in the pilot harness import their types from it.
-- [`transport/fikore_transport/backend.py`](../5g-network-emulator/transport/fikore_transport/backend.py) in the FikoRE submodule. `TransportBackend` keeps its own copy because the FikoRE package does not depend on the pilot harness.
-
-Both copies use the same class and field names. The player bridge serializes events by class name and field names, so it accepts events from either copy. A contract test in the harness compares the two sets of dataclasses and fails if they differ.
 
 ## Common Semantics
 
