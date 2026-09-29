@@ -1,0 +1,6 @@
+.venv
+output
+**/__pycache__
+**/node_modules
+5g-network-emulator/bin
+5g-network-emulator/build

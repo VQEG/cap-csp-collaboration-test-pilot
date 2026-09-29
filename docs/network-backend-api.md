@@ -4,6 +4,8 @@ The network backend abstracts network dynamics from player logic. It accepts opa
 
 ## Interface Definition
 
+The Python reference for these types is [`transport/fikore_transport/backend.py`](../5g-network-emulator/transport/fikore_transport/backend.py) in the FikoRE submodule.
+
 ```python
 from dataclasses import dataclass
 from typing import Protocol, TypeAlias
@@ -34,15 +36,15 @@ class DownloadCancelled:
 
 @dataclass(frozen=True)
 class NetworkTelemetry:
-    throughput_mbps: float | None
-    rtt_ms: float | None
-    ip_latency_ms: float | None
-    pdcp_latency_ms: float | None
-    ce_rate: float | None
-    drop_rate: float | None
-    retransmitted_bytes: int | None
-    sinr_db: float | None
-    queue_bytes: int | None
+    throughput_mbps: float | None = None
+    rtt_ms: float | None = None
+    ip_latency_ms: float | None = None
+    pdcp_latency_ms: float | None = None
+    ce_rate: float | None = None
+    drop_rate: float | None = None
+    retransmitted_bytes: int | None = None
+    sinr_db: float | None = None
+    queue_bytes: int | None = None
 
 
 @dataclass(frozen=True)
@@ -89,13 +91,11 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
     def set_ue_control(self, ue_id: int, control: UeControl) -> None: ...
 ```
 
-`NetworkEvent` is an internal Python union. Each backend creates these events from its native telemetry: the FikoRE adapter translates wire reports, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
+`NetworkEvent` is an internal Python union. Each backend creates these events from its native telemetry: `TransportBackend` builds them from `FikoreLink` feedback, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
 
-`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For the FikoRE adapter it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
+`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
 
-Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's
-acknowledgement path. It is not obtained by doubling FikoRE's one-way
-`pdcp_latency_ms`; both measurements remain separate.
+Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's acknowledgement path. It is not obtained by doubling FikoRE's one-way `pdcp_latency_ms`; both measurements remain separate.
 
 ## Common Semantics
 
@@ -123,29 +123,26 @@ In real HTTP runs, the client measures bytes delivered to the application layer 
 
 ## Backend Implementations
 
-- `MockNetworkBackend`: the SFV v0.7.2 repository's deterministic shared byte-budget backend for contract tests.
-- `TransportBackend`: the implemented generic object backend in the FikoRE submodule. It can use a deterministic `LoopbackLink` or `FikoreLink`.
-- `ConstantRateBackend` and `TraceBackend`: pilot backends still to be implemented in the common harness.
-- `HttpBackend`: issues HTTP requests through FikoRE in real-time emulation, recording actual application-level byte deliveries.
+Each backend has a fixed name. Experiment configurations select the backend by this name, and session records store it in `network_backend`:
+
+- `mock`: `MockNetworkBackend`, a deterministic shared byte budget for contract tests, adapted from the SFV-VQEG v0.7.2 repository. It never produces research results.
+- `constant_rate`: `ConstantRateBackend`, still to be implemented.
+- `trace`: `TraceBackend`, still to be implemented.
+- `transport_fikore`: `TransportBackend` from the FikoRE submodule over `FikoreLink`. The same class over the deterministic `LoopbackLink` is used only in tests.
+- `http`: `HttpBackend`, which issues HTTP requests through FikoRE in real-time emulation and records the bytes actually delivered to the application.
 
 `HttpBackend` defines an interface contract. The reference validator implements the client inside the extended multi-video dash.js player, bridging request events and telemetry back to the harness.
 
 ## Transport Models
 
-Implemented: `TransportBackend` implements `NetworkBackend` on top of a Link
-that accepts segments at a TTI and returns terminal arrivals by a TTI. The
-transport model and Link are independent axes:
+Implemented: `TransportBackend` implements `NetworkBackend` on top of a Link that accepts segments at a TTI and returns terminal arrivals by a TTI. The transport model and Link are independent axes:
 
 - TCP controllers: Reno, CUBIC and externally bound Prague.
 - Diagnostic transport: ideal fixed window with immediate outcome recovery.
 - Links: `FikoreLink` and deterministic `LoopbackLink`.
 - Runner-level traffic: open-loop UDP, not currently exposed through `TransportBackend`.
 
-The implementation lives under
-[`5g-network-emulator/transport/`](../5g-network-emulator/transport/).
-Current limitations include one fresh TCP flow per object and no modelled
-handshake, FIN, Nagle, window scaling, PRR or RACK/TLP. See the submodule's
-[`LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
+The implementation lives under [`5g-network-emulator/transport/`](../5g-network-emulator/transport/). Current limitations include one fresh TCP flow per object and no modelled handshake, FIN, Nagle, window scaling, PRR or RACK/TLP. See the submodule's [`LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
 
 ## Latency Decomposition
 
@@ -155,12 +152,7 @@ The architecture separates three latency components:
 - **Core-network latency**: transport delay outside the radio access network.
 - **Radio latency**: queueing delay, MAC scheduling, radio transmission, and HARQ retransmissions in FikoRE.
 
-Constant-rate and trace backends will inject configured non-radio delay
-directly. The planned common harness may hold an object until
-`ready_at_s = requested_at_s + synthetic_delay_ms / 1000` before submitting it
-to `TransportBackend`. The current SFV/FikoRE validator does not add this
-synthetic hold; FikoRE applies the template's configured backhaul and radio
-latency. The real-HTTP backend measures live end-to-end latency directly.
+Constant-rate and trace backends will inject configured non-radio delay directly. The planned common harness may hold an object until `ready_at_s = requested_at_s + synthetic_delay_ms / 1000` before submitting it to `TransportBackend`. The current SFV/FikoRE validator does not add this synthetic hold; FikoRE applies the template's configured backhaul and radio latency. The real-HTTP backend measures live end-to-end latency directly.
 
 ## Real-HTTP Validation Architecture
 

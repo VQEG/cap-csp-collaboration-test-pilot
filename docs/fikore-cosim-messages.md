@@ -1,13 +1,10 @@
 # FikoRE Co-Simulation Message Reference
 
-This document summarizes the `fikore-control-1` operations used by
-[offline co-simulation](fikore-cosim.md). The implementation in the pinned
-submodule is authoritative.
+This document summarizes the `fikore-control-1` operations used by [offline co-simulation](fikore-cosim.md). The implementation in the pinned submodule is authoritative.
 
 ## Framing and Handshake
 
-Messages are single-line UTF-8 JSON terminated by `\n`. FikoRE creates the Unix
-stream socket and sends:
+Messages are single-line UTF-8 JSON terminated by `\n`. FikoRE creates the Unix stream socket and sends:
 
 ```json
 {"op":"hello","proto":"fikore-control-1"}
@@ -19,8 +16,7 @@ The client replies:
 {"proto":"fikore-control-1"}
 ```
 
-There is no version negotiation and only one client may own the control
-connection.
+There is no version negotiation and only one client may own the control connection.
 
 ## Command Envelopes
 
@@ -37,14 +33,9 @@ Scheduled commands use:
 }
 ```
 
-`at_tti` is an absolute integer 1 ms slot. An absent instant means the next
-quiescent point. The complete envelope is validated before any command mutates
-state.
+`at_tti` is an absolute integer 1 ms slot. An absent instant means the next quiescent point. The complete envelope is validated before any command mutates state.
 
-An envelope containing N commands receives N acknowledgements. Every reply
-echoes the envelope `id`; replies belonging to that ID remain in command order.
-A grant has its own ID and its acknowledgement may interleave because the
-socket thread accepts credit before scheduled work is applied.
+An envelope containing N commands receives N acknowledgements. Every reply echoes the envelope `id`; replies belonging to that ID remain in command order. A grant has its own ID and its acknowledgement may interleave because the socket thread accepts credit before scheduled work is applied.
 
 ## UE Identity
 
@@ -66,9 +57,7 @@ Replies retain numeric `target` and add `ue_id` when available.
 
 ## `set`
 
-`set` changes runtime UE parameters such as priority, directional rate cap,
-SINR offset, position, speed, background rate, delay budget and attach state.
-Directional knobs carry `dl.` or `ul.` prefixes.
+`set` changes runtime UE parameters such as priority, directional rate cap, SINR offset, position, speed, background rate, delay budget and attach state. Directional knobs carry `dl.` or `ul.` prefixes.
 
 ```json
 {"id":1,"cmds":[{"target":"ue/0","set":{"priority":4.0,"dl.rmax_mbps":25.0}}]}
@@ -86,9 +75,7 @@ The runtime `describe` operation is the authoritative knob catalogue.
 ]}
 ```
 
-The tag identifies one submitted transport segment, not an application object.
-The player request ID remains above the wire boundary. Accepted ECN values are
-`not-ect`, `ect0`, `ect1`/`l4s` and `ce`.
+The tag identifies one submitted transport segment, not an application object. The player request ID remains above the wire boundary. Accepted ECN values are `not-ect`, `ect0`, `ect1`/`l4s` and `ce`.
 
 ## `events`
 
@@ -131,16 +118,11 @@ Example acknowledgement:
 }
 ```
 
-Zero deltas are omitted. Wire fields are `delivered_bytes`, `expired_bytes`,
-`queue_dropped_bytes`, `radio_dropped_bytes` and `ce_bytes`.
+Zero deltas are omitted. Wire fields are `delivered_bytes`, `expired_bytes`, `queue_dropped_bytes`, `radio_dropped_bytes` and `ce_bytes`.
 
-`after` confirms consumption through that cursor. Retrying the same cursor
-replays unacknowledged logical events. The client advances only after validating
-the whole response.
+`after` confirms consumption through that cursor. Retrying the same cursor replays unacknowledged logical events. The client advances only after validating the whole response.
 
-`include_state: true` adds compact cumulative telemetry without the knob
-catalogue or live-object map. It includes queue, latency, SINR, counters and
-mobility.
+`include_state: true` adds compact cumulative telemetry without the knob catalogue or live-object map. It includes queue, latency, SINR, counters and mobility.
 
 ## Retention and Resynchronisation
 
@@ -154,8 +136,7 @@ mobility.
 {"id":4,"cmds":[{"op":"events","after":0,"resync":true}]}
 ```
 
-The response includes a complete snapshot, clears the gap and restarts delta
-collection at the same quiescent point.
+The response includes a complete snapshot, clears the gap and restarts delta collection at the same quiescent point.
 
 ## `forget`
 
@@ -165,8 +146,7 @@ collection at the same quiescent point.
 {"id":5,"cmds":[{"op":"forget","target":"ue/0","tag":8817}]}
 ```
 
-An unacknowledged retained event is not removed. The correct order is: observe
-terminal outcome, acknowledge its cursor, then forget.
+An unacknowledged retained event is not removed. The correct order is: observe terminal outcome, acknowledge its cursor, then forget.
 
 ## `grant`
 
@@ -176,9 +156,7 @@ terminal outcome, acknowledge its cursor, then forget.
 {"id":6,"op":"grant","until_tti":940}
 ```
 
-Credit is monotonic. The client must send scheduled commands and the grant
-before waiting for replies; otherwise a command scheduled in the future cannot
-be applied and both sides deadlock.
+Credit is monotonic. The client must send scheduled commands and the grant before waiting for replies; otherwise a command scheduled in the future cannot be applied and both sides deadlock.
 
 ## `get`, `describe` and `ping`
 
@@ -186,8 +164,7 @@ be applied and both sides deadlock.
 - `describe` returns the runtime knob catalogue.
 - `ping` returns current TTI and simulation time.
 
-The per-TTI transport path uses `events`; polling `get ue/*` with a growing live
-object map is not the scalable feedback path.
+The per-TTI transport path uses `events`; polling `get ue/*` with a growing live object map is not the scalable feedback path.
 
 ## Lockstep Exchange
 
@@ -199,9 +176,6 @@ For every internal TTI, `FikoreLink`:
 4. validates event sequence and cursor;
 5. converts terminal tag outcomes into segment arrivals.
 
-Counter movements occurring in TTI `n` are collected at the quiescent point of
-TTI `n+1`; transports react only when feedback is observable.
+Counter movements occurring in TTI `n` are collected at the quiescent point of TTI `n+1`; transports react only when feedback is observable.
 
-See
-[`runtime-control-events.md`](../5g-network-emulator/docs/runtime-control-events.md)
-for the emulator-side cursor contract.
+See [`runtime-control-events.md`](../5g-network-emulator/docs/runtime-control-events.md) for the emulator-side cursor contract.

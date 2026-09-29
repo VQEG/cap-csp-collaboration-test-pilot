@@ -43,9 +43,7 @@ Offline FikoRE does not receive video payloads. The harness requests delivery of
 - A common **network-backend interface** abstracts constant rate, trace replay, FikoRE co-simulation, and real HTTP.
 - FikoRE drives virtual time in offline mode; the player makes playback and swipe decisions against this clock.
 - Offline runs do not simulate HTTP. A configurable transport model (for example TCP) carries bytes over the selected link.
-- The FikoRE submodule owns the generic control client, transport models and
-  Links. The common harness will own only thin pilot-specific wiring; the
-  emulator learns nothing about videos, objects or requests.
+- The FikoRE submodule owns the generic control client, transport models and Links. The common harness will own only thin pilot-specific wiring; the emulator learns nothing about videos, objects or requests.
 - Real-time emulation remains available to validate policies against real traffic using real players (e.g., dash.js).
 - Real HTTP traffic routes through FikoRE in emulated mode to an HTTP origin server.
 - The same JavaScript policy code runs in offline simulation and in the multi-video dash.js player for real-HTTP benchmarking.
@@ -63,8 +61,7 @@ Specific API decisions:
 
 - [Player API](player-api.md): player state, policy observations, actions, swipe models, preloading, and concurrency.
 - [Network Backend API](network-backend-api.md): common request and event interface across network backends.
-- [FikoRE Co-simulation](fikore-cosim.md): implemented transport/Link boundary,
-  lockstep, delivery guarantees and remaining harness work.
+- [FikoRE Co-simulation](fikore-cosim.md): implemented transport/Link boundary, lockstep, delivery guarantees and remaining harness work.
 - [Co-simulation Messages](fikore-cosim-messages.md): JSON wire protocol schema and examples.
 - [Signaling and Shared State](signaling.md): signaling levels L0–L4 and CAP–CSP information exchange.
 - [Experiments and Configuration](experiments.md): experiment matrices, reproducibility, network conditions, and media sets.
