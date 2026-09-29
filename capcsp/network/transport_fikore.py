@@ -37,6 +37,8 @@ class TransportFikoreConfig:
     receive_window_bytes: int = 128 * 1024
     step_ms: int = 10
     """Duration of one NetworkStep towards the player in milliseconds"""
+    telemetry_interval_ms: int = 10
+    """Interval of NetworkTelemetryReceived events; a multiple of step_ms"""
     fikore_binary: str = str(FIKORE_ROOT / "bin" / "fikore")
     fikore_base_ini: str = str(FIKORE_ROOT / "config" / "control_demo.ini")
     delay_budget_s: float = 30.0
@@ -56,6 +58,8 @@ class TransportFikoreConfig:
             raise ValueError(f"Unknown congestion control {config.congestion_control!r}")
         if config.step_ms <= 0 or config.receive_window_bytes <= 0:
             raise ValueError("step_ms and receive_window_bytes must be positive")
+        if config.telemetry_interval_ms <= 0 or config.telemetry_interval_ms % config.step_ms:
+            raise ValueError("telemetry_interval_ms must be a positive multiple of step_ms")
         return config
 
 
@@ -106,7 +110,7 @@ class TransportFikoreBackend(TransportBackend):
                 rwnd=config.receive_window_bytes,
                 cc_factory=CONGESTION_CONTROLLERS[config.congestion_control],
                 transport=config.transport,
-                telemetry_every_windows=max(1, 100 // config.step_ms),
+                telemetry_every_windows=config.telemetry_interval_ms // config.step_ms,
             ),
         )
 

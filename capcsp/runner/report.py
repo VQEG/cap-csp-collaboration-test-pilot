@@ -20,7 +20,8 @@ COLUMNS = (
     ("quality_switch_count_total", "Switches", "{}"),
     ("bytes_delivered", "Delivered (kB)", "{:.0f}"),
     ("data_wastage_ratio", "Wasted", "{:.1%}"),
-    ("throughput_mean_mbps", "Throughput (Mbit/s)", "{:.2f}"),
+    ("goodput_mbps", "Goodput (Mbit/s)", "{:.2f}"),
+    ("throughput_mbps", "Throughput (Mbit/s)", "{:.2f}"),
     ("rtt_mean_ms", "RTT (ms)", "{:.1f}"),
 )
 
@@ -61,7 +62,9 @@ def write_report(run_dirs: list[Path], path: Path) -> None:
         "",
         "Swipe delay is the mean time from a swipe to playback of the next video. "
         "Wasted is the share of delivered bytes that were never played. "
-        "Throughput and RTT are means over the backend's telemetry samples.",
+        "Goodput is the bytes delivered to the player divided by the time with at least one download open. "
+        "Throughput (network-layer, including retransmissions) and RTT are means over the backend's "
+        "telemetry samples taken while a download was open.",
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
