@@ -38,7 +38,11 @@ conditions:
       rtt_ms: 25
       loss_percent: 0
     synthetic_delay_ms: 25
-    sender_max_bytes_in_flight: 131072
+    transport:
+      kind: tcp
+      congestion_control: cubic
+      receive_window_bytes: 131072
+      ack_over_link: false
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
       metric_type: 6            # proportional fair; round robin ignores priority
@@ -47,7 +51,7 @@ conditions:
         mobility: static
         priority: 4
         dl_target_mbps: 0       # driven entirely by the harness
-        pkt_delay_budget_s: 30  # see fikore-cosim.md#concurrent-object-scheduling
+        pkt_delay_budget_s: 30  # keep validation transport from budget expiry
       background_ues:
         count: 0
     trace:
@@ -60,7 +64,11 @@ conditions:
       rtt_ms: 60
       loss_percent: 1
     synthetic_delay_ms: 60
-    sender_max_bytes_in_flight: 131072
+    transport:
+      kind: tcp
+      congestion_control: cubic
+      receive_window_bytes: 131072
+      ack_over_link: false
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
       metric_type: 6
@@ -76,11 +84,19 @@ conditions:
         priority: 1
 ```
 
-`sender_max_bytes_in_flight` is adapter policy and stays in the harness configuration: FikoRE imposes no ceiling of its own on injected traffic. Under congestion the window interacts with the PDCP delay budget, which is why driven UEs raise it; see [concurrent object scheduling](fikore-cosim.md#concurrent-object-scheduling).
+FikoRE imposes no transport window on injected traffic. TCP conditions record
+the congestion controller, receive window, MSS, ECN and ACK path. The ideal
+diagnostic transport instead records its fixed shared per-UE window and recovery
+setting.
 
-The runner automatically generates FikoRE `.ini` files from the base template and condition overrides without manual file editing.
+The current SFV validator generates a temporary FikoRE `.ini` from
+`config/control_demo.ini` without manual editing. The future common runner will
+apply the same mechanism to condition-specific templates.
 
-`synthetic_delay_ms` configures round-trip delay in constant-rate, trace, and offline FikoRE adapter backends. The adapter holds outgoing requests until this delay elapses before releasing them to FikoRE. The real-HTTP backend observes live network latency and ignores this field.
+`synthetic_delay_ms` is a planned common-harness delay before an object enters
+`TransportBackend`, for comparability with constant-rate and trace backends. It
+is not applied by the current SFV/FikoRE validator. The real-HTTP backend
+observes live end-to-end latency and ignores this field.
 
 ## Content Registry
 
@@ -106,8 +122,14 @@ Milestone 1 generates synthetic segment sizes based on target bitrates, segment 
 ## Experiment Grid
 
 ```yaml
-network_backend: fikore_cosim
+network_backend: transport_fikore
 sync_ms: 10
+transport:
+  kind: tcp
+  congestion_control: cubic
+  receive_window_bytes: 131072
+  mss_bytes: 1500
+  ecn: not-ect
 session:
   max_videos: 20
   max_duration_s: 300
@@ -132,7 +154,7 @@ Traces follow the whitespace-delimited format `time_s bandwidth_mbps` (Mahimahi 
 
 The runner validates configurations before spawning child processes:
 
-- Durations, byte counts, bitrates, and sender windows must be positive.
+- Durations, byte counts, bitrates, receive windows and MSS values must be positive.
 - `sync_ms` must be a positive multiple of the FikoRE radio tick.
 - Telemetry intervals must align with `sync_ms` boundaries.
 - FikoRE conditions must select the proportional fair scheduler, or `priority` and any L3 control silently do nothing.
@@ -152,4 +174,12 @@ Condition labels unify parameter sets across backends without implying numerical
 - **FikoRE offline**: multi-UE closed-loop scheduling and L3 feedback evaluation.
 - **Real HTTP via FikoRE**: end-to-end validation under kernel transport dynamics.
 
-Every generated report records the backend, transport profile, synchronization interval, latency model, sender window, and random seed.
+The current `validate_sfv.py` manifest records the FikoRE and two SFV
+revisions, backend counters and conservation. Once implemented, every common
+harness report will additionally record:
+
+- the common-harness revision;
+- the backend and transport profile, including CC, rwnd, MSS, ECN and ACK path;
+- internal TTI and player-facing `NetworkStep` interval;
+- FikoRE base INI plus effective overrides, including delay budget;
+- latency model, random seed and terminal byte-conservation result.

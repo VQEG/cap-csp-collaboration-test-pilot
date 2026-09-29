@@ -7,7 +7,7 @@ The implementation starts with a minimal closed-loop player-network runner. Fiko
 ```text
 cap-csp-collaboration-test-pilot/
   5g-network-emulator/          # FikoRE submodule
-  sfv-reference-implementation/ # JavaScript player submodule
+    transport/                  # Generic transport, Links and NetworkBackend
   capcsp/
     data_models.py
     player/
@@ -16,10 +16,8 @@ cap-csp-collaboration-test-pilot/
       api.py
       constant_rate.py
       trace.py
-      fikore_cosim.py
-      fikore_mock.py
+      transport_fikore.py       # Thin wiring to submodule TransportBackend
       http.py
-      cosim_messages.py
     exchange/
       shared_state.py
       emulated_telemetry.py
@@ -46,6 +44,9 @@ cap-csp-collaboration-test-pilot/
   docs/
 ```
 
+The SFV reference and SFV-VQEG repositories are external sibling checkouts for
+the current validation, not submodules of this repository.
+
 The system is structured as a single installable Python package (`capcsp`). Subpackages isolate domain responsibilities without requiring multiple distributions or standalone microservices.
 
 ## Build Sequence
@@ -53,23 +54,32 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 1. Core package skeleton, data models, configuration parser, bridge to the JavaScript player, and constant-rate network backend.
 2. Per-segment session records, request logs, baseline scoring functions, and deterministic test fixtures.
 3. Trace replay backend, shared-state gating, and L0, L1, L2, and L4 policy inputs.
-4. Co-simulation message models, FikoRE mock adapter, FikoRE backend, process wrapper, and multi-UE tests against the mock.
-5. Integration against the real emulator and co-simulation acceptance testing, once the FikoRE-side capabilities listed in the [adapter requirements](fikore-cosim.md#adapter-requirements) are available in the emulator submodule.
+4. Wire the generic `TransportBackend` and `FikoreLink` from the FikoRE
+   submodule into the common harness; retain only pilot-specific request and
+   configuration mapping in `capcsp/network/`.
+5. Integrate the JavaScript SFV engine through the validated `NetworkStep`
+   bridge and run the mock/FikoRE acceptance procedure in
+   [Offline Transport Validation](offline-transport-validation.md).
 6. Real HTTP origin server and live traffic path through FikoRE in emulated mode.
 7. L3 controller design and network-side adaptation hooks.
 8. Real-HTTP runs with the multi-video dash.js player (with Michi) and offline-versus-real validation runs.
 
-Each milestone delivers a runnable test harness. Steps 1 through 4 proceed independently of FikoRE C++ development.
+The FikoRE-side control plane, generic client and transport models needed by
+steps 4 and 5 are now available in the pinned submodule. The common harness
+wiring remains to be implemented.
 
 ## FikoRE Mock Adapter
 
-The mock implements the [`fikore-control-1` wire protocol](fikore-cosim-messages.md) over a local Unix domain socket, playing FikoRE's side of it: greeting, acknowledgements, the credit barrier, and a `state` block. It models deterministic byte allocation across multiple UEs, concurrent objects, cancellation tails, and telemetry fixtures.
+The current SFV integration mock implements the generic `NetworkBackend`
+contract in memory. It models deterministic shared byte allocation, concurrent
+objects and cancellation tails; it deliberately does not emulate
+`fikore-control-1`, TCP or radio behaviour.
 
 Purposes:
 
-- Enable Python harness development prior to FikoRE C++ adapter readiness
-- Provide reference protocol transcripts for C++ adapter testing
-- Fast execution of protocol edge cases in continuous integration
+- Enable player and bridge development without FikoRE
+- Provide deterministic `NetworkStep` transcripts
+- Exercise IDs, concurrent objects, swipes and cancellation semantics quickly
 
 The mock is a development tool and is never used to generate research results.
 
@@ -77,7 +87,11 @@ The mock is a development tool and is never used to generate research results.
 
 - **Unit tests**: buffer states, stall transitions, swipe handling with active downloads, prefetch budgeting, cancellation waste attribution, signaling-level gating, configuration validation, and scoring computations.
 - **Contract tests**: enforce semantic consistency across constant-rate, trace, mock, and FikoRE backends.
-- **Integration tests**: multi-UE concurrency, startup before time advances, session termination, seeded reproducibility, adapter error recovery, 10 ms versus 1 ms synchronization checks, and legacy FikoRE non-cosim regression checks.
+- **Integration tests**: use `make test-transport` and
+  `make test-transport-integration` in the submodule for transport and wire
+  behaviour, then the SFV procedure for multi-UE startup, session termination,
+  B1/B2 and cancellation. The backend keeps 1 ms Link causality while exposing
+  10 ms player windows.
 
 ## Real-Traffic Validation
 
