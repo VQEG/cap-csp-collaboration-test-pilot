@@ -9,7 +9,7 @@ When we settle an open point, update the relevant specification and tick it off 
 Owner: Michi
 
 - [x] Validate the Node.js player engine behind the Network Backend API through the SFV-VQEG v0.7.2 temporary bridge: it receives `NetworkStep` events and calls submit and cancel, never FikoRE wire messages ([Offline Transport Validation](offline-transport-validation.md)).
-- [ ] Move the validated temporary Python–Node bridge into the permanent common harness.
+- [x] Move the validated temporary Python–Node bridge into the common harness. Done by Werner in `capcsp/player/`, adapted from the SFV-VQEG v0.7.2 bridge.
 - [ ] Work out how the `MediaPlayer` instances share active and queued videos ([Player API](player-api.md#multi-video-dashjs-integration), [Architecture](architecture.md#offline-simulation-and-validation-paths)).
 - [ ] Sketch the controller for feed order, swipes, download history, prefetching, and cancellation ([Player API](player-api.md#multi-video-dashjs-integration)).
 - [ ] Pick the HTTP version, TLS setup, and connection limits for the mobile-app tests ([Network Backend API](network-backend-api.md#real-http-validation-architecture), [Implementation Plan](implementation-plan.md#real-traffic-validation)).
@@ -29,8 +29,19 @@ Owner: Pablo
 - [x] Validate slot-by-slot Python stepping with 300 s object, loss and Prague campaigns; checked evidence lives in the FikoRE submodule.
 - [x] Validate the SFV v0.7.2 mock/FikoRE seam with two UEs, B1/B2, swipes and cancellation accounting ([Offline Transport Validation](offline-transport-validation.md)).
 - [x] Advance this repository's emulator submodule to FikoRE `dev` after the transport/control merge.
-- [ ] Integrate the thin pilot-specific backend wiring and permanent Python–Node bridge in the common harness.
+- [x] Integrate the backend wiring and the Python–Node bridge in the common harness. Done by Werner as the `transport_fikore` backend in `capcsp/network/`.
+- [ ] Model one long-lived TCP connection per UE (or per origin) instead of one fresh connection per object, so that small segments do not spend most of their time in slow start.
+- [ ] Model core-network delay on the Link, including the ACK return path, instead of holding requests before submission ([Network Backend API](network-backend-api.md#latency-decomposition)).
 - [ ] Calibrate transport profiles and compare the offline model with real HTTP traffic.
+
+## Common Harness
+
+Owner: Werner
+
+- [x] Build the first runner, KPI table and report (`capcsp run`, `capcsp report`) for the `mock` and `transport_fikore` backends ([Architecture](architecture.md#main-loop)).
+- [ ] Add the `constant_rate` and `trace` backends ([Network Backend API](network-backend-api.md#backend-implementations)).
+- [ ] Call `set_ue_control()` and the player's CAP reports from the runner, so that L1 to L3 can run ([Signaling](signaling.md)).
+- [ ] Pass `NetworkTelemetryReceived` into the SFV engine for L2 policies. The runner logs telemetry, but the engine has no input for it yet.
 
 ## Baseline Policies and Player Heuristics
 
@@ -62,7 +73,7 @@ Owners: Werner and Pablo.
 Owners: Karan (condition profiles) and Werner (content and configuration). Trace generation is unassigned.
 
 - [ ] Karan: Supply SFV-specific C1-C5 profiles with bandwidth, RTT, and loss values ([meeting notes](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.a7zfcry4xais#heading=h.b2prnlqzgt0a), [research plan](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.vv9m6x6z2j60#heading=h.l92euqunbl3l)).
-- [ ] Werner: Generate reproducible segment sizes for `content.yaml` ([Experiments](experiments.md#content-registry)).
+- [ ] Werner: Write a seeded generator for a large content catalogue in the SFV `content.json` format (videos of 15 to 60 s, quality levels up to 1080p), and replace `content.yaml` in the specification with that format ([Experiments](experiments.md#content-registry)). The SFV fixture has only three 6 s videos.
 - [ ] TBD: Add C1-C5 profiles to the network configuration ([Experiments](experiments.md#network-conditions)).
 - [ ] TBD: Choose synthetic or FikoRE-recorded traces and create them ([Experiments](experiments.md#trace-backend)).
 - [ ] TBD: Match `synthetic_delay_ms` to the non-radio delay measured with live FikoRE ([Network Backend API](network-backend-api.md#latency-decomposition)).
