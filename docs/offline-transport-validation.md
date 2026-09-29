@@ -1,13 +1,8 @@
 # Offline Transport Validation
 
-This procedure validates the SFV v0.7.2 generic `NetworkBackend` seam first
-with its deterministic mock and then with FikoRE's modelled transport. The two
-runs use the same player, dataset, sessions, seeds, swipes and 10 ms cadence.
-Only the backend changes.
+This procedure validates the SFV v0.7.2 generic `NetworkBackend` seam first with its deterministic mock and then with FikoRE's modelled transport. The two runs use the same player, dataset, sessions, seeds, swipes and 10 ms cadence. Only the backend changes.
 
-The mock is a contract baseline, not a radio or TCP model. Matching request
-decisions in the short fixture does not imply that both networks are
-equivalent.
+The mock is a contract baseline, not a radio or TCP model. Matching request decisions in the short fixture does not imply that both networks are equivalent.
 
 ## Revisions
 
@@ -17,16 +12,11 @@ The validated external versions are:
 - `SFV-Reference-Implementation` v0.7.0;
 - the FikoRE `dev` commit pinned by this repository's submodule.
 
-Record exact SHAs with `git rev-parse HEAD` in each checkout and from the
-FikoRE integration's `run-manifest.json` fields `fikore_revision`,
-`sfv_vqeg_revision` and `sfv_core_revision`.
+Record exact SHAs with `git rev-parse HEAD` in each checkout and from the FikoRE integration's `run-manifest.json` fields `fikore_revision`, `sfv_vqeg_revision` and `sfv_core_revision`.
 
 ## Checkout Layout and Prerequisites
 
-The two SFV repositories must be sibling directories with their exact checkout
-names because the VQEG package declares
-`file:../SFV-Reference-Implementation`. The pilot/FikoRE checkout can live
-elsewhere. Set paths explicitly; no personal absolute path is required:
+The two SFV repositories must be sibling directories with their exact checkout names because the VQEG package declares `file:../SFV-Reference-Implementation`. The pilot/FikoRE checkout can live elsewhere. Set paths explicitly; no personal absolute path is required:
 
 ```bash
 export PILOT_ROOT=/path/to/cap-csp-collaboration-test-pilot
@@ -37,8 +27,7 @@ export OUT_ROOT="${TMPDIR:-/tmp}/sfv-fikore-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$OUT_ROOT"
 ```
 
-Requirements are Node.js 20+, Python 3.10+, a C++ build toolchain and `jq`.
-Poetry is not required for these runtime checks.
+Requirements are Node.js 20+, Python 3.10+, a C++ build toolchain and `jq`. Poetry is not required for these runtime checks.
 
 Install and verify the JavaScript dependencies:
 
@@ -53,9 +42,7 @@ npm test
 python3 -m unittest discover -s test -p 'test_*.py'
 ```
 
-`npm run test:all` is equivalent when a current Poetry installation is
-available. The direct command above also works with distributions that package
-an older Poetry version.
+`npm run test:all` is equivalent when a current Poetry installation is available. The direct command above also works with distributions that package an older Poetry version.
 
 Build FikoRE and its transport tests:
 
@@ -140,10 +127,7 @@ PYTHONPATH=transport python3 transport/benchmarks/validate_sfv.py \
   --output "$OUT_ROOT/fikore"
 ```
 
-`validate_sfv.py` ignores the fixture's `network_backend:
-constant_rate_mock` selector and instantiates
-`TransportBackend -> FikoreLink -> FikoRE`. It reuses the player/session part of
-the fixture.
+`validate_sfv.py` ignores the fixture's `network_backend: constant_rate_mock` selector and instantiates `TransportBackend -> FikoreLink -> FikoRE`. It reuses the player/session part of the fixture.
 
 Inspect the run:
 
@@ -224,11 +208,7 @@ diff -u \
   ]' "$OUT_ROOT/fikore/run-result.json")
 ```
 
-An empty diff demonstrates that replacing the mock did not break the generic
-boundary or change the short fixture's decisions. Network progress,
-timestamps, RTT, loss and cancellation-tail timing are not expected to be
-identical. A previous pinned run differed by 261 wastage bytes for B2 at the
-cutoff while preserving request identity and delivered bytes.
+An empty diff demonstrates that replacing the mock did not break the generic boundary or change the short fixture's decisions. Network progress, timestamps, RTT, loss and cancellation-tail timing are not expected to be identical. A previous pinned run differed by 261 wastage bytes for B2 at the cutoff while preserving request identity and delivered bytes.
 
 ## 4. Longer Policy and Cancellation Checks
 
@@ -244,8 +224,7 @@ PYTHONPATH=transport python3 transport/benchmarks/validate_sfv.py \
   --output "$OUT_ROOT/fikore-5s"
 ```
 
-Under the checked fixture, B1 requests no future-video media before the swipe;
-B2 preloads `v2/0`, `v2/1`, `v3/0` and `v3/1`.
+Under the checked fixture, B1 requests no future-video media before the swipe; B2 preloads `v2/0`, `v2/1`, `v3/0` and `v3/1`.
 
 Cancellation under a 1 Mbit/s per-UE cap:
 
@@ -259,9 +238,7 @@ PYTHONPATH=transport python3 transport/benchmarks/validate_sfv.py \
   --output "$OUT_ROOT/fikore-cancel"
 ```
 
-Every cancellation tail,
-`finalBytesDelivered - bytesDeliveredAtAbort`, must be non-negative. At a finite
-cutoff, terminal plus in-flight bytes must equal submitted bytes.
+Every cancellation tail, `finalBytesDelivered - bytesDeliveredAtAbort`, must be non-negative. At a finite cutoff, terminal plus in-flight bytes must equal submitted bytes.
 
 ```bash
 jq -s '[
@@ -283,9 +260,7 @@ jq -s '[
 
 ## Default FikoRE Configuration
 
-The validator uses
-[`config/control_demo.ini`](../5g-network-emulator/config/control_demo.ini) as
-its base template. It generates a temporary INI with:
+The validator uses [`config/control_demo.ini`](../5g-network-emulator/config/control_demo.ini) as its base template. It generates a temporary INI with:
 
 - fast barrier mode and a per-run Unix socket;
 - one UE per SFV session;
@@ -296,9 +271,7 @@ its base template. It generates a temporary INI with:
 - 65536 retained object events;
 - monitoring output disabled.
 
-The remaining template scenario is 20 MHz at 3.5 GHz with proportional-fair
-scheduling and static UEs at 300 m. The backend uses CUBIC, 128 KiB rwnd,
-Not-ECT downlink, 1 ms internal TTIs and 10 ms `NetworkStep` windows.
+The remaining template scenario is 20 MHz at 3.5 GHz with proportional-fair scheduling and static UEs at 300 m. The backend uses CUBIC, 128 KiB rwnd, Not-ECT downlink, 1 ms internal TTIs and 10 ms `NetworkStep` windows.
 
 ## Acceptance
 
@@ -307,10 +280,8 @@ The integration passes when:
 - all SFV core and bridge tests execute and pass;
 - both runs start at `t=0` and reach a final step;
 - FikoRE reports `status: completed` and `bytes_conserved: true`;
-- the FikoRE integration manifest records the expected three repository
-  revisions;
-- the mock manifest records `status: completed`,
-  `network_backend: constant_rate_mock` and the expected UE IDs;
+- the FikoRE integration manifest records the expected three repository revisions;
+- the mock manifest records `status: completed`, `network_backend: constant_rate_mock` and the expected UE IDs;
 - short-run request signatures match;
 - longer B1/B2 and cancellation checks behave as documented;
 - both external SFV worktrees remain clean.

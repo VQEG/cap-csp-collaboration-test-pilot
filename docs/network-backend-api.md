@@ -93,9 +93,7 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
 
 `ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For the FikoRE adapter it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
 
-Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's
-acknowledgement path. It is not obtained by doubling FikoRE's one-way
-`pdcp_latency_ms`; both measurements remain separate.
+Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's acknowledgement path. It is not obtained by doubling FikoRE's one-way `pdcp_latency_ms`; both measurements remain separate.
 
 ## Common Semantics
 
@@ -132,20 +130,14 @@ In real HTTP runs, the client measures bytes delivered to the application layer 
 
 ## Transport Models
 
-Implemented: `TransportBackend` implements `NetworkBackend` on top of a Link
-that accepts segments at a TTI and returns terminal arrivals by a TTI. The
-transport model and Link are independent axes:
+Implemented: `TransportBackend` implements `NetworkBackend` on top of a Link that accepts segments at a TTI and returns terminal arrivals by a TTI. The transport model and Link are independent axes:
 
 - TCP controllers: Reno, CUBIC and externally bound Prague.
 - Diagnostic transport: ideal fixed window with immediate outcome recovery.
 - Links: `FikoreLink` and deterministic `LoopbackLink`.
 - Runner-level traffic: open-loop UDP, not currently exposed through `TransportBackend`.
 
-The implementation lives under
-[`5g-network-emulator/transport/`](../5g-network-emulator/transport/).
-Current limitations include one fresh TCP flow per object and no modelled
-handshake, FIN, Nagle, window scaling, PRR or RACK/TLP. See the submodule's
-[`LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
+The implementation lives under [`5g-network-emulator/transport/`](../5g-network-emulator/transport/). Current limitations include one fresh TCP flow per object and no modelled handshake, FIN, Nagle, window scaling, PRR or RACK/TLP. See the submodule's [`LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
 
 ## Latency Decomposition
 
@@ -155,12 +147,7 @@ The architecture separates three latency components:
 - **Core-network latency**: transport delay outside the radio access network.
 - **Radio latency**: queueing delay, MAC scheduling, radio transmission, and HARQ retransmissions in FikoRE.
 
-Constant-rate and trace backends will inject configured non-radio delay
-directly. The planned common harness may hold an object until
-`ready_at_s = requested_at_s + synthetic_delay_ms / 1000` before submitting it
-to `TransportBackend`. The current SFV/FikoRE validator does not add this
-synthetic hold; FikoRE applies the template's configured backhaul and radio
-latency. The real-HTTP backend measures live end-to-end latency directly.
+Constant-rate and trace backends will inject configured non-radio delay directly. The planned common harness may hold an object until `ready_at_s = requested_at_s + synthetic_delay_ms / 1000` before submitting it to `TransportBackend`. The current SFV/FikoRE validator does not add this synthetic hold; FikoRE applies the template's configured backhaul and radio latency. The real-HTTP backend measures live end-to-end latency directly.
 
 ## Real-HTTP Validation Architecture
 

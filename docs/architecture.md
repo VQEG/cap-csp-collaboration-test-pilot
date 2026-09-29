@@ -33,11 +33,7 @@ The network backend manages:
 - Transport flows, congestion control and cancellation tails
 - Observable network telemetry
 
-FikoRE manages radio states, radio queues, scheduling, channel models, and the
-offline simulation clock. The implemented offline path separates the generic
-`TransportBackend` from `FikoreLink`: the former turns anonymous objects into
-modelled transport flows, while the latter translates segments and feedback to
-and from `fikore-control-1`.
+FikoRE manages radio states, radio queues, scheduling, channel models, and the offline simulation clock. The implemented offline path separates the generic `TransportBackend` from `FikoreLink`: the former turns anonymous objects into modelled transport flows, while the latter translates segments and feedback to and from `fikore-control-1`.
 
 ## Execution Modes
 
@@ -60,10 +56,7 @@ Every backend reports elapsed time starting from `0.0` seconds and stamps all ev
 
 The runner maintains no independent clock. Playback progress, stalls, user swipes, and download decisions advance strictly from the backend timestamp.
 
-FikoRE simulates 1 ms radio slots internally. The transport advances the link
-one TTI at a time so ACK, loss and retransmission causality is preserved. The
-player-facing backend accumulates ten TTIs by default and returns one 10 ms
-`NetworkStep`.
+FikoRE simulates 1 ms radio slots internally. The transport advances the link one TTI at a time so ACK, loss and retransmission causality is preserved. The player-facing backend accumulates ten TTIs by default and returns one 10 ms `NetworkStep`.
 
 ## Main Loop
 
@@ -107,12 +100,7 @@ The request identifier is an opaque correlation key that the network does not in
 
 ## Offline Simulation and Validation Paths
 
-The target common harness runs the JavaScript engine as a subprocess. The
-current integration proof uses the temporary Python–Node bridge in the external
-SFV-VQEG v0.7.2 repository. In both cases the engine receives `NetworkStep`
-events and returns request submissions and cancellations through the
-[Network Backend API](network-backend-api.md); it never sees backend-specific
-messages.
+The target common harness runs the JavaScript engine as a subprocess. The current integration proof uses the temporary Python–Node bridge in the external SFV-VQEG v0.7.2 repository. In both cases the engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
 
 The implemented validation path is:
 

@@ -166,8 +166,4 @@ Signaling levels provide additional telemetry fields to policies. A policy that 
 
 The player is Michi's [SFV reference implementation](https://github.com/micseu/SFV-Reference-Implementation): a patched dash.js that lets a centralized short-form controller own all manifest and segment requests, the B1/B2 policies, and a Node.js engine that shares the same policy code. The controller is responsible for feed queues, user swipes, cross-video prefetching, and cancellation.
 
-Offline validation currently connects the Node.js engine through the temporary
-SFV-VQEG v0.7.2 Python bridge and the
-[Network Backend API](network-backend-api.md). Moving that validated bridge into
-the common harness remains open. In real-HTTP runs, the browser player's
-requests route through FikoRE in emulation mode to an HTTP origin server.
+Offline validation currently connects the Node.js engine through the temporary SFV-VQEG v0.7.2 Python bridge and the [Network Backend API](network-backend-api.md). Moving that validated bridge into the common harness remains open. In real-HTTP runs, the browser player's requests route through FikoRE in emulation mode to an HTTP origin server.

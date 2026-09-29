@@ -22,9 +22,7 @@ Future stages may extend the pilot to other use cases. See the [working Google D
 > transport models and generic `NetworkBackend` facade. The permanent common
 > harness and the full experiment matrix are still under development.
 
-Building FikoRE requires the tools listed in its
-[README](5g-network-emulator/README.md). The transport package supports Python
-3.10 or newer. The proposed common test harness uses Python 3.14 and `uv`.
+Building FikoRE requires the tools listed in its [README](5g-network-emulator/README.md). The transport package supports Python 3.10 or newer. The proposed common test harness uses Python 3.14 and `uv`.
 
 ## Usage
 
@@ -39,10 +37,7 @@ The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Current validation
 
-The generic SFV v0.7.2 Python–Node bridge has been exercised with both its
-deterministic mock and FikoRE's `TransportBackend`. This validates the
-integration seam, multi-UE requests, prefetching and cancellation accounting;
-it is not yet the full pilot experiment matrix.
+The generic SFV v0.7.2 Python–Node bridge has been exercised with both its deterministic mock and FikoRE's `TransportBackend`. This validates the integration seam, multi-UE requests, prefetching and cancellation accounting; it is not yet the full pilot experiment matrix.
 
 ## Contributing
 
