@@ -60,31 +60,191 @@ FikoRE simulates 1 ms radio slots internally. The transport advances the link on
 
 ## Main Loop
 
-The backend yields an initial step at `t = 0.0`, allowing players to issue startup requests before virtual time advances.
+The runner (`capcsp/runner/run.py`) creates the network backend and one Node.js player process for all UEs, then exchanges one `NetworkStep` at a time until the backend marks a step as final. The backend yields an initial step at `t = 0.0`, so players can issue startup requests before virtual time advances. A single process manages all video UEs within a cell to capture shared-medium contention and scheduler fairness.
 
-```python
-try:
-    while True:
-        step = network_backend.advance()
+The diagrams below show the `transport_fikore` backend. The `mock` backend replaces `TransportBackend`, `FikoreLink` and FikoRE with an in-memory byte budget; everything else is the same.
 
-        for event in step.events:
-            sessions_by_ue[event.ue_id].on_network_event(event)
-            update_shared_state_if_needed(event)
+### Run Setup
 
-        if step.is_final:
-            for session in sessions:
-                session.finish(step.time_s)
-            break
-
-        for session in sessions:
-            session.tick(step.time_s)
-
-        run_l3_controller_if_configured(step.time_s)
-finally:
-    network_backend.close()
+```mermaid
+sequenceDiagram
+    participant R as Runner
+    participant B as TransportFikoreBackend
+    participant L as FikoreLink
+    participant F as FikoRE process
+    participant P as Player process (Node.js)
+    R->>R: load_config()
+    R->>B: create (network settings, UE IDs, duration)
+    B->>F: start with generated .ini (barrier mode)
+    F->>F: bind Unix socket, block before TTI 0
+    B->>L: create
+    L->>F: connect (retry until socket exists)
+    F-->>L: hello fikore-control-1
+    L->>F: fikore-control-1
+    R->>P: start worker.mjs
+    R->>P: initialize (sessions, content, duration, backend name)
+    P->>P: one SFVSimulationController per UE
+    P-->>R: initialized
 ```
 
-A single process manages all video UEs within a cell to capture shared-medium contention and scheduler fairness. Sessions share state only through the explicit shared state table.
+### One Step
+
+The player sees only the serialized `NetworkStep` and answers with opaque request actions. All UEs move to the same time before any event is applied.
+
+```mermaid
+sequenceDiagram
+    participant R as Runner
+    participant B as TransportBackend
+    participant L as FikoreLink
+    participant F as FikoRE process
+    participant P as Player process (Node.js)
+    R->>B: advance()
+    loop 10 TTIs of 1 ms
+        B->>L: submit(TCP segments)
+        L->>F: inject, events, grant
+        F->>F: run one TTI
+        F-->>L: acks and per-tag byte deltas
+        L-->>B: segment arrivals
+        B->>B: TCP ACK, congestion control, retransmission
+    end
+    B-->>R: NetworkStep(time_s, events, is_final)
+    R->>R: check events against submitted requests, log telemetry
+    R->>P: network_step
+    P->>P: advance playback of all UEs to time_s
+    P->>P: apply download events, apply due swipes
+    P->>P: B1/B2 rule decides next requests
+    P-->>R: player_actions (submit_request, cancel_request)
+    R->>B: submit_request(ue_id, request_id, bytes_total)
+    R->>B: cancel_request(ue_id, request_id)
+```
+
+### End of Run
+
+```mermaid
+sequenceDiagram
+    participant R as Runner
+    participant B as TransportFikoreBackend
+    participant F as FikoRE process
+    participant P as Player process (Node.js)
+    R->>B: advance()
+    B-->>R: NetworkStep(is_final = true)
+    R->>P: network_step (final)
+    P->>P: cancel open requests, build session records
+    P-->>R: player_step_result (sessions)
+    R->>B: close()
+    B->>F: close socket, stop process
+    R->>R: write run-manifest.json, sessions/, network-steps.jsonl, telemetry.jsonl
+    R->>R: collect_kpis() -> kpis.csv, write_report() -> report.md
+```
+
+## Implementation Structure
+
+The Python side lives in two packages: `capcsp` in this repository and `fikore_transport` in the FikoRE submodule. `capcsp` imports the Network Backend API types from `fikore_transport`.
+
+```mermaid
+classDiagram
+    namespace capcsp {
+        class NetworkBackend {
+            <<Protocol>>
+            submit_request(ue_id, request_id, bytes_total)
+            cancel_request(ue_id, request_id)
+            advance() NetworkStep
+            close()
+        }
+        class MockNetworkBackend {
+            name = "mock"
+        }
+        class TransportFikoreBackend {
+            name = "transport_fikore"
+            accounting() dict
+        }
+        class TransportFikoreConfig
+        class NodePlayerBridge {
+            exchange(message) dict
+            on_step(step) dict
+            close()
+        }
+        class Runner {
+            run_experiment(config, output_dir)
+            run_sessions(backend, bridge)
+            collect_kpis(run_dir)
+            write_report(run_dirs, path)
+        }
+    }
+    namespace fikore_transport {
+        class TransportBackend {
+            set_ue_control(ue_id, control)
+        }
+        class Link {
+            <<Protocol>>
+            submit(items, at_tti)
+            step(until_tti) list~Arrival~
+            close()
+        }
+        class FikoreLink
+        class LoopbackLink
+        class Emulator
+        class TcpSender
+    }
+    NetworkBackend <|.. MockNetworkBackend
+    NetworkBackend <|.. TransportBackend
+    TransportBackend <|-- TransportFikoreBackend
+    TransportFikoreBackend ..> TransportFikoreConfig
+    TransportBackend --> Link
+    TransportBackend *-- "one per request" TcpSender
+    Link <|.. FikoreLink
+    Link <|.. LoopbackLink
+    FikoreLink --> Emulator : owns FikoRE process
+    Runner --> NetworkBackend
+    Runner --> NodePlayerBridge : JSON lines over stdin/stdout
+```
+
+The Node.js side is a thin layer in `capcsp/player/js/` around the unchanged engine from the `sfv-reference-implementation` submodule.
+
+```mermaid
+classDiagram
+    namespace capcsp_player_js {
+        class NetworkStepHarness {
+            onStep(step) actions or result
+            getCapReports()
+        }
+        class SFVExternalTransport {
+            start(request)
+            abort(requestId)
+            receiveEvent(event, dispatch)
+            finish(time)
+        }
+    }
+    namespace sfv_reference_implementation {
+        class SFVSimulationController {
+            startAt(time)
+            advancePlaybackTo(time)
+            applyNetworkEvent(event)
+            applySwipeAt(time)
+            decideAtEpoch()
+            finishAt(time)
+        }
+        class SFVCurrentVideoRule {
+            B1
+        }
+        class SFVMultiVideoPrefetchRule {
+            B2
+        }
+        class SFVRequestManager
+        class SFVSegmentStore
+        class SFVSessionRecordBuilder
+    }
+    NetworkStepHarness *-- "one per UE" SFVSimulationController
+    NetworkStepHarness *-- "one per UE" SFVExternalTransport
+    SFVSimulationController --> SFVExternalTransport : requests and cancellations
+    SFVSimulationController --> SFVCurrentVideoRule
+    SFVSimulationController --> SFVMultiVideoPrefetchRule
+    SFVSimulationController *-- SFVRequestManager
+    SFVSimulationController *-- SFVSegmentStore
+    SFVSimulationController ..> SFVSessionRecordBuilder : at finishAt
+```
+
+Each session uses one of the two rules. `SFVExternalTransport` turns the controller's requests into `submit_request` and `cancel_request` actions and keeps the media metadata of each request on the player side.
 
 ## Player and Network Decoupling
 
@@ -100,19 +260,7 @@ The request identifier is an opaque correlation key that the network does not in
 
 ## Offline Simulation and Validation Paths
 
-The harness runs the JavaScript engine from the `sfv-reference-implementation` submodule as a subprocess. The first integration proof used the temporary Python–Node bridge in the external SFV-VQEG v0.7.2 repository, which is being adapted into `capcsp/player/`. In both cases the engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
-
-The implemented validation path is:
-
-```text
-JavaScript SFV player
-  -> Python generic bridge
-  -> TransportBackend
-  -> CUBIC TCP in the checked SFV run
-  -> FikoreLink
-  -> fikore-control-1
-  -> FikoRE
-```
+The harness runs the JavaScript engine from the `sfv-reference-implementation` submodule as a subprocess, through the bridge in `capcsp/player/` (adapted from the SFV-VQEG v0.7.2 repository). The engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
 
 The same policy code runs in the browser in a patched dash.js player supporting multi-video short-form playback. That player lets a short-form controller own all requests, with access to the feed queue, download history, and active network requests.
 
