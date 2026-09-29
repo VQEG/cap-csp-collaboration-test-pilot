@@ -34,15 +34,15 @@ class DownloadCancelled:
 
 @dataclass(frozen=True)
 class NetworkTelemetry:
-    throughput_mbps: float | None
-    rtt_ms: float | None
-    ip_latency_ms: float | None
-    pdcp_latency_ms: float | None
-    ce_rate: float | None
-    drop_rate: float | None
-    retransmitted_bytes: int | None
-    sinr_db: float | None
-    queue_bytes: int | None
+    throughput_mbps: float | None = None
+    rtt_ms: float | None = None
+    ip_latency_ms: float | None = None
+    pdcp_latency_ms: float | None = None
+    ce_rate: float | None = None
+    drop_rate: float | None = None
+    retransmitted_bytes: int | None = None
+    sinr_db: float | None = None
+    queue_bytes: int | None = None
 
 
 @dataclass(frozen=True)
@@ -89,11 +89,20 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
     def set_ue_control(self, ue_id: int, control: UeControl) -> None: ...
 ```
 
-`NetworkEvent` is an internal Python union. Each backend creates these events from its native telemetry: the FikoRE adapter translates wire reports, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
+`NetworkEvent` is an internal Python union. Each backend creates these events from its native telemetry: `TransportBackend` builds them from `FikoreLink` feedback, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
 
-`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For the FikoRE adapter it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
+`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
 
 Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's acknowledgement path. It is not obtained by doubling FikoRE's one-way `pdcp_latency_ms`; both measurements remain separate.
+
+## Reference Definitions
+
+This document is the normative definition of the API. Changes start here and then go to the two Python copies:
+
+- `capcsp/network/api.py` in this repository (planned). All backends and the player bridge in the pilot harness import their types from it.
+- [`transport/fikore_transport/backend.py`](../5g-network-emulator/transport/fikore_transport/backend.py) in the FikoRE submodule. `TransportBackend` keeps its own copy because the FikoRE package does not depend on the pilot harness.
+
+Both copies use the same class and field names. The player bridge serializes events by class name and field names, so it accepts events from either copy. A contract test in the harness compares the two sets of dataclasses and fails if they differ.
 
 ## Common Semantics
 
@@ -121,10 +130,13 @@ In real HTTP runs, the client measures bytes delivered to the application layer 
 
 ## Backend Implementations
 
-- `MockNetworkBackend`: the SFV v0.7.2 repository's deterministic shared byte-budget backend for contract tests.
-- `TransportBackend`: the implemented generic object backend in the FikoRE submodule. It can use a deterministic `LoopbackLink` or `FikoreLink`.
-- `ConstantRateBackend` and `TraceBackend`: pilot backends still to be implemented in the common harness.
-- `HttpBackend`: issues HTTP requests through FikoRE in real-time emulation, recording actual application-level byte deliveries.
+Each backend has a fixed name. Experiment configurations select the backend by this name, and session records store it in `network_backend`:
+
+- `mock`: `MockNetworkBackend`, a deterministic shared byte budget for contract tests, adapted from the SFV-VQEG v0.7.2 repository. It never produces research results.
+- `constant_rate`: `ConstantRateBackend`, still to be implemented.
+- `trace`: `TraceBackend`, still to be implemented.
+- `transport_fikore`: `TransportBackend` from the FikoRE submodule over `FikoreLink`. The same class over the deterministic `LoopbackLink` is used only in tests.
+- `http`: `HttpBackend`, which issues HTTP requests through FikoRE in real-time emulation and records the bytes actually delivered to the application.
 
 `HttpBackend` defines an interface contract. The reference validator implements the client inside the extended multi-video dash.js player, bridging request events and telemetry back to the harness.
 

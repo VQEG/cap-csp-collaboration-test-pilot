@@ -4,6 +4,8 @@ This procedure validates the SFV v0.7.2 generic `NetworkBackend` seam first with
 
 The mock is a contract baseline, not a radio or TCP model. Matching request decisions in the short fixture does not imply that both networks are equivalent.
 
+This procedure uses Michi's external SFV-VQEG repository and Pablo's `validate_sfv.py`. It records the first integration proof and will be replaced by the runner in `capcsp/`, which uses the `sfv-reference-implementation` submodule instead of a sibling checkout. Backend names also differ until then: the SFV-VQEG fixture calls the mock `constant_rate_mock`, and its session records store `network_backend: external` for both runs. The harness records `mock` and `transport_fikore` as defined in the [Network Backend API](network-backend-api.md#backend-implementations).
+
 ## Revisions
 
 The validated external versions are:
@@ -16,7 +18,7 @@ Record exact SHAs with `git rev-parse HEAD` in each checkout and from the FikoRE
 
 ## Checkout Layout and Prerequisites
 
-The two SFV repositories must be sibling directories with their exact checkout names because the VQEG package declares `file:../SFV-Reference-Implementation`. The pilot/FikoRE checkout can live elsewhere. Set paths explicitly; no personal absolute path is required:
+The two SFV repositories must be sibling directories with their exact checkout names because the VQEG package declares `file:../SFV-Reference-Implementation`. The `sfv-reference-implementation` submodule of this repository is pinned to the same v0.7.0 tag, but cannot replace the sibling checkout for this procedure. The pilot/FikoRE checkout can live elsewhere. Set paths explicitly; no personal absolute path is required:
 
 ```bash
 export PILOT_ROOT=/path/to/cap-csp-collaboration-test-pilot
@@ -27,7 +29,7 @@ export OUT_ROOT="${TMPDIR:-/tmp}/sfv-fikore-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$OUT_ROOT"
 ```
 
-Requirements are Node.js 20+, Python 3.10+, a C++ build toolchain and `jq`. Poetry is not required for these runtime checks.
+Requirements are Linux, Node.js 20+, Python 3.10+, a C++ build toolchain and `jq`. FikoRE links against `libmnl` and `libnetfilter_queue`, which exist only on Linux; on macOS, run the procedure inside a container built from FikoRE's Dockerfile. Poetry is not required for these runtime checks.
 
 Install and verify the JavaScript dependencies:
 
@@ -53,7 +55,7 @@ make test-transport
 make test-transport-integration
 ```
 
-## 1. Deterministic Mock
+## Deterministic Mock
 
 ```bash
 cd "$SFV_VQEG_ROOT"
@@ -114,7 +116,7 @@ jq '{
 }' "$OUT_ROOT/mock/network-step-transcript.json"
 ```
 
-## 2. FikoRE TransportBackend
+## FikoRE TransportBackend
 
 Use the same SFV JSON explicitly:
 
@@ -182,7 +184,7 @@ jq '.sessions[] | {
 }' "$OUT_ROOT/fikore/run-manifest.json"
 ```
 
-## 3. Short-Run Parity
+## Short-Run Parity
 
 For the pinned 0.2 s fixture, compare request IDs, sizes and final states:
 
@@ -210,7 +212,7 @@ diff -u \
 
 An empty diff demonstrates that replacing the mock did not break the generic boundary or change the short fixture's decisions. Network progress, timestamps, RTT, loss and cancellation-tail timing are not expected to be identical. A previous pinned run differed by 261 wastage bytes for B2 at the cutoff while preserving request identity and delivered bytes.
 
-## 4. Longer Policy and Cancellation Checks
+## Longer Policy and Cancellation Checks
 
 B1/B2 policy behaviour over 5 s:
 

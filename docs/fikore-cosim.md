@@ -110,19 +110,17 @@ The compact state accompanying `events` exposes delivered throughput, queue and 
 
 The SFV validator uses [`config/control_demo.ini`](../5g-network-emulator/config/control_demo.ini) as a template. `EmulatorConfig` writes a temporary effective configuration:
 
-| Setting | Effective value |
-| :-- | :-- |
-| `duration` | SFV duration + 1 s process margin |
-| `period` | `-1` fast mode |
-| `n_ues` | number of sessions in the SFV JSON |
-| `dl_target`, `ul_target` | `0.0`; all bytes come from the client |
-| `pkt_size` | 12000 bits = 1500-byte MSS |
-| `pkt_delay_budget` | 30 s for the validation |
-| `random_v` | `false` |
-| `sync_mode` | `barrier` |
-| `on_timeout` | `abort` |
-| `max_object_events` | 65536 |
-| monitoring output | disabled |
+- `duration`: SFV duration + 1 s process margin
+- `period`: `-1` fast mode
+- `n_ues`: number of sessions in the SFV JSON
+- `dl_target`, `ul_target`: `0.0`; all bytes come from the client
+- `pkt_size`: 12000 bits = 1500-byte MSS
+- `pkt_delay_budget`: 30 s for the validation
+- `random_v`: `false`
+- `sync_mode`: `barrier`
+- `on_timeout`: `abort`
+- `max_object_events`: 65536
+- monitoring output: disabled
 
 The template keeps the 20 MHz, 3.5 GHz scenario, proportional-fair scheduler, static UEs at 300 m and equal DL/UL TDD ratio. The backend uses CUBIC, a 128 KiB receive window, downlink, Not-ECT and a 10 ms player-facing window.
 

@@ -100,7 +100,7 @@ The request identifier is an opaque correlation key that the network does not in
 
 ## Offline Simulation and Validation Paths
 
-The target common harness runs the JavaScript engine as a subprocess. The current integration proof uses the temporary Python–Node bridge in the external SFV-VQEG v0.7.2 repository. In both cases the engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
+The harness runs the JavaScript engine from the `sfv-reference-implementation` submodule as a subprocess. The first integration proof used the temporary Python–Node bridge in the external SFV-VQEG v0.7.2 repository, which is being adapted into `capcsp/player/`. In both cases the engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
 
 The implemented validation path is:
 
