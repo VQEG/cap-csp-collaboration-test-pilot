@@ -14,7 +14,7 @@ Session records serve as the primary dataset for evaluation. All metrics include
   "session_id": "c04-L2-preload-seed17-ue3",
   "ue_id": 3,
   "condition": "C4_congested",
-  "network_backend": "fikore_cosim",
+  "network_backend": "transport_fikore",
   "signaling_level": "L2",
   "player_behavior": "preload",
   "swipe_profile": "medium",
