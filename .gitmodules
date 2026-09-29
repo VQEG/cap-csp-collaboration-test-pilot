@@ -2,3 +2,7 @@
 	path = 5g-network-emulator
 	url = https://github.com/nokia/5g-network-emulator
 	branch = dev
+[submodule "sfv-reference-implementation"]
+	path = sfv-reference-implementation
+	url = https://github.com/micseu/SFV-Reference-Implementation.git
+	branch = main
