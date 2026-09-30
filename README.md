@@ -18,15 +18,29 @@ Future stages may extend the pilot to other use cases. See the [working Google D
 ## Requirements
 
 > [!NOTE]
-> The FikoRE submodule now contains the implemented incremental control path,
-> transport models and generic `NetworkBackend` facade. The permanent common
-> harness and the full experiment matrix are still under development.
+> The FikoRE submodule contains the incremental control path, the transport models and `TransportBackend`. The SFV player is included as a second submodule. The common harness and the full experiment matrix are still under development.
 
-Building FikoRE requires the tools listed in its
-[README](5g-network-emulator/README.md). The transport package supports Python
-3.10 or newer. The proposed common test harness uses Python 3.14 and `uv`.
+Clone with `git clone --recurse-submodules`, or run `git submodule update --init` in an existing checkout. Building FikoRE requires Linux and the tools listed in its [README](5g-network-emulator/README.md); on macOS, use its Dockerfile. The transport package supports Python 3.10 or newer. The proposed common test harness uses Python 3.14 and `uv`.
 
 ## Usage
+
+Run the example with two UEs (B1 and B2) on the deterministic mock backend. This needs `uv` and Node.js 20 or newer:
+
+```bash
+uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json output/mock
+```
+
+The output directory holds the run manifest, one session record per UE, the `NetworkStep` transcript, `kpis.csv` and `report.md`. `uv run capcsp report output/run-a output/run-b -o report.md` compares several runs.
+
+Runs on FikoRE need Linux. On macOS, build the container and run inside it:
+
+```bash
+docker build -t capcsp .
+docker run --rm -v "$PWD/output:/pilot/output" capcsp \
+  capcsp run configs/experiments/b1-b2-two-ue-fikore.json output/fikore
+```
+
+Run the tests with `uv run pytest`, or with `docker run --rm capcsp pytest` to include the FikoRE test.
 
 Start with these documents:
 
@@ -37,14 +51,9 @@ Start with these documents:
 
 The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
-## Current validation
+## Current Validation
 
-The generic SFV v0.7.2 Python–Node bridge has been exercised with both its
-deterministic mock and FikoRE's `TransportBackend`. This validates the
-integration seam, multi-UE requests, prefetching, cancellation accounting and
-persistent per-UE TCP connection reuse. Fresh-per-object TCP remains available
-as an explicit comparison mode. This is not yet the full pilot experiment
-matrix.
+The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, and L1 to L4 are not connected.
 
 ## Contributing
 

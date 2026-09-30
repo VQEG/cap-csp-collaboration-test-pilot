@@ -33,9 +33,7 @@ class CspFields:
 
 Field mappings from backend telemetry to `CspFields` are logged explicitly. For example, radio packet drop rate maps to `loss_rate` only when configured for that experiment.
 
-Under FikoRE co-simulation, `rtt_ms` comes from the modelled transport's
-acknowledgement path. FikoRE's one-way PDCP latency remains a separate backend
-measurement and is not doubled to manufacture RTT.
+Under FikoRE co-simulation, `rtt_ms` comes from the modelled transport's acknowledgement path. FikoRE's one-way PDCP latency remains a separate backend measurement and is not doubled to manufacture RTT.
 
 FikoRE additionally knows each UE's CQI, MCS, spectral efficiency and rank, which yield an achievable rate for that UE's current channel. That is neither measured throughput nor an oracle, and it is closer to what a real CSP could publish than either. It is a candidate additional L2 field, kept out of `CspFields` until an experiment needs it.
 
@@ -77,10 +75,7 @@ The shared table enforces signaling-level filtering, exposing only permitted fie
 
 ## Data Sources Across Modes
 
-- **Offline co-simulation**: `TransportBackend` emits
-  `NetworkTelemetryReceived` from transport measurements and FikoreLink's
-  compact `events` state; the common harness maps those fields into
-  `CspFields`.
+- **Offline co-simulation**: `TransportBackend` emits `NetworkTelemetryReceived` from transport measurements and FikoreLink's compact `events` state; the common harness maps those fields into `CspFields`.
 - **Emulated live mode**: a telemetry collector translates live FikoRE metrics into `CspFields`. The HTTP client supplies application-layer observations (e.g., request latency and application throughput).
 
 All telemetry records use backend simulation or elapsed run time.

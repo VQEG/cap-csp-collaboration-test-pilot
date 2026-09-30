@@ -1,0 +1,6 @@
+{
+  "name": "capcsp-player-harness",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=20"}
+}
