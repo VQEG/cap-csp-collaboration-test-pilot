@@ -41,8 +41,10 @@ The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 The generic SFV v0.7.2 Python–Node bridge has been exercised with both its
 deterministic mock and FikoRE's `TransportBackend`. This validates the
-integration seam, multi-UE requests, prefetching and cancellation accounting;
-it is not yet the full pilot experiment matrix.
+integration seam, multi-UE requests, prefetching, cancellation accounting and
+persistent per-UE TCP connection reuse. Fresh-per-object TCP remains available
+as an explicit comparison mode. This is not yet the full pilot experiment
+matrix.
 
 ## Contributing
 

@@ -143,8 +143,15 @@ transport model and Link are independent axes:
 
 The implementation lives under
 [`5g-network-emulator/transport/`](../5g-network-emulator/transport/).
-Current limitations include one fresh TCP flow per object and no modelled
-handshake, FIN, Nagle, window scaling, PRR or RACK/TLP. See the submodule's
+TCP uses an HTTP/1.1-style persistent pool by default: sequential objects reuse
+idle per-UE connections and preserve cwnd/RTT state, while concurrent objects
+open additional connections. `tcp_connection_mode="fresh"` retains the
+one-flow-per-object baseline, and the idle pool is bounded by
+`max_idle_tcp_connections_per_ue`. Cancellation retires only the affected
+connection after its accounting tail drains.
+
+Current limitations include no HTTP/2-style multiplexing on one connection and
+no modelled handshake, FIN, Nagle, window scaling, PRR or RACK/TLP. See the submodule's
 [`LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
 
 ## Latency Decomposition

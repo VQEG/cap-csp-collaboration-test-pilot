@@ -15,7 +15,9 @@ The validated external versions are:
 
 - `SFV-VQEG-CAP-CSP-Collaboration-Experiments` v0.7.2;
 - `SFV-Reference-Implementation` v0.7.0;
-- the FikoRE `dev` commit pinned by this repository's submodule.
+- FikoRE `dev` commit
+  `325dfadd3809b2d7def25a980ef6782e1819ce48`, pinned by this repository's
+  submodule.
 
 Record exact SHAs with `git rev-parse HEAD` in each checkout and from the
 FikoRE integration's `run-manifest.json` fields `fikore_revision`,
@@ -137,13 +139,15 @@ PYTHONPATH=transport python3 transport/benchmarks/validate_sfv.py \
   --sfv-vqeg-root "$SFV_VQEG_ROOT" \
   --sfv-core-root "$SFV_CORE_ROOT" \
   --config "$SFV_VQEG_ROOT/examples/network-backend-mock.json" \
+  --tcp-connection-mode persistent \
   --output "$OUT_ROOT/fikore"
 ```
 
 `validate_sfv.py` ignores the fixture's `network_backend:
 constant_rate_mock` selector and instantiates
 `TransportBackend -> FikoreLink -> FikoRE`. It reuses the player/session part of
-the fixture.
+the fixture. Persistent mode is the default; pass
+`--tcp-connection-mode fresh` for the former one-flow-per-object baseline.
 
 Inspect the run:
 
@@ -159,7 +163,9 @@ jq '{
   max_events_per_reply,
   fikore_revision,
   sfv_vqeg_revision,
-  sfv_core_revision
+  sfv_core_revision,
+  transport,
+  tcp_connection_mode
 }' "$OUT_ROOT/fikore/run-manifest.json"
 ```
 
@@ -298,7 +304,8 @@ its base template. It generates a temporary INI with:
 
 The remaining template scenario is 20 MHz at 3.5 GHz with proportional-fair
 scheduling and static UEs at 300 m. The backend uses CUBIC, 128 KiB rwnd,
-Not-ECT downlink, 1 ms internal TTIs and 10 ms `NetworkStep` windows.
+Not-ECT downlink, persistent per-UE TCP pools with at most six idle connections,
+1 ms internal TTIs and 10 ms `NetworkStep` windows.
 
 ## Acceptance
 

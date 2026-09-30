@@ -28,7 +28,9 @@ Owner: Pablo
 - [x] Add per-tag incremental accounting with cursor replay, resynchronisation, bounded retention and `forget` ([Message Reference](fikore-cosim-messages.md#events)).
 - [x] Validate slot-by-slot Python stepping with 300 s object, loss and Prague campaigns; checked evidence lives in the FikoRE submodule.
 - [x] Validate the SFV v0.7.2 mock/FikoRE seam with two UEs, B1/B2, swipes and cancellation accounting ([Offline Transport Validation](offline-transport-validation.md)).
-- [x] Advance this repository's emulator submodule to FikoRE `dev` after the transport/control merge.
+- [x] Implement persistent HTTP/1.1-style TCP connection reuse with bounded per-UE pools, an explicit fresh-flow baseline, independent object accounting and cancellation isolation.
+- [x] Advance this repository's emulator submodule to FikoRE `dev`
+  `325dfadd3809b2d7def25a980ef6782e1819ce48`.
 - [ ] Integrate the thin pilot-specific backend wiring and permanent Python–Node bridge in the common harness.
 - [ ] Calibrate transport profiles and compare the offline model with real HTTP traffic.
 
