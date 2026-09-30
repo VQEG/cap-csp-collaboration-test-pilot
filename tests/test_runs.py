@@ -52,8 +52,10 @@ def test_mock(tmp_path: Path) -> None:
     assert json.loads(last)["network_step"]["is_final"]
 
 
-def test_transport_over_loopback(tmp_path: Path) -> None:
-    output = run(tmp_path, "b1-b2-two-ue-fikore", network={"link": "loopback"}, duration_s=2)
+@pytest.mark.parametrize("tcp_connection_mode", ["persistent", "fresh"])
+def test_transport_over_loopback(tmp_path: Path, tcp_connection_mode: str) -> None:
+    network = {"link": "loopback", "tcp_connection_mode": tcp_connection_mode}
+    output = run(tmp_path, "b1-b2-two-ue-fikore", network=network, duration_s=2)
     check_sessions(output, "transport_fikore")
     assert (output / "telemetry.jsonl").read_text()
 

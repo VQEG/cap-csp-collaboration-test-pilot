@@ -35,6 +35,10 @@ class TransportFikoreConfig:
     """`tcp`, or `ideal` for the diagnostic fixed-window transport"""
     congestion_control: str = "cubic"
     receive_window_bytes: int = 128 * 1024
+    tcp_connection_mode: str = "persistent"
+    """`persistent` for an HTTP/1.1-style connection pool per UE, or `fresh` for one connection per object"""
+    max_idle_tcp_connections_per_ue: int = 6
+    """Maximum number of idle connections kept in the pool of each UE"""
     step_ms: int = 10
     """Duration of one NetworkStep towards the player in milliseconds"""
     telemetry_interval_ms: int = 10
@@ -56,6 +60,10 @@ class TransportFikoreConfig:
             raise ValueError(f"Unknown link {config.link!r}")
         if config.congestion_control not in CONGESTION_CONTROLLERS:
             raise ValueError(f"Unknown congestion control {config.congestion_control!r}")
+        if config.tcp_connection_mode not in ("persistent", "fresh"):
+            raise ValueError(f"Unknown TCP connection mode {config.tcp_connection_mode!r}")
+        if config.max_idle_tcp_connections_per_ue < 0:
+            raise ValueError("max_idle_tcp_connections_per_ue must not be negative")
         if config.step_ms <= 0 or config.receive_window_bytes <= 0:
             raise ValueError("step_ms and receive_window_bytes must be positive")
         if config.telemetry_interval_ms <= 0 or config.telemetry_interval_ms % config.step_ms:
@@ -110,6 +118,8 @@ class TransportFikoreBackend(TransportBackend):
                 rwnd=config.receive_window_bytes,
                 cc_factory=CONGESTION_CONTROLLERS[config.congestion_control],
                 transport=config.transport,
+                tcp_connection_mode=config.tcp_connection_mode,
+                max_idle_tcp_connections_per_ue=config.max_idle_tcp_connections_per_ue,
                 telemetry_every_windows=config.telemetry_interval_ms // config.step_ms,
             ),
         )
