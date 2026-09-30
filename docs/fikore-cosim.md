@@ -13,7 +13,7 @@ JavaScript player
 Python bridge or common harness
   ▼
 TransportBackend
-  │ one transport flow per object
+  │ persistent TCP pool per UE (or one flow per object)
   ▼
 TCP (Reno/CUBIC/Prague) or ideal diagnostic transport
   ▼
@@ -96,9 +96,9 @@ The `ideal` diagnostic mode is the deliberate exception: it uses a fixed shared 
 
 ## Object Completion and Cancellation
 
-`TransportBackend` currently creates one transport flow per object. A request completes when its receiver has delivered `bytes_total`.
+In the default `persistent` mode, `TransportBackend` keeps an HTTP/1.1-style pool of TCP connections per UE: a new object reuses an idle connection and its cwnd and RTT state, and concurrent objects open further connections. In `fresh` mode, and always for the `ideal` transport, each object gets its own flow. A request completes when its receiver has delivered `bytes_total` of that object.
 
-Cancellation stops new application data immediately. Segments already admitted to the transport or network retain request attribution and drain as a cancellation tail. The backend emits one terminal cancellation event after the data tail drains, and retires the flow after any reverse-path ACK tail drains.
+Cancellation stops new application data immediately. Segments already admitted to the transport or network retain request attribution and drain as a cancellation tail. The backend emits one terminal cancellation event after the data tail drains, and retires the connection after any reverse-path ACK tail drains. A cancelled connection is never reused.
 
 `forget` releases segment-tag counters only after their terminal feedback is acknowledged.
 

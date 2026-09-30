@@ -43,6 +43,8 @@ conditions:
       congestion_control: cubic
       receive_window_bytes: 131072
       ack_over_link: false
+      tcp_connection_mode: persistent
+      max_idle_tcp_connections_per_ue: 6
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
       metric_type: 6            # proportional fair; round robin ignores priority
@@ -69,6 +71,8 @@ conditions:
       congestion_control: cubic
       receive_window_bytes: 131072
       ack_over_link: false
+      tcp_connection_mode: persistent
+      max_idle_tcp_connections_per_ue: 6
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
       metric_type: 6
@@ -84,7 +88,7 @@ conditions:
         priority: 1
 ```
 
-FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN and ACK path. The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
+FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN, ACK path and connection mode. Persistent mode uses a bounded HTTP/1.1-style pool per UE; fresh mode is the baseline with slow start on every object. The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
 
 The current SFV validator generates a temporary FikoRE `.ini` from `config/control_demo.ini` without manual editing. The future common runner will apply the same mechanism to condition-specific templates.
 
@@ -122,6 +126,8 @@ transport:
   receive_window_bytes: 131072
   mss_bytes: 1500
   ecn: not-ect
+  tcp_connection_mode: persistent
+  max_idle_tcp_connections_per_ue: 6
 session:
   max_videos: 20
   max_duration_s: 300
@@ -166,7 +172,7 @@ Condition labels unify parameter sets across backends without implying numerical
 - **FikoRE offline**: multi-UE closed-loop scheduling and L3 feedback evaluation.
 - **Real HTTP via FikoRE**: end-to-end validation under kernel transport dynamics.
 
-The current `validate_sfv.py` manifest records the FikoRE and two SFV revisions, backend counters and conservation. Once implemented, every common harness report will additionally record:
+The current `validate_sfv.py` manifest records the FikoRE and two SFV revisions, transport and connection mode, backend counters and conservation. Once implemented, every common harness report will additionally record:
 
 - the common-harness revision;
 - the backend and transport profile, including CC, rwnd, MSS, ECN and ACK path;

@@ -28,9 +28,10 @@ Owner: Pablo
 - [x] Add per-tag incremental accounting with cursor replay, resynchronisation, bounded retention and `forget` ([Message Reference](fikore-cosim-messages.md#events)).
 - [x] Validate slot-by-slot Python stepping with 300 s object, loss and Prague campaigns; checked evidence lives in the FikoRE submodule.
 - [x] Validate the SFV v0.7.2 mock/FikoRE seam with two UEs, B1/B2, swipes and cancellation accounting ([Offline Transport Validation](offline-transport-validation.md)).
-- [x] Advance this repository's emulator submodule to FikoRE `dev` after the transport/control merge.
 - [x] Integrate the backend wiring and the Python–Node bridge in the common harness. Done by Werner as the `transport_fikore` backend in `capcsp/network/`.
-- [ ] Model one long-lived TCP connection per UE (or per origin) instead of one fresh connection per object, so that small segments do not spend most of their time in slow start.
+- [x] Model persistent HTTP/1.1-style TCP connections: a bounded pool per UE (six idle connections by default) that sequential objects reuse, so that small segments do not spend most of their time in slow start. `tcp_connection_mode: fresh` keeps one connection per object as a baseline ([Network Backend API](network-backend-api.md#transport-models)).
+- [x] Advance this repository's emulator submodule to FikoRE `dev` `325dfadd3809b2d7def25a980ef6782e1819ce48`.
+- [ ] Update the physical and MAC layer models in FikoRE and the default configuration files for more realistic scenarios. No change to the integration is expected.
 - [ ] Model core-network delay on the Link, including the ACK return path, instead of holding requests before submission ([Network Backend API](network-backend-api.md#latency-decomposition)).
 - [ ] Calibrate transport profiles and compare the offline model with real HTTP traffic.
 

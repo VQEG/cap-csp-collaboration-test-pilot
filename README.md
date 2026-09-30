@@ -53,7 +53,7 @@ The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Current Validation
 
-The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations and byte accounting. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, and L1 to L4 are not connected.
+The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, and L1 to L4 are not connected.
 
 ## Contributing
 
