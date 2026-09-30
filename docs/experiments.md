@@ -37,7 +37,7 @@ conditions:
       downlink_mbps: 60
       rtt_ms: 25
       loss_percent: 0
-    synthetic_delay_ms: 25
+    synthetic_delay_ms: 25      # constant-rate and trace backends only, FikoRE implements its own!
     transport:
       kind: tcp
       congestion_control: cubic
@@ -47,6 +47,8 @@ conditions:
       max_idle_tcp_connections_per_ue: 6
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
+      backhaul_d: 0.020         # one-way backhaul delay in seconds
+      backhaul_d_var: 0.002     # standard deviation of the backhaul delay in seconds
       metric_type: 6            # proportional fair; round robin ignores priority
       video_ues:
         count: 4
@@ -75,6 +77,8 @@ conditions:
       max_idle_tcp_connections_per_ue: 6
     fikore:
       base_ini: offline_uma_n78_pedestrian.ini
+      backhaul_d: 0.050
+      backhaul_d_var: 0.005
       metric_type: 6
       video_ues:
         count: 4
@@ -90,9 +94,17 @@ conditions:
 
 FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN, ACK path and connection mode. Persistent mode uses a bounded HTTP/1.1-style pool per UE; fresh mode is the baseline with slow start on every object. The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
 
-The current SFV validator generates a temporary FikoRE `.ini` from `config/control_demo.ini` without manual editing. The future common runner will apply the same mechanism to condition-specific templates.
+FikoRE conditions are defined by `.ini` files in the FikoRE repository (`5g-network-emulator/config/`). The `transport_fikore` backend generates a temporary `.ini` from a base file (`fikore_base_ini`, by default `config/control_demo.ini`) and the keys in `fikore_overrides`, without manual editing. Each run records the FikoRE revision and copies the effective `.ini` to `fikore-effective.ini`. The FikoRE default files might change with upcoming physical and MAC model updates.
 
-`synthetic_delay_ms` is a planned common-harness delay before an object enters `TransportBackend`, for comparability with constant-rate and trace backends. It is not applied by the current SFV/FikoRE validator. The real-HTTP backend observes live end-to-end latency and ignores this field.
+On FikoRE, the `.ini` file also defines the delay: `backhaul_d` and `backhaul_d_var` set the backhaul and core-network delay, which adds to the queuing, propagation and HARQ delay of the RAN. There is no extra delay controlled by the runner. Note the following for the transport model:
+
+- The backhaul delay applies to downlink data.
+- With `ack_over_link: false`, ACKs return after a fixed 1 ms instead of crossing FikoRE. With `ack_over_link: true`, ACKs are sent over the FikoRE uplink and also receive the backhaul delay.
+- The HTTP request is not modelled; an object enters the TCP sender directly.
+
+With `control_demo.ini` (3 ms backhaul delay) and `ack_over_link: false`, the measured TCP RTT is about 6 to 7 ms without queuing. To reach a target RTT, set `backhaul_d` accordingly or enable `ack_over_link`.
+
+`synthetic_delay_ms` applies only to the constant-rate and trace backends, which have no delay model of their own. FikoRE ignores it, and the real-HTTP backend observes live end-to-end latency instead.
 
 ## Content Registry
 
