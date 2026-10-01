@@ -83,6 +83,11 @@ def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
         summary = record["session_summary"]
         requests = result.get("requests", [])
         swipe_delays = summary.get("swipe_to_playback_delays_s") or []
+        measured_swipe_delays = [
+            value
+            for value in swipe_delays
+            if isinstance(value, (int, float))
+        ]
         intervals = active_intervals(requests, end_s)
         active_s = sum(end - start for start, end in intervals)
 
@@ -104,7 +109,7 @@ def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
             "termination_reason": result.get("terminationReason"),
             "requests": len(requests),
             "swipes": len(swipe_delays),
-            "swipe_to_playback_delay_mean_s": _mean(swipe_delays),
+            "swipe_to_playback_delay_mean_s": _mean(measured_swipe_delays),
         }
         row.update({field: summary.get(field) for field in SUMMARY_FIELDS})
         row["active_download_time_s"] = active_s
