@@ -40,6 +40,14 @@ docker run --rm -v "$PWD/output:/pilot/output" capcsp \
   capcsp run configs/experiments/b1-b2-two-ue-fikore.json output/fikore
 ```
 
+The contributed FikoRE condition matrix is under `configs/experiments/vqeg/`. For example:
+
+```bash
+uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json output/vqeg/c1
+```
+
+See `configs/experiments/vqeg/README.md` for all nine C1–C8a/C8b runs, their common transport assumptions and the complete matrix command.
+
 Run the tests with `uv run pytest`, or with `docker run --rm capcsp pytest` to include the FikoRE test.
 
 Start with these documents:
