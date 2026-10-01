@@ -19,20 +19,10 @@ Owner: Michi
 
 Owner: Pablo
 
-- [x] Settle the co-simulation wire format ([FikoRE Co-simulation](fikore-cosim.md), [Message Reference](fikore-cosim-messages.md)). It is `fikore-control-1` with barrier credit, tagged injection and replayable `events`.
-- [x] Implement the generic client and process wrapper in the FikoRE repository. `FikoreLink` performs handshake, grants, event-cursor recovery and tag lifetime management.
-- [x] Implement transport recovery and object lifecycle. `TransportBackend` uses TCP ACK/SACK/RTO recovery (or the explicit ideal diagnostic mode), and cancellation drains the already-admitted data and ACK tails.
-- [x] Implement and externally check Reno, CUBIC and Prague; keep transport and Link selection independent ([Network Backend API](network-backend-api.md#transport-models)).
-- [x] Add the run seed, mixed per stream for fading, mobility and background load ([FikoRE Co-simulation](fikore-cosim.md#seeds), [Experiments](experiments.md#reproducibility)). Bigger than it looked: a boolean `random_v` cannot express the grid, and its reproducible setting also zeroes several variances. `[Global] seed` now sets it, and each stream is derived from it so that a seed sweep moves every generator independently.
-- [x] Expose compact byte, queue, latency, SINR, mobility and retransmission telemetry. Transport RTT is measured separately from one-way PDCP latency.
-- [x] Add per-tag incremental accounting with cursor replay, resynchronisation, bounded retention and `forget` ([Message Reference](fikore-cosim-messages.md#events)).
-- [x] Validate slot-by-slot Python stepping with 300 s object, loss and Prague campaigns; checked evidence lives in the FikoRE submodule.
-- [x] Validate the SFV v0.7.2 mock/FikoRE seam with two UEs, B1/B2, swipes and cancellation accounting ([Offline Transport Validation](offline-transport-validation.md)).
-- [x] Integrate the backend wiring and the Python–Node bridge in the common harness. Done by Werner as the `transport_fikore` backend in `capcsp/network/`.
-- [x] Model persistent HTTP/1.1-style TCP connections: a bounded pool per UE (six idle connections by default) that sequential objects reuse, so that small segments do not spend most of their time in slow start. `tcp_connection_mode: fresh` keeps one connection per object as a baseline ([Network Backend API](network-backend-api.md#transport-models)).
-- [x] Advance this repository's emulator submodule to FikoRE `dev` `325dfadd3809b2d7def25a980ef6782e1819ce48`.
-- [ ] Update the physical and MAC layer models in FikoRE and the default configuration files for more realistic scenarios. No change to the integration is expected.
-- [ ] Model core-network delay on the Link, including the ACK return path, instead of holding requests before submission ([Network Backend API](network-backend-api.md#latency-decomposition)).
+- [x] Implement the end-to-end `fikore-control-1` adapter: barrier stepping, tagged injection, replayable events and timelines, process management, and `transport_fikore` wiring in the common harness ([FikoRE Co-simulation](fikore-cosim.md), [Message Reference](fikore-cosim-messages.md)).
+- [x] Implement and validate the transport and observability path: TCP recovery and persistent connections, Reno/CUBIC/Prague, cancellation, reproducible seeds, per-tag accounting, compact radio/queue telemetry, and long-running mock/FikoRE/SFV campaigns ([Network Backend API](network-backend-api.md#transport-models), [Offline Transport Validation](offline-transport-validation.md)).
+- [x] Update the FikoRE physical and MAC models, default profiles and calibrated condition support, and advance the submodule to the corresponding `dev` snapshot.
+- [ ] Model core-network delay on the Link, including the ACK return path, instead of holding requests before submission ([Network Backend API](network-backend-api.md#latency-decomposition)). Keep this open until `backhaul_d` is complemented or replaced by a real core-network rate/queue model that can also represent a satellite link when required.
 - [ ] Calibrate transport profiles and compare the offline model with real HTTP traffic.
 
 ## Common Harness

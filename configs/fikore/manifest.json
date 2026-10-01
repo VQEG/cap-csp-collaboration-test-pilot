@@ -1,0 +1,37 @@
+{
+  "assets": {
+    "README.md": "5393301d561a91ec019aa4ede2eff3b8883b5567312ab015612cf52a198a623d",
+    "c1_healthy_5g.ini": "cb9f65a943101c74282885854987f2a6c80d1c48fc1563d64fdf368dbe30dc00",
+    "c2_plan_capped.ini": "f8894f253426958ebc4a27202652bc5b8c53c56302f3ae2bac9beb10d64ea7df",
+    "c3_borderline_cell.ini": "e2d31cf963ca67c57c6c6871fc2b44793a3a06d6d38b49dd2aee01a8849c631d",
+    "c4_congested_cell.ini": "9a5c9912c1e7dfccd614d45d8595dac9d32f94f79c4035b183c3a135d4dbc44d",
+    "c5_cell_edge_low_sinr.ini": "21211f3ef502355f30aafb7c7ff83057813439360fa16f2fb7673368cb7898ac",
+    "c6_mobility_dropout.ini": "93b511b03eb7169f3db26821eb1941593ab582503519f8799028b773676bc32a",
+    "c7_satellite_like.ini": "2414153fa67eec951ece0a41f7bff597459766eb35ceceb1c68aab318428d454",
+    "c8a_bursty_congestion.ini": "778ab7c3a74ab533d0cdd3bc3e821b43953c8596b6244bd7d5d8c9fb812a2daa",
+    "c8b_coverage_transition.ini": "9a7b2ba7f3715669f007018fea247f3ac78f9776268c67a84583245afdeb24d5",
+    "maps/c8b_high_to_low_coverage_test_only.json": "7ccac0dadcfe0593f584644fc5a10cbcb741561881d7c4a5a9e0d2b1aad55524",
+    "timelines/c2_plan_cap.ndjson": "f5baa078da42e4af4336d058f52c90ead7ceab3751707f9be99ea105de78ff89",
+    "timelines/c3_rtt_probe_return_path.ndjson": "ce6f32ab785830e553c88f6b2403c52c3c06718aafbee6bd82e8db37b587c576",
+    "timelines/c5_rtt_probe_return_path.ndjson": "ce6f32ab785830e553c88f6b2403c52c3c06718aafbee6bd82e8db37b587c576",
+    "timelines/c6_mobility_dropouts.ndjson": "e3a5b0043c4e90f56b1dc4c724474c7c4ab4ab2b51e24b7aaf94c1b910c29651",
+    "timelines/c7_rate_cap.ndjson": "794ce7619aa4e61c17dc5be7caaf99521c4e52fa0524ed263e47a198a64b855e",
+    "timelines/c8a_background_bursts.ndjson": "a9ec19b41dfa281dae0eb37e6cea509cd4c6dca68a5fb09725d2c2e725cb9a96",
+    "timelines/c8b_coverage_path.ndjson": "88fd2aefb3469f5a4d36389d89c7b9ea60ecb87d536b629a6ba60c65ca944a9b"
+  },
+  "condition_contract_sha256": "069e08e08768eae3c255c5f7d86242ee252972e49c229aaa1513b1709da59a4b",
+  "pilot_adaptations": {
+    "C2": "25 Mbps per-UE nominal downlink grant cap",
+    "C7": "15 Mbps nominal downlink grant-cap proxy for backhaul capacity",
+    "paths": "resolved from the 5g-network-emulator submodule working directory",
+    "timelines": "replayed through the Unix control socket"
+  },
+  "runtime_fikore_commit": "ad17dbd9d5de166ba1d8aaec2703f0044535c4e8",
+  "schema_version": 1,
+  "seeds": [
+    20260927,
+    20260928,
+    20260929
+  ],
+  "upstream_fikore_commit": "2bcee531918d24a3aabad56fd8e975802a73529c"
+}
