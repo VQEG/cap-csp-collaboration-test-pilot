@@ -1,0 +1,6 @@
+{"id":1,"at_t":40.0,"cmds":[{"target":"ue/studyVqeg","set":{"dl.sinr_offset_db":-30.0}}]}
+{"id":2,"at_t":44.0,"cmds":[{"target":"ue/studyVqeg","set":{"dl.sinr_offset_db":0.0}}]}
+{"id":3,"at_t":90.0,"cmds":[{"target":"ue/studyVqeg","set":{"dl.sinr_offset_db":-30.0}}]}
+{"id":4,"at_t":93.0,"cmds":[{"target":"ue/studyVqeg","set":{"dl.sinr_offset_db":0.0}}]}
+{"id":5,"at_t":140.0,"cmds":[{"target":"ue/studyVqeg","set":{"dl.sinr_offset_db":-30.0}}]}
+{"id":6,"at_t":145.0,"cmds":[{"target":"ue/studyVqeg","set":{"dl.sinr_offset_db":0.0}}]}

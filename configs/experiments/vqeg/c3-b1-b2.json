@@ -1,0 +1,73 @@
+{
+  "run_id": "vqeg-c3-b1-b2",
+  "network_backend": "transport_fikore",
+  "network": {
+    "congestion_control": "cubic",
+    "receive_window_bytes": 1048576,
+    "tcp_connection_mode": "persistent",
+    "max_idle_tcp_connections_per_ue": 6,
+    "step_ms": 10,
+    "fikore_base_ini": "configs/fikore/c3_borderline_cell.ini",
+    "study_ues": [
+      "studyVqeg"
+    ],
+    "ack_over_link": true,
+    "delay_budget_s": null,
+    "random_v": null,
+    "fikore_section_overrides": {
+      "Global": {
+        "seed": 20260927
+      }
+    }
+  },
+  "condition": "C3",
+  "signaling_level": "L0",
+  "duration_s": 120,
+  "timingDefaults": {
+    "playbackTiming": {
+      "mode": "causal-simple",
+      "slotPreparationS": 0.01,
+      "appendDurationS": 0.005,
+      "startupDelayS": 0.005,
+      "observationIntervalS": 0.05
+    }
+  },
+  "sessions": [
+    {
+      "ue_id": 0,
+      "player_behavior": "simple",
+      "config": {
+        "sessionId": "generic-ue0",
+        "seed": 17,
+        "scheduling": {
+          "maxConcurrentRequests": 2
+        },
+        "swipeTimesS": [
+          0.1
+        ]
+      },
+      "rule_config": {
+        "activeBufferTargetSegments": 2
+      }
+    },
+    {
+      "ue_id": 1,
+      "player_behavior": "preload",
+      "config": {
+        "sessionId": "generic-ue1",
+        "seed": 21,
+        "scheduling": {
+          "maxConcurrentRequests": 3
+        },
+        "swipeTimesS": [
+          0.11
+        ]
+      },
+      "rule_config": {
+        "activeBufferTargetSegments": 2,
+        "max_preload_segments": 4,
+        "preload_segments_per_video": 2
+      }
+    }
+  ]
+}

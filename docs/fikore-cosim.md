@@ -126,6 +126,14 @@ The template keeps the 20 MHz, 3.5 GHz scenario, proportional-fair scheduler, st
 
 `--config` in `validate_sfv.py` selects the SFV experiment JSON; it does not select another FikoRE INI template.
 
+### Scenario templates and socket timeline replay
+
+The common harness may select another complete FikoRE scenario with `network.fikore_base_ini`. Relative paths are resolved from the pilot repository root. `network.study_ues` selects the repeated `[UE]` block converted to external co-simulation traffic; all other UE blocks, including simulated background groups, retain their counts and traffic settings.
+
+For calibrated scenarios, setting `delay_budget_s` or `random_v` to `null` preserves the value in the selected UE block. Structured section and UE overrides are applied before the renderer's co-simulation safety settings. The effective INI is copied into the run output.
+
+Co-simulation uses the Unix control socket, so a template's `transport: file` cannot remain active. When the source INI names a timeline, the harness reads its NDJSON before the run and schedules each `set` through `FikoreLink` at the same integer TTI. `at_tti` is authoritative; `at_t` is rounded to the nearest millisecond using FikoRE's non-negative `llround` convention. Commands for a study group are expanded to every concrete study UE, while explicit background targets remain unchanged. Malformed, late or rejected commands abort the run.
+
 ### Seeds
 
 FikoRE accepts a run seed and derives independent streams for fading, mobility and traffic. Experiment grids must record the seed and use the same value for paired signaling-level comparisons. The SFV integration fixture uses `random_v: false` for a deterministic seam check rather than a seed sweep.

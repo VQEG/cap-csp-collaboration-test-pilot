@@ -44,6 +44,43 @@ def check_sessions(output: Path, backend: str) -> None:
     assert "## KPIs per UE" in (output / "report.md").read_text()
 
 
+def test_kpis_ignore_swipes_without_a_playback_measurement(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "out"
+    sessions = output / "sessions"
+    sessions.mkdir(parents=True)
+    (output / "run-manifest.json").write_text(
+        json.dumps(
+            {
+                "run_id": "unmeasured-swipe",
+                "network_backend": "mock",
+                "ue_ids": [0],
+                "sim_time_s": 2.0,
+                "config": {"duration_s": 2.0},
+            }
+        )
+    )
+    (sessions / "ue-0.json").write_text(
+        json.dumps(
+            {
+                "terminationReason": "completed",
+                "requests": [],
+                "sessionRecord": {
+                    "network_backend": "mock",
+                    "player_behavior": "simple",
+                    "session_summary": {
+                        "swipe_to_playback_delays_s": [None, 0.5]
+                    },
+                },
+            }
+        )
+    )
+    row = collect_kpis(output)[0]
+    assert row["swipes"] == 2
+    assert row["swipe_to_playback_delay_mean_s"] == 0.5
+
+
 def test_mock(tmp_path: Path) -> None:
     output = run(tmp_path, "b1-b2-two-ue-mock")
     check_sessions(output, "mock")

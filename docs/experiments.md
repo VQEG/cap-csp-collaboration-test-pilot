@@ -94,7 +94,9 @@ conditions:
 
 FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN, ACK path and connection mode. Persistent mode uses a bounded HTTP/1.1-style pool per UE; fresh mode is the baseline with slow start on every object. The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
 
-FikoRE conditions are defined by `.ini` files in the FikoRE repository (`5g-network-emulator/config/`). The `transport_fikore` backend generates a temporary `.ini` from a base file (`fikore_base_ini`, by default `config/control_demo.ini`) and the keys in `fikore_overrides`, without manual editing. Each run records the FikoRE revision and copies the effective `.ini` to `fikore-effective.ini`. The FikoRE default files might change with upcoming physical and MAC model updates.
+The calibrated pilot conditions are versioned in `configs/fikore/`. The `transport_fikore` backend generates a temporary effective INI from the selected `fikore_base_ini`, converts only the declared study UE group to external traffic and preserves simulated background groups. Since lockstep co-simulation owns FikoRE's Unix control socket, condition timelines are read by the harness and replayed at their original TTIs through `FikoreLink`. Each run records the FikoRE revision and copies the rendered scenario to `fikore-effective.ini`.
+
+The optional B1/B2 matrix under `configs/experiments/vqeg/` covers C1–C7, C8a and C8b with one fixed FikoRE seed, TCP ACKs over the FikoRE uplink and a 1 MiB receive window. C2 applies a 25 Mbps nominal grant cap as the intended per-user plan. C7 combines 150 ms one-way backhaul delay with a temporary 15 Mbps grant-cap proxy for missing backhaul capacity shaping; that proxy must be replaced and recalibrated when a backhaul/PDCP-ingress limiter is available.
 
 On FikoRE, the `.ini` file also defines the delay: `backhaul_d` and `backhaul_d_var` set the backhaul and core-network delay, which adds to the queuing, propagation and HARQ delay of the RAN. There is no extra delay controlled by the runner. Note the following for the transport model:
 
