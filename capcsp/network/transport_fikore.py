@@ -169,6 +169,28 @@ def physical_ue_map(
     return mapping
 
 
+def _ini_value(value: object) -> str:
+    """Format an override value as FikoRE reads it."""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float, str)):
+        return str(value)
+    raise ValueError(f"invalid FikoRE override value {value!r}")
+
+
+def _validate_overrides(name: str, overrides: object) -> None:
+    if not isinstance(overrides, dict) or any(
+        not isinstance(key, str) or not isinstance(values, dict)
+        for key, values in overrides.items()
+    ):
+        raise ValueError(f"{name} must map names to objects of settings")
+    for values in overrides.values():
+        for key, value in values.items():
+            if not isinstance(key, str) or not key:
+                raise ValueError(f"{name} contains an invalid setting name")
+            _ini_value(value)
+
+
 @dataclass(frozen=True)
 class TransportFikoreConfig:
     """Settings of the `network` block for `transport_fikore`."""
@@ -254,6 +276,10 @@ class TransportFikoreConfig:
             raise ValueError("ack_over_link must be boolean")
         if not isinstance(config.replay_timeline, bool):
             raise ValueError("replay_timeline must be boolean")
+        _validate_overrides(
+            "fikore_section_overrides", config.fikore_section_overrides
+        )
+        _validate_overrides("fikore_ue_overrides", config.fikore_ue_overrides)
         return config
 
 
@@ -299,7 +325,7 @@ class TransportFikoreBackend(TransportBackend):
                 ]
             )
             section_overrides = {
-                (section, key): str(value)
+                (section, key): _ini_value(value)
                 for section, values in config.fikore_section_overrides.items()
                 for key, value in values.items()
             }
@@ -318,7 +344,7 @@ class TransportFikoreBackend(TransportBackend):
                     section_overrides=section_overrides,
                     ue_overrides={
                         ue_id: {
-                            key: str(value)
+                            key: _ini_value(value)
                             for key, value in values.items()
                         }
                         for ue_id, values in config.fikore_ue_overrides.items()

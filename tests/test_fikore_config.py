@@ -7,6 +7,7 @@ import pytest
 
 from capcsp.network.transport_fikore import (
     REPO_ROOT,
+    _ini_value,
     TransportFikoreConfig,
     load_control_timeline,
     physical_ue_map,
@@ -137,3 +138,25 @@ def test_physical_ue_map_keeps_background_ues_apart() -> None:
     assert mapping == {1: 0, 2: 1, -3: 2, -4: 3, -5: 4}
     reverse = {physical: ue_id for ue_id, physical in mapping.items()}
     assert {reverse[physical] for physical in (2, 3, 4)}.isdisjoint({1, 2})
+
+
+def test_boolean_override_values_use_fikore_spelling() -> None:
+    assert _ini_value(True) == "true"
+    assert _ini_value(False) == "false"
+    assert _ini_value(3) == "3"
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        ["backgroundVqeg"],
+        {"backgroundVqeg": "random_v"},
+        {"backgroundVqeg": {"random_v": None}},
+        {"backgroundVqeg": {"position": [0, 1]}},
+    ],
+)
+def test_malformed_overrides_are_rejected(overrides: object) -> None:
+    with pytest.raises(ValueError):
+        TransportFikoreConfig.from_dict({"fikore_ue_overrides": overrides})
+    with pytest.raises(ValueError):
+        TransportFikoreConfig.from_dict({"fikore_section_overrides": overrides})
