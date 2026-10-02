@@ -135,6 +135,40 @@ def load_control_timeline(
     return scheduled
 
 
+def physical_ue_map(
+    scenario: ScenarioDocument,
+    *,
+    study_group: str,
+    ue_ids: list[int],
+    ue_overrides: dict[str, dict[str, object]],
+) -> dict[int, int]:
+    """Map experiment UE IDs to FikoRE UE numbers.
+
+    FikoRE numbers UEs from 0 in the order of the `[UE]` blocks, expanding each
+    block to its `n_ues`. Sorted experiment UE IDs map onto the study group.
+    UEs of other groups map from negative IDs, so that their state cannot
+    overwrite the state of a study UE.
+    """
+    if any(ue_id < 0 for ue_id in ue_ids):
+        raise ValueError("experiment UE IDs must not be negative")
+    if study_group not in scenario.ue_ids():
+        raise ValueError(f"study UE group {study_group!r} is not in the scenario")
+    mapping: dict[int, int] = {}
+    physical = 0
+    for group in scenario.ue_ids():
+        if group == study_group:
+            for ue_id in sorted(ue_ids):
+                mapping[ue_id] = physical
+                physical += 1
+            continue
+        count = ue_overrides.get(group, {}).get("n_ues")
+        count = int(count) if count is not None else scenario.ue_count(group)
+        for _ in range(count):
+            mapping[-1 - physical] = physical
+            physical += 1
+    return mapping
+
+
 @dataclass(frozen=True)
 class TransportFikoreConfig:
     """Settings of the `network` block for `transport_fikore`."""
@@ -292,8 +326,12 @@ class TransportFikoreBackend(TransportBackend):
                     extra=dict(config.fikore_overrides),
                 )
             )
-            # FikoRE numbers UEs from 0; map sorted experiment UE IDs onto them
-            ue_id_map = {ue_id: index for index, ue_id in enumerate(sorted(ue_ids))}
+            ue_id_map = physical_ue_map(
+                scenario,
+                study_group=study_group,
+                ue_ids=ue_ids,
+                ue_overrides=config.fikore_ue_overrides,
+            )
             ue_target_map = {
                 ue_id: study_targets[index]
                 for index, ue_id in enumerate(sorted(ue_ids))

@@ -9,7 +9,9 @@ from capcsp.network.transport_fikore import (
     REPO_ROOT,
     TransportFikoreConfig,
     load_control_timeline,
+    physical_ue_map,
 )
+from fikore_transport.scenario import ScenarioDocument
 
 
 def test_relative_base_ini_is_resolved_from_repository_root() -> None:
@@ -105,3 +107,33 @@ def test_timeline_loader_rejects_malformed_commands(
             study_group="studyVqeg",
             study_targets=["studyVqeg"],
         )
+
+
+def test_physical_ue_map_follows_ue_block_order() -> None:
+    scenario = ScenarioDocument(
+        "[UE]\nue_id: backgroundVqeg\nn_ues: 3\n\n"
+        "[UE]\nue_id: studyVqeg\nn_ues: 1\n"
+    )
+    mapping = physical_ue_map(
+        scenario,
+        study_group="studyVqeg",
+        ue_ids=[2, 1],
+        ue_overrides={},
+    )
+    assert mapping == {-1: 0, -2: 1, -3: 2, 1: 3, 2: 4}
+
+
+def test_physical_ue_map_keeps_background_ues_apart() -> None:
+    scenario = ScenarioDocument(
+        "[UE]\nue_id: studyVqeg\n\n"
+        "[UE]\nue_id: backgroundVqeg\nn_ues: 2\n"
+    )
+    mapping = physical_ue_map(
+        scenario,
+        study_group="studyVqeg",
+        ue_ids=[1, 2],
+        ue_overrides={"backgroundVqeg": {"n_ues": 3}},
+    )
+    assert mapping == {1: 0, 2: 1, -3: 2, -4: 3, -5: 4}
+    reverse = {physical: ue_id for ue_id, physical in mapping.items()}
+    assert {reverse[physical] for physical in (2, 3, 4)}.isdisjoint({1, 2})
