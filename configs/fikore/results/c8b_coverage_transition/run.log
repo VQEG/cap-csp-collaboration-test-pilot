@@ -1,0 +1,210 @@
+[RUN] Running offline simulation with c8b_coverage_transition.ini
+Config file: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/configs/fikore/c8b_coverage_transition.ini
+[34m0 [INFO][configuration_loader::load]:  Configuration - duration = 180 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - period = -1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - multithreading = true added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - threads = 16 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - verbose = false added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - progress_log_period_s = 10 added.[0m
+[34m0 [INFO][configuration_loader::load]: Adding UEs with config [studyVqeg]: [0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - ue_id = studyVqeg added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - ue_type = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - n_ues = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - n_antennas = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - alpha_ul = 0.8 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - nominal_pusch_p0 = -60 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - set_ul_pow = true added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - tx_power_ul = 23 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - cqi_period = 5 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - ri_period = 5 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - scaling_factor = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - random_v = true added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - log_freq = 100 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - log_ue = true added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - log_quality = true added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - log_traffic = true added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - log_mobility = true added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - traffic_type = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - ul_target = 1.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - dl_target = 47.250000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - var_perc = 0.050000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - pkt_size = 12000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - mobility_type = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - pos_x = -25.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - pos_y = 0.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - random_init = false added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - speed = 0.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - speed_var = 0.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - max_distance = 500.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - time_target = 5.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - time_target_var = 0.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - priority = 1.000000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - delta_metric = 1.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - delay_t_metric = 0.1 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - pkt_delay_budget = 0.500000 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_dual_queue = false added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_target_ms = 15 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_rtt_max_ms = 100 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_min_th_us = 800 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_range_us = 400 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_k = 2.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - l4s_classic_guard_ms = 1.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - ue_height = 1.5 added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - ue_location_type = outdoor added.[0m
+[34m0 [INFO][configuration_loader::load]:                Configuration - building_penetration = none added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - scenario_type = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - map_file = ../configs/fikore/maps/c8b_high_to_low_coverage_test_only.json added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - modulation_m = 1 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - target_ber = 0.00005 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - cqi_mode = 1 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - tx_power = 43.0 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - eNB_gain = 8.7 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - UT_gain = 0 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - power_boost = 2 added.[0m
+frequency 2.38e+09
+scenario_type 0
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - frequency = 2380000000.0 added.[0m
+Generated map file path: /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/bin/../include/maps_scenarios/macroscopic_fading_map_URBAN_MICROCELL_3.5.json
+[34m0 [INFO][configuration_loader::load]:  Configuration - bandwidth = 20000000.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - backhaul_d = 0.015000 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - backhaul_d_var = 0.020000 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - order_pkts = true added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - metric_type = 6 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - pf_alpha = 1.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - throughput_time_window_ms = 100.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - throughput_intra_tti_update = allocation_unit added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - log_freq = 10 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - log_mac = true added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - mimo_layers = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - n_ofdm_syms = 14 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - n_re_freq = 12 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - numerology = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - max_rtx_ul = 4 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - max_rtx_dl = 4 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - harq_model = legacy_bler added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - mcs_tables = true added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - scheduling_mode = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - scheduling_type = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - scheduling_config = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - duplexing_type = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - n_dl_slots = 7 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - n_ul_slots = 3 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - transition_c = 54 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - ratio_DL_UL = 0.5 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - interference_ues = 2 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - interference_eNBs = 1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - distance_interference = 3500 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - interfered_bandwidth_ratio = 0.1 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - thermal_noise = -174 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - enb_noise_figure = 2 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - ut_noise_figure = 9 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - air_delay_var_ul = 0.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_period_ul = 0.004 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_period_var_ul = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_proc_delay_ul = 0.002 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_proc_delay_var_ul = 0.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - air_delay_var_dl = 0.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_period_dl = 0.005 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_period_var_dl = 0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_proc_delay_dl = 0.002 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - rtx_proc_delay_var_dl = 0.0 added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - enabled = true added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - transport = file added.[0m
+[34m0 [INFO][configuration_loader::load]:  Configuration - timeline_file = ../configs/fikore/timelines/c8b_coverage_path.ndjson added.[0m
+[34m0 [INFO][tdd_handler::tdd_handler]: TDD Configuration DL [7]  UL [3] Transition [54] [11220000000000[34m0 [INFO]: ][0m
+[34m0 [INFO][tdd_handler::tdd_handler]: TDD Configuration DL [7]  UL [3] Transition [54] [11220000000000[34m0 [INFO]: ][0m
+[34m1 [INFO][grid::plot_info]:  Created Reseource Grid with: [0m
+[34m1 [INFO][grid::plot_info]:  Numerology: 1[0m
+[34m1 [INFO][grid::plot_info]:  Max. bandwidth: 18000000[0m
+[34m1 [INFO][grid::plot_info]:  Number of available RBs: 100[0m
+[34m1 [INFO][grid::plot_info]:  Number of available REs: 2688[0m
+[34m1 [INFO][grid::plot_info]:  Max. possible throughput (no MIMO): 124.426[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBs in frequency: 50[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBGs in frequency: 6[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBs in time: 2[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBGs in time: 1[0m
+[34m1 [INFO][grid::plot_info]:  Created Reseource Grid with: [0m
+[34m1 [INFO][grid::plot_info]:  Numerology: 1[0m
+[34m1 [INFO][grid::plot_info]:  Max. bandwidth: 18000000[0m
+[34m1 [INFO][grid::plot_info]:  Number of available RBs: 100[0m
+[34m1 [INFO][grid::plot_info]:  Number of available REs: 2688[0m
+[34m1 [INFO][grid::plot_info]:  Max. possible throughput (no MIMO): 124.426[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBs in frequency: 50[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBGs in frequency: 6[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBs in time: 2[0m
+[34m1 [INFO][grid::plot_info]:  Number of RBGs in time: 1[0m
+[34m1 [INFO][timer::ticker]: Period: 0 Goal: 180000000[0m
+[34m21 [INFO][ue_handler::log_ue_creation]:  Created 1 with the following configuration: [0m
+[34m21 [INFO][ue_handler::log_ue_creation]:  Type;  SIM_UE with the following configuration: [0m
+[34m21 [INFO][ue_handler::log_ue_creation]:  Number of antennas: 1[0m
+[34m21 [INFO][ue_handler::log_ue_creation]:  Scaling factor: 1[0m
+[34m21 [INFO][ue_handler::log_ue_creation]:  CQI update period: 5[0m
+[34m21 [INFO][ue_handler::log_ue_creation]:  RI period: 5[0m
+[34m21 [INFO][transport_file]:  loaded 60 commands from ../configs/fikore/timelines/c8b_coverage_path.ndjson[0m
+[34m21 [INFO][control_manager::init]: Runtime control enabled transport=file sync_mode=async on_peer_loss=abort ues=1 realtime=no[0m
+[34m21 [INFO][simulator::start]: Starting main loop mode=fast duration_s=180 period_ms=-1 seed=0 progress_log_period_s=10 ues=1 monitoring=off outputs=0[0m
+[34m414 [INFO][simulator::progress]: sim_time_s=10 mac_cycle_ms_mean=0.0149805 ue_cycle_ms_mean=0.0218961[0m
+[34m813 [INFO][simulator::progress]: sim_time_s=20 mac_cycle_ms_mean=0.0152043 ue_cycle_ms_mean=0.0222552[0m
+[34m1227 [INFO][simulator::progress]: sim_time_s=30 mac_cycle_ms_mean=0.0152288 ue_cycle_ms_mean=0.0237089[0m
+[34m1644 [INFO][simulator::progress]: sim_time_s=40 mac_cycle_ms_mean=0.0154422 ue_cycle_ms_mean=0.0238487[0m
+[34m2043 [INFO][simulator::progress]: sim_time_s=50 mac_cycle_ms_mean=0.0151711 ue_cycle_ms_mean=0.0222826[0m
+[34m2452 [INFO][simulator::progress]: sim_time_s=60 mac_cycle_ms_mean=0.0152142 ue_cycle_ms_mean=0.0232447[0m
+[34m2858 [INFO][simulator::progress]: sim_time_s=70 mac_cycle_ms_mean=0.0151187 ue_cycle_ms_mean=0.0230033[0m
+[34m3261 [INFO][simulator::progress]: sim_time_s=80 mac_cycle_ms_mean=0.0153083 ue_cycle_ms_mean=0.0226051[0m
+[34m3661 [INFO][simulator::progress]: sim_time_s=90 mac_cycle_ms_mean=0.0150838 ue_cycle_ms_mean=0.022449[0m
+[34m4087 [INFO][simulator::progress]: sim_time_s=100 mac_cycle_ms_mean=0.0159878 ue_cycle_ms_mean=0.0241119[0m
+[34m4510 [INFO][simulator::progress]: sim_time_s=110 mac_cycle_ms_mean=0.0154935 ue_cycle_ms_mean=0.0243856[0m
+[34m4913 [INFO][simulator::progress]: sim_time_s=120 mac_cycle_ms_mean=0.0150924 ue_cycle_ms_mean=0.0228258[0m
+[34m5322 [INFO][simulator::progress]: sim_time_s=130 mac_cycle_ms_mean=0.0149715 ue_cycle_ms_mean=0.0234736[0m
+[34m5735 [INFO][simulator::progress]: sim_time_s=140 mac_cycle_ms_mean=0.0154943 ue_cycle_ms_mean=0.0233397[0m
+[34m6142 [INFO][simulator::progress]: sim_time_s=150 mac_cycle_ms_mean=0.0150421 ue_cycle_ms_mean=0.0232622[0m
+[34m6563 [INFO][simulator::progress]: sim_time_s=160 mac_cycle_ms_mean=0.0155446 ue_cycle_ms_mean=0.024067[0m
+[34m6983 [INFO][simulator::progress]: sim_time_s=170 mac_cycle_ms_mean=0.0158999 ue_cycle_ms_mean=0.0237057[0m
+[34m7402 [INFO][simulator::progress]: sim_time_s=180 mac_cycle_ms_mean=0.0153483 ue_cycle_ms_mean=0.0241111[0m
+[34m7402 [INFO][timer::ticker]: Simulation time: 180.001 - actual time: 7.38116[0m
+[34m7402 [INFO][timer::ticker]: Total iterations: 180001 mean step time: 4.10062e-05[0m
+[34m7402 [INFO][simulator::stop]: Stopping main loop reason=completed sim_duration_s=180 iterations=180001 wall_time_s=7.38124[0m
+[34m7402 [INFO][ue::print_traffic]:  UE: 0 distance: 25[0m
+[34m7402 [INFO][ue::print_traffic]:  UE: 0 Mbps - UL gen. rate 0.999981 Mbps - DL gen. rate 47.2481[0m
+[34m7402 [INFO][ue::print_traffic]:  UE: 0 Mbps - UL error rate 0 Mbps - DL error rate 0[0m
+[34m7402 [INFO][ue::print_traffic]:  0 Mbps - UL cons. rate 0.999843 Mbps - DL cons. rate 47.2414[0m
+[34m7402 [INFO][ue::print_traffic]:  0 Mbps - UL latency 0.0158238 s - DL latency 0.0159116[0m
+[34m7402 [INFO][ue::print_traffic]:  0 Mbps - UL IP latency 0.0170241 s - DL IP latency 0.0163713[0m
+[34m7402 [INFO][ue::print_traffic]:  UL IP buf: 3 pkts (oldest UID 179996, delay 0.0019989 s)[0m
+[34m7402 [INFO][ue::print_traffic]:  DL IP buf: 4 pkts (oldest UID 781424, delay 0 s)[0m
+[34m7402 [INFO][ue::print_traffic]:  UL HARQ buf: 0 pkts (oldest ID -1, delay -1 s, n_tx -1)[0m
+[34m7402 [INFO][ue::print_traffic]:  DL HARQ buf: 0 pkts (oldest ID -1, delay -1 s, n_tx -1)[0m
+[34m7402 [INFO][ue::print_traffic]:  UL capture buf: 0 pkts (oldest UID -1, delay -1 s)[0m
+[34m7402 [INFO][ue::print_traffic]:  DL capture buf: 0 pkts (oldest UID -1, delay -1 s)[0m
+[34m7402 [INFO][ue::print_traffic]:  UL release buf: 10 pkts (oldest UID 81805, delay 0.0299988 s)[0m
+[34m7402 [INFO][ue::print_traffic]:  DL release buf: 68 pkts (oldest UID 705692, delay 0.0310059 s)[0m
+[34m7402 [INFO][ue_handler::print_traffic]:  Total DL throughput transmitted: 47.2414 Mbps - with a mean value per user of: 47.2414 Mbps.[0m
+[34m7402 [INFO][ue_handler::print_traffic]:  Total UL throughput transmitted: 0.999843 Mbps - with a mean value per user of: 0.999843 Mbps.[0m
+[34m7402 [INFO][ue_handler::print_traffic]:  Mean DL latency per user of: 0.0159116 s.[0m
+[34m7402 [INFO][ue_handler::print_traffic]:  Mean UL latency per user of: 0.0158238 s.[0m
+Joining threads
+Joining threads
+[INFO] Generating offline plots from the latest log directory...
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/mac/dl_throughput.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/mac/cdf_throughput.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/mac/ul_throughput.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/mac/cdf_throughput_ul.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/trajectory.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/sinr_hist_ul_dl.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/rsrp_hist_ul_dl.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/rul_hist.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/rdl_hist.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/ri_hist.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/drop_sources_ul.png
+[SAVED] /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/py_analyzers/../results/2026_10_21_16_15_44/ue/drop_sources_dl.png
+[INFO] Wrote report template to /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/results/2026_10_21_16_15_44/README.md
+[DONE] Offline plots generated under results/<latest-log>/.
+[INFO] Copied config file to /home/pablop/devel/fikore/cap-csp-collaboration-test-pilot/5g-network-emulator/results/2026_10_21_16_15_44/config.ini
