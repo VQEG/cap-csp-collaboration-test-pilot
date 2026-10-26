@@ -15,6 +15,18 @@ The first stage focuses on:
 
 Future stages may extend the pilot to other use cases. See the [working Google Doc](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.0) for the research scope.
 
+## How It Works
+
+The harness simulates several phones (UEs) that watch short-form video in one 5G cell. Each UE runs the generic SFV player (initially written by Michi Seufert, as a submodule).
+
+The SFV player is a wrapper around dash.js that decides which video segments to download, in which quality and when.
+
+The harness passes each request as a block of bytes of known size to a network backend, FikoRE (maintained by Pablo Perez), which simulates the radio cell, its scheduler and the TCP transport in virtual time, and reports when the bytes arrive.
+
+The player then plays, stalls or swipes to the next video, and we collect that information.
+
+Depending on the signaling level (L0 to L4), the player also receives network information, such as the plan rate or live throughput. Each run writes session records, key numbers and a report, so that runs with and without information exchange can be compared.
+
 ## Requirements
 
 > [!NOTE]
@@ -67,7 +79,7 @@ The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Current Validation
 
-The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, and L1 to L4 are not connected.
+The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. The provisional FikoRE conditions C1–C8b run end to end. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, the final network-condition values are pending, and L1 to L4 are not connected.
 
 ## Contributing
 

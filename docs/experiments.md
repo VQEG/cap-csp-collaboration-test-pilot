@@ -27,7 +27,10 @@ The runner initializes one session per UE and one shared network backend. Cell-l
 
 Conditions use descriptive identifiers mapped to backend-specific parameters.
 
-The values below illustrate the configuration shape. The final SFV-specific C1-C5 profiles are pending and tracked in [Decision Status and Action Items](decision-status-and-todos.md#media-content-and-network-conditions).
+The values below illustrate the configuration shape. The calibrated FikoRE conditions actually used by the runner are described below and in `configs/fikore/README.md`.
+
+>[!WARNING]
+> The values are provisional. The final SFV-specific C1–C5 profiles are pending and tracked in [Decision Status and Action Items](decision-status-and-todos.md#network-conditions).
 
 ```yaml
 conditions:
@@ -129,6 +132,8 @@ videos:
 
 Milestone 1 generates synthetic segment sizes based on target bitrates, segment durations, and seeded random variations, persisting the table before execution. Real video encodes can replace synthetic data without modifying player or backend APIs.
 
+The YAML above shows the fields only. The runner reads the SFV `content.json` format of the `sfv-reference-implementation` submodule, which currently holds three 6 s test videos. Michi's group defines the pilot catalogue (codec, ladder, bitrates, segment durations) in that format; see [Decision Status and Action Items](decision-status-and-todos.md#player-and-video-definitions).
+
 ## Experiment Grid
 
 ```yaml
@@ -155,6 +160,9 @@ content: content.yaml
 ```
 
 Signaling level L3 is excluded until the network controller algorithm is specified.
+
+>[!NOTE]
+> The runner does not expand grids yet. Each run is one JSON file (see `configs/experiments/`), and swipe times are given per session as `swipeTimesS` instead of being drawn from a swipe profile.
 
 ## Trace Backend
 

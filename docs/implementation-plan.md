@@ -70,7 +70,7 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 7. L3 controller design and network-side adaptation hooks.
 8. Real-HTTP runs with the multi-video dash.js player (with Michi) and offline-versus-real validation runs.
 
-Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records, a KPI table and a report. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
+Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records, a KPI table and a report. The provisional FikoRE condition pack C1–C8b runs end to end with the B1/B2 fixture. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
 
 ## Mock Backend
 
@@ -102,7 +102,8 @@ The dash.js player manages multiple HTML5 video elements alongside a centralized
 
 - **Werner**: Python architecture, mock backend, JavaScript player bridge (adapted from Michi's SFV-VQEG bridge), experiment runner, scoring, and documentation.
 - **Pablo**: FikoRE core changes (run seed, per-tag packet attribution, radio telemetry, fail-stop) and the generic `fikore-control-1` Python client and transport models in the FikoRE repository. The pilot-specific FikoRE backend built on that client lives in `capcsp/network/`.
-- **Michi**: JavaScript player (engine, B1/B2 policies, multi-video dash.js integration) in the SFV reference implementation.
+- **Michi's group**: JavaScript player (engine, B1/B2 policies, multi-video dash.js integration) in the SFV reference implementation, and the player and video definitions: B1/B2 parameters, swipe profiles, content catalogue and quality ladder.
+- **Karan**: SFV-specific target values for the network conditions.
 
 ## Documentation Maintenance
 

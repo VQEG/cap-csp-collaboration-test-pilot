@@ -106,7 +106,8 @@ class Policy(Protocol):
 
 The harness exports versioned JSON schemas for `Observation` and `Action`, allowing external implementations (e.g., JavaScript, Kotlin, or C++) to interface with the harness.
 
-Michi had some initial ideas on what other information to add here, e.g. regarding previous swipes (user behavior).
+>[!NOTE]
+> Michi's group may add further inputs here, for example previous swipes (user behavior).
 
 ## Decision Triggers
 
@@ -159,6 +160,8 @@ For example, `MPS = 6` with `PSPV = 3` preloads three segments each for the next
 
 - **B1 (Current video only)**: downloads segments only for the active video and issues no prefetch requests.
 - **B2 (Multi-video prefetch)**: distributes download requests across active and upcoming videos up to configured MPS and PSPV limits.
+
+Michi's group owns the exact B1 and B2 rules and their parameters (MPS, PSPV, start and re-evaluation of preloading, bandwidth estimation, quality choice). The [open points](decision-status-and-todos.md#player-and-video-definitions) are tracked separately.
 
 Signaling levels provide additional telemetry fields to policies. A policy that ignores CSP telemetry operates as an L0 baseline under all configurations.
 
