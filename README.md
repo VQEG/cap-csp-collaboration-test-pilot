@@ -20,7 +20,13 @@ Future stages may extend the pilot to other use cases. See the [working Google D
 > [!NOTE]
 > The FikoRE submodule contains the incremental control path, the transport models and `TransportBackend`. The SFV player is included as a second submodule. The common harness and the full experiment matrix are still under development.
 
-Clone with `git clone --recurse-submodules`, or run `git submodule update --init` in an existing checkout. Building FikoRE requires Linux and the tools listed in its [README](5g-network-emulator/README.md); on macOS, use its Dockerfile. The transport package supports Python 3.10 or newer. The proposed common test harness uses Python 3.14 and `uv`.
+Clone with `git clone --recurse-submodules`, or initialize the submodules from the repository root in an existing checkout:
+
+```bash
+git submodule update --init --recursive
+```
+
+Building FikoRE requires Linux and the tools listed in its [README](5g-network-emulator/README.md); on macOS, use its Dockerfile. The transport package supports Python 3.10 or newer. The proposed common test harness uses Python 3.14 and `uv`.
 
 ## Usage
 
