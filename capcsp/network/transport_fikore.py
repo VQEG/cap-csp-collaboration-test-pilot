@@ -368,7 +368,10 @@ class TransportFikoreBackend(TransportBackend):
                 ue_id_map=ue_id_map,
                 ue_target_map=ue_target_map,
             )
-            timeline_value = scenario.get("Control", "timeline_file")
+            timeline_value = section_overrides.get(
+                ("Control", "timeline_file"),
+                scenario.get("Control", "timeline_file"),
+            )
             if (
                 config.replay_timeline
                 and timeline_value not in (None, "", "none")
