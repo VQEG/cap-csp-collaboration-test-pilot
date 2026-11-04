@@ -23,10 +23,15 @@ uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json output/vqeg/c1
 
 Start from `sessionRecord` in `sessions/ue-<id>.json`:
 
+- `videos[].swipe_to_playback_delay_s`: time from the swipe to the start of playback of this video, or `null` for a video not reached by a swipe
+- `videos[].watch_duration_s`: played media time of the video, without stalls
+- `playback_latency.swipe_to_playback`: one entry per swipe with `swipe_at_s`, `playback_started_at_s`, `delay_s` and `status`
 - `videos[].representation_intervals`: which representation played, when, and at which position in the video
 - `videos[].stall_events`: stalls per video
 - `videos[].initial_loading_delay_s`: time from activating the video to the start of playback
 - `videos[].rendered_quality_timeline`: representation selected for each segment
+
+The first three fields are the inputs of a swipe delay model such as that of [Nguyen and Tran](https://arxiv.org/abs/2603.18575). The other fields are inputs of models that use video quality and stalls, such as P.1203.
 
 Intervals give only `representation_id` and `bitrate_kbps`. Get the resolution and codec from `sfv-reference-implementation/fixtures/content/content.json`, using `video_id` and `representation_id`:
 
@@ -46,6 +51,7 @@ The table lists the representations of `v2`, the video that plays to the end in 
 
 ## Limits of This Example
 
+- Each session has only one swipe, after about 0.1 s, so the swipe delays are short (0.13 s and 0.03 s) and the viewing time before the swipe is close to 0.
 - `stall_events` is empty for both UEs. None of the nine VQEG conditions currently produces a stall. See the [stall example](../stall-example-b1-b2-run/README.md) for filled stall events.
 - The fixture has three videos of 6 s with 2 s segments, and sessions swipe once, after about 0.1 s. Only `v2` plays for longer than a moment. It plays 4 s at representation 0 and then 2 s at representation 2, in all nine conditions.
 - The content has no frame rate. It lists one audio representation per video, but the player does not request audio, so the record has no audio data. A QoE model that needs these inputs has to assume them for now.
