@@ -6,6 +6,8 @@ An experiment configuration defines the player policy, signaling level, network 
 
 Offline runs are deterministic functions of configuration, input files, code version, and seed. They do not query the system wall clock.
 
+Repeating a FikoRE run gives identical session records, network steps and telemetry. `tests/test_runs.py` checks this for runs in separate Python processes with different hash seeds.
+
 The runner derives independent pseudo-random streams from the primary seed for:
 
 - Radio and channel fading

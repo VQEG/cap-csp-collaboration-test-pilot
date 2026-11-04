@@ -1,0 +1,115 @@
+{
+  "run_id": "stall-example-b1-b2",
+  "status": "completed",
+  "started_at": "2026-11-04T14:28:57+00:00",
+  "config_path": "configs/experiments/stall-example/stall-example-b1-b2.json",
+  "config": {
+    "run_id": "stall-example-b1-b2",
+    "network_backend": "transport_fikore",
+    "network": {
+      "congestion_control": "cubic",
+      "receive_window_bytes": 1048576,
+      "tcp_connection_mode": "persistent",
+      "max_idle_tcp_connections_per_ue": 6,
+      "step_ms": 10,
+      "fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini",
+      "study_ues": [
+        "studyVqeg"
+      ],
+      "ack_over_link": true,
+      "delay_budget_s": null,
+      "random_v": null,
+      "fikore_section_overrides": {
+        "Global": {
+          "seed": 20260927
+        },
+        "Control": {
+          "timeline_file": "../configs/experiments/stall-example/stall-example-dropout-timeline.ndjson"
+        }
+      }
+    },
+    "condition": "stall-example",
+    "signaling_level": "L0",
+    "duration_s": 20,
+    "timingDefaults": {
+      "playbackTiming": {
+        "mode": "causal-simple",
+        "slotPreparationS": 0.01,
+        "appendDurationS": 0.005,
+        "startupDelayS": 0.005,
+        "observationIntervalS": 0.05
+      }
+    },
+    "sessions": [
+      {
+        "ue_id": 0,
+        "player_behavior": "simple",
+        "config": {
+          "sessionId": "generic-ue0",
+          "seed": 17,
+          "scheduling": {
+            "maxConcurrentRequests": 2
+          },
+          "swipeTimesS": [
+            0.1
+          ]
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2
+        }
+      },
+      {
+        "ue_id": 1,
+        "player_behavior": "preload",
+        "config": {
+          "sessionId": "generic-ue1",
+          "seed": 21,
+          "scheduling": {
+            "maxConcurrentRequests": 3
+          },
+          "swipeTimesS": [
+            0.11
+          ]
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2,
+          "max_preload_segments": 4,
+          "preload_segments_per_video": 2
+        }
+      }
+    ]
+  },
+  "content_path": "sfv-reference-implementation/fixtures/content/content.json",
+  "network_backend": "transport_fikore",
+  "ue_ids": [
+    0,
+    1
+  ],
+  "revisions": {
+    "capcsp": {
+      "commit": "d3a9e54c2814259bf7119a3c983cb73b21b8f67b",
+      "dirty": false
+    },
+    "fikore": {
+      "commit": "67e5e638ce5917cd7371677f225cb714a7f64a88",
+      "dirty": false
+    },
+    "sfv_reference_implementation": {
+      "commit": "07fab254952422d0092f80bf2490ea2a7fcfb9cb",
+      "dirty": false
+    }
+  },
+  "wall_s": 1.064,
+  "network_steps": 2001,
+  "byte_accounting": {
+    "submitted_bytes": 888849,
+    "terminal_bytes": {
+      "delivered": 888849,
+      "dropped": 0,
+      "expired": 0
+    },
+    "in_flight_bytes": 0,
+    "bytes_conserved": true
+  },
+  "sim_time_s": 20
+}
