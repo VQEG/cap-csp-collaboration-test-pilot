@@ -9,7 +9,6 @@ from capcsp.network.transport_fikore import (
     REPO_ROOT,
     _ini_value,
     TransportFikoreConfig,
-    _SortedRequestKeys,
     load_control_timeline,
     physical_ue_map,
 )
@@ -161,11 +160,3 @@ def test_malformed_overrides_are_rejected(overrides: object) -> None:
         TransportFikoreConfig.from_dict({"fikore_ue_overrides": overrides})
     with pytest.raises(ValueError):
         TransportFikoreConfig.from_dict({"fikore_section_overrides": overrides})
-
-
-def test_sorted_request_keys_iterate_in_sorted_order() -> None:
-    keys = _SortedRequestKeys()
-    for key in [(1, "b"), (0, "z"), (1, "a")]:
-        keys.add(key)
-    keys.discard((0, "z"))
-    assert list(keys) == [(1, "a"), (1, "b")]
