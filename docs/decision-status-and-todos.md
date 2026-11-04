@@ -85,6 +85,8 @@ Owners: Werner and Pablo. Emir offered to define the oracle precisely.
 
 Owners: Werner, Markus, Federica
 
-- [ ] Feed P.1204.1 Mode 0 segment scores into the P.1203 session score ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Feed P.1204.1 Mode 0 segment scores into the P.1203 session score ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [ ] Replace the assumed constant good audio quality (O21 5.0) with real audio scores for future encodings; this needs audio in the content, the player and the session record ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [ ] Replace the assumed frame rate of 30 fps with the frame rate per representation in the content file for future encodings ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [ ] Add the Hoßfeld QoE-fairness and Jain throughput-fairness metrics ([Results and Scoring](results-and-scoring.md#aggregate-evaluation-formulas)).
-- [ ] Add the KPIs from the results specification that `capcsp` does not compute yet to `kpis.csv` and the report: P.1203 scores (O46, O35, O23) per video and session, per-video metrics such as time to first byte, watch duration and swipe-away, and the fairness metrics above ([Results and Scoring](results-and-scoring.md#session-record-format)).
+- [ ] Add the KPIs from the results specification that `capcsp` does not compute yet to `kpis.csv` and the report: per-video metrics such as time to first byte, watch duration and swipe-away, and the fairness metrics above ([Results and Scoring](results-and-scoring.md#session-record-format)).

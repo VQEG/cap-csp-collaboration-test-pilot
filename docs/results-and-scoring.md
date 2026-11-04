@@ -7,10 +7,10 @@ Each run produces one structured session record per video UE. Scoring is compute
 `capcsp run` writes these files to the output directory, which git ignores. Real runs are available in [`examples/vqeg-c1-b1-b2-run/`](examples/vqeg-c1-b1-b2-run/README.md) and, with stalls, in [`examples/stall-example-b1-b2-run/`](examples/stall-example-b1-b2-run/README.md).
 
 - `sessions/ue-<id>.json`: full player result per UE: `events`, `requests`, `ruleState`, `cache` and `sessionRecord`
-- `run-manifest.json`: configuration, source revisions, timing and byte accounting
+- `run-manifest.json`: configuration, source revisions, timing, byte accounting and quality model versions in `scoring`
 - `network-steps.jsonl`: every network step with the player's response
 - `telemetry.jsonl`: network telemetry samples per UE
-- `kpis.csv` and `report.md`: KPIs per UE
+- `kpis.csv` and `report.md`: KPIs per UE, including session P.1203 scores; the report also lists scores per video and the model versions
 - `player.log`: error output of the player process
 - `fikore-effective.ini` and `fikore.log`: scenario and log of the FikoRE backend
 
@@ -93,7 +93,13 @@ This excerpt comes from UE 0 of the example run. It shows one of the three video
 
 The record also holds the transport settings, session timing, cache lifecycle, playback latency and `playback_metrics`, which combines the quality intervals and stalls of all videos. The manifest holds the configuration and source revisions. Request timestamps and events are in the other fields of the session file.
 
-The following fields are planned and not produced yet: P.1203 scores per video (`O46`, `O35`, `O23`) and per session, and prefetch efficiency.
+Scoring adds these fields after the simulation. See [QoE Estimation Models](#qoe-estimation-models).
+
+- `videos[].p1204_1_segment_scores`: played segments with their model inputs and `video_quality_mos`
+- `videos[].p1203_output`: `O46`, `O35`, `O23` and the per-second `O22` of the video, or `null` if less than 0.5 s was played
+- `session_summary.p1203_output`: the same scores over all played media of the session
+
+Prefetch efficiency is planned and not produced yet.
 
 ## Byte Attribution and Waste Classification
 
@@ -122,8 +128,7 @@ Each video record includes:
 - Initial loading delay and swipe-to-playback delay
 - Stall events, stall count and aggregate stall duration
 - Delivered, wasted and unresolved byte totals
-
-Quality scores from ITU-T P.1203 / P.1204.1 or P.1204.3 are planned for each video record.
+- P.1204.1 Mode 0 segment scores and P.1203 scores
 
 Time to first byte uses the earliest request of the video that received a byte. It is `null` if no request of the video received a byte. Aggregate KPIs exclude `null` values.
 
@@ -155,9 +160,32 @@ Yields `null` when aggregate throughput is zero.
 
 ## QoE Estimation Models
 
-The primary audiovisual score uses ITU-T P.1203 session integration. Per-segment video quality inputs use ITU-T P.1204.1 Mode 0 (AVQBits). Werner has code for this and will implement it.
+The primary audiovisual score uses ITU-T P.1203.3 session integration, computed by the [P.1203 reference implementation](https://github.com/itu-p1203/itu-p1203). Video scores come from ITU-T P.1204.1 Mode 0 (AVQBits|M0) instead of the P.1203.1 video module, using [`mode0-retraining`](https://github.com/aveq-research/p1203-mode0-retraining) with its default coefficients. `capcsp/scoring/` holds this code. Both packages are pinned in `pyproject.toml`.
 
-The session record gives the bitrate and representation ID of each played interval. The resolution and codec come from the content file, using `video_id` and `representation_id`. The current content file has no frame rate. It lists one audio representation per video, but the player does not request audio, so the session record has no audio data.
+Scoring works as follows:
+
+1. Split each played interval into media segments. The representation gives the resolution and codec. The segment size and duration in the content file give the segment bitrate.
+2. Compute one Mode 0 score per segment.
+3. Sample the segment scores once per played second as O22. The number of samples is the played duration rounded to full seconds. Played media of a session is concatenated in playback order.
+4. Pass O21, O22 and the stalling events to `P1203Standalone`. All amendment switches are off.
+
+The stalling events are the initial loading delay of each video, at the start of that video, and its stall events, at their played media position. In session scores, the delay after a swipe therefore counts as a stalling event at that position.
+
+The optional `scoring` block of an experiment configuration sets the model inputs that session records and content files do not hold:
+
+- `device`: `mobile` (default) or `pc`
+- `display_width` and `display_height`: display resolution for the upscaling degradation, by default 1080x1920
+- `frame_rate_fps`: assumed frame rate of all representations, by default 30, as stated in the manifests of the SFV fixture
+- `audio_o21`: assumed constant audio score, by default 5.0 (constant good quality), as the player does not request audio
+
+P.1203 is specified for sessions of 1 to 5 minutes. Scores of single short videos and of shorter sessions are outside this range.
+
+Two inputs are assumptions and not measured, and must be addressed for future encodings:
+
+- Audio is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
+- The frame rate is assumed to be the same for all representations, because the content file has no frame rate. Future content files need the frame rate per representation.
+
+The license of the P.1203 implementation allows non-commercial research use and forbids distribution. Its source is therefore a dependency and not part of this repository.
 
 Reports must state model versions. Short-Video Streaming Challenge metrics may be reported as supplementary comparative benchmarks.
 

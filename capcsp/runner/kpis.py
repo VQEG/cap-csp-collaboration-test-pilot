@@ -24,7 +24,7 @@ SUMMARY_FIELDS = (
 )
 
 # Decimal places per unit suffix
-ROUNDING = {"_s": 3, "_ms": 2, "_mbps": 3, "_ratio": 4}
+ROUNDING = {"_s": 3, "_ms": 2, "_mbps": 3, "_ratio": 4, "_o46": 3, "_o35": 3, "_o23": 3}
 
 
 def _round(key: str, value: Any) -> Any:
@@ -112,6 +112,10 @@ def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
             "swipe_to_playback_delay_mean_s": _mean(measured_swipe_delays),
         }
         row.update({field: summary.get(field) for field in SUMMARY_FIELDS})
+        session_scores = summary.get("p1203_output") or {}
+        row["p1203_o46"] = session_scores.get("O46")
+        row["p1203_o35"] = session_scores.get("O35")
+        row["p1203_o23"] = session_scores.get("O23")
         row["active_download_time_s"] = active_s
         row["goodput_mbps"] = (
             sum(request.get("bytesDelivered", 0) for request in requests) * 8 / active_s / 1e6
@@ -123,6 +127,29 @@ def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
         )
         row["rtt_mean_ms"] = _mean([s["rtt_ms"] for s in active_samples if s.get("rtt_ms") is not None])
         rows.append({key: _round(key, value) for key, value in row.items()})
+    return rows
+
+
+def collect_video_scores(run_dir: Path) -> list[dict[str, Any]]:
+    """Return one row per scored video of the run in `run_dir`."""
+    manifest = json.loads((run_dir / "run-manifest.json").read_text(encoding="utf-8"))
+    rows = []
+    for ue_id in manifest["ue_ids"]:
+        result = json.loads((run_dir / "sessions" / f"ue-{ue_id}.json").read_text(encoding="utf-8"))
+        for video in result["sessionRecord"]["videos"]:
+            scores = video.get("p1203_output")
+            if scores:
+                rows.append(
+                    {
+                        "run_id": manifest["run_id"],
+                        "ue_id": ue_id,
+                        "video_id": video["video_id"],
+                        "watch_duration_s": video.get("watch_duration_s"),
+                        "O46": scores["O46"],
+                        "O35": scores["O35"],
+                        "O23": scores["O23"],
+                    }
+                )
     return rows
 
 

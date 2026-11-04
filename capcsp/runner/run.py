@@ -3,7 +3,7 @@
 Output directory layout:
 
 - run-manifest.json: configuration, revisions, timing and byte accounting
-- sessions/ue-<id>.json: full player result per UE, including the session record
+- sessions/ue-<id>.json: full player result per UE, including the scored session record
 - network-steps.jsonl: every NetworkStep with the player's response
 - telemetry.jsonl: NetworkTelemetryReceived events
 - player.log: stderr of the player process
@@ -21,6 +21,7 @@ from typing import Any
 from capcsp.network.mock import MockNetworkBackend
 from capcsp.network.transport_fikore import TransportFikoreBackend, TransportFikoreConfig
 from capcsp.player.bridge import NodePlayerBridge, run_sessions
+from capcsp.scoring.session_scoring import ScoringSettings, score_run
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONTENT = REPO_ROOT / "sfv-reference-implementation" / "fixtures" / "content" / "content.json"
@@ -49,6 +50,7 @@ def load_config(path: Path) -> dict[str, Any]:
     for session in sessions:
         if session.get("player_behavior") not in ("simple", "preload"):
             raise ValueError(f"UE {session['ue_id']}: player_behavior must be 'simple' (B1) or 'preload' (B2)")
+    ScoringSettings.from_dict(config.get("scoring", {}))
     content = config.get("content")
     config["content_path"] = str((path.parent / content).resolve() if content else DEFAULT_CONTENT)
     config.setdefault("run_id", path.stem)
@@ -134,5 +136,9 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
     manifest["sim_time_s"] = result["sim_time_s"]
     for session in result["sessions"]:
         write_json(output_dir / "sessions" / f"ue-{session['ue_id']}.json", session["result"])
+    write_json(output_dir / "run-manifest.json", manifest)
+    manifest["scoring"] = score_run(
+        output_dir, player_config["dataset"], ScoringSettings.from_dict(config.get("scoring", {}))
+    )
     write_json(output_dir / "run-manifest.json", manifest)
     return manifest

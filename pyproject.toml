@@ -5,7 +5,11 @@ description = "VQEG CAP-CSP collaboration pilot: short-form video player and net
 readme = "README.md"
 requires-python = ">=3.14"
 license = "MIT"
-dependencies = ["fikore-transport"]
+dependencies = [
+    "fikore-transport",
+    "itu-p1203",
+    "mode0-retraining",
+]
 
 [project.scripts]
 capcsp = "capcsp.cli:main"
@@ -15,6 +19,8 @@ dev = ["pytest>=8"]
 
 [tool.uv.sources]
 fikore-transport = { path = "5g-network-emulator/transport", editable = true }
+mode0-retraining = { git = "https://github.com/aveq-research/p1203-mode0-retraining", rev = "e4ebd2ed2cd6b93295d50c71af773f0dfb2745a0" }
+itu-p1203 = { git = "https://github.com/itu-p1203/itu-p1203", rev = "ffed4678a5d9b6d5a77e6e248aae31a37b3d773f" }
 
 [build-system]
 requires = ["hatchling"]

@@ -31,9 +31,10 @@ cap-csp-collaboration-test-pilot/
     origin/
       server.py
     scoring/
-      records.py
-      p1203.py
-      p1204_1_pv.py
+      records.py                # * Scoring inputs from session records and the content file
+      p1203.py                  # * P.1203.3 integration of O21, O22 and stalling events
+      p1204_1_pv.py             # * Per-segment video score from P.1204.1 Mode 0
+      session_scoring.py        # * Scores per video and session of one run
       aggregate.py
     runner/
       run.py                    # * One experiment: backend, player process, outputs

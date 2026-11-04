@@ -93,6 +93,20 @@ def test_mock(tmp_path: Path) -> None:
     assert json.loads(last)["network_step"]["is_final"]
 
 
+def test_run_writes_p1203_scores(tmp_path: Path) -> None:
+    output = run(tmp_path, "b1-b2-two-ue-mock", duration_s=8)
+    for row in collect_kpis(output):
+        assert 1 <= row["p1203_o46"] <= 5
+    record = json.loads((output / "sessions" / "ue-0.json").read_text())["sessionRecord"]
+    assert any(video["p1204_1_segment_scores"] for video in record["videos"])
+    manifest = json.loads((output / "run-manifest.json").read_text())
+    assert manifest["scoring"]["settings"]["frame_rate_fps"] == 30.0
+    write_report([output], output / "report.md")
+    report = (output / "report.md").read_text()
+    assert "## P.1203 Scores per Video" in report
+    assert "ITU-T P.1204.1 Mode 0" in report
+
+
 @pytest.mark.parametrize("tcp_connection_mode", ["persistent", "fresh"])
 def test_transport_over_loopback(tmp_path: Path, tcp_connection_mode: str) -> None:
     network = {"link": "loopback", "tcp_connection_mode": tcp_connection_mode}
