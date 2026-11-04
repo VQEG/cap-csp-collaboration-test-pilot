@@ -1,0 +1,138 @@
+{
+  "run_id": "swipe-during-dropout-b1-b2",
+  "status": "completed",
+  "started_at": "2026-11-04T15:10:45+00:00",
+  "config_path": "configs/experiments/swipe-example/swipe-during-dropout-b1-b2.json",
+  "config": {
+    "run_id": "swipe-during-dropout-b1-b2",
+    "network_backend": "transport_fikore",
+    "network": {
+      "congestion_control": "cubic",
+      "receive_window_bytes": 1048576,
+      "tcp_connection_mode": "persistent",
+      "max_idle_tcp_connections_per_ue": 6,
+      "step_ms": 10,
+      "fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini",
+      "study_ues": [
+        "studyVqeg"
+      ],
+      "ack_over_link": true,
+      "delay_budget_s": null,
+      "random_v": null,
+      "fikore_section_overrides": {
+        "Global": {
+          "seed": 20260927
+        },
+        "Control": {
+          "timeline_file": "../configs/experiments/stall-example/stall-example-dropout-timeline.ndjson"
+        }
+      }
+    },
+    "condition": "swipe-example",
+    "signaling_level": "L0",
+    "duration_s": 20,
+    "timingDefaults": {
+      "playbackTiming": {
+        "mode": "causal-simple",
+        "slotPreparationS": 0.01,
+        "appendDurationS": 0.005,
+        "startupDelayS": 0.005,
+        "observationIntervalS": 0.05
+      }
+    },
+    "sessions": [
+      {
+        "ue_id": 0,
+        "player_behavior": "simple",
+        "config": {
+          "sessionId": "generic-ue0",
+          "seed": 17,
+          "scheduling": {
+            "maxConcurrentRequests": 2
+          },
+          "swipeTimesS": [
+            3,
+            9
+          ]
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2
+        }
+      },
+      {
+        "ue_id": 1,
+        "player_behavior": "preload",
+        "config": {
+          "sessionId": "generic-ue1",
+          "seed": 21,
+          "scheduling": {
+            "maxConcurrentRequests": 3
+          },
+          "swipeTimesS": [
+            3,
+            9
+          ]
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2,
+          "max_preload_segments": 4,
+          "preload_segments_per_video": 2
+        }
+      }
+    ]
+  },
+  "content_path": "sfv-reference-implementation/fixtures/content/content.json",
+  "network_backend": "transport_fikore",
+  "ue_ids": [
+    0,
+    1
+  ],
+  "revisions": {
+    "capcsp": {
+      "commit": "127a3156ba732a4c5470b7ae1c8ab3c3273d79d8",
+      "dirty": false
+    },
+    "fikore": {
+      "commit": "67e5e638ce5917cd7371677f225cb714a7f64a88",
+      "dirty": false
+    },
+    "sfv_reference_implementation": {
+      "commit": "07fab254952422d0092f80bf2490ea2a7fcfb9cb",
+      "dirty": false
+    }
+  },
+  "wall_s": 1.122,
+  "network_steps": 2001,
+  "byte_accounting": {
+    "submitted_bytes": 1965704,
+    "terminal_bytes": {
+      "delivered": 1965704,
+      "dropped": 0,
+      "expired": 0
+    },
+    "in_flight_bytes": 0,
+    "bytes_conserved": true
+  },
+  "sim_time_s": 20,
+  "scoring": {
+    "integration_model": {
+      "standard": "ITU-T P.1203.3",
+      "package": "itu-p1203",
+      "version": "1.11.0",
+      "commit": "ffed4678a5d9b6d5a77e6e248aae31a37b3d773f"
+    },
+    "video_model": {
+      "standard": "ITU-T P.1204.1 Mode 0 (AVQBits|M0)",
+      "package": "mode0-retraining",
+      "version": "0.1.0",
+      "commit": "e4ebd2ed2cd6b93295d50c71af773f0dfb2745a0"
+    },
+    "settings": {
+      "device": "mobile",
+      "display_width": 1080,
+      "display_height": 1920,
+      "frame_rate_fps": 30.0,
+      "audio_o21": 5.0
+    }
+  }
+}
