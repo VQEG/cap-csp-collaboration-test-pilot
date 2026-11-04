@@ -103,14 +103,19 @@ def write_report(run_dirs: list[Path], path: Path) -> None:
         "Goodput is the bytes delivered to the player divided by the time with at least one download open. "
         "Throughput (network-layer, including retransmissions) and RTT are means over the backend's "
         "telemetry samples taken while a download was open. "
-        "O46, O35 and O23 are the P.1203 scores of all played media of the session.",
+        "O46, O35 and O23 are the means of the P.1203 scores per video, weighted by played duration.",
         "",
     ]
     video_scores = [row for run_dir in run_dirs for row in collect_video_scores(run_dir)]
     if video_scores:
         lines += ["## P.1203 Scores per Video", ""]
         lines += _table(VIDEO_SCORE_COLUMNS, video_scores)
-        lines += ["", "Videos with less than half a second of played media have no score.", ""]
+        lines += [
+            "",
+            "Videos with less than half a second of played media have no score. "
+            "P.1203 is only valid for media of 1 minute or longer; shorter videos are scored anyway.",
+            "",
+        ]
     scoring_summaries = [summary for summary in map(_scoring_summary, run_dirs) if summary]
     if scoring_summaries:
         lines += ["## Quality Models", "", *scoring_summaries, ""]

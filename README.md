@@ -48,7 +48,7 @@ Run the example with two UEs (B1 and B2) on the deterministic mock backend. This
 uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json output/mock
 ```
 
-The output directory holds the run manifest, one session record per UE, the `NetworkStep` transcript, `kpis.csv` and `report.md`. `uv run capcsp report output/run-a output/run-b -o report.md` compares several runs. `output/` is not tracked by git. See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run.
+The output directory holds the run manifest, one session record per UE with its P.1203 scores, the `NetworkStep` transcript, `kpis.csv` and `report.md`. See [Results and Scoring](docs/results-and-scoring.md#qoe-estimation-models) for how the scores are computed. `uv run capcsp report output/run-a output/run-b -o report.md` compares several runs. `output/` is not tracked by git. See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run.
 
 Runs on FikoRE need Linux. On macOS, build the container and run inside it:
 

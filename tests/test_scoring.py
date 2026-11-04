@@ -9,7 +9,7 @@ from mode0_retraining.retrain_mode0 import DEFAULT_CODING_COEFFS, video_model_fu
 from capcsp.scoring.p1203 import merge_stalling_events, p1203_integration_scores
 from capcsp.scoring.p1204_1_pv import model_codec_name, segment_video_quality_mos
 from capcsp.scoring.records import per_second_scores, played_segments_of_video, stalling_events_of_video
-from capcsp.scoring.session_scoring import ScoringSettings, score_run
+from capcsp.scoring.session_scoring import ScoringSettings, combine_video_scores, score_run
 
 CONTENT = Path(__file__).resolve().parents[1] / "sfv-reference-implementation" / "fixtures" / "content" / "content.json"
 
@@ -142,6 +142,14 @@ def test_invalid_settings(values: dict) -> None:
         ScoringSettings.from_dict(values)
 
 
+def test_combine_video_scores_weights_by_played_duration() -> None:
+    assert combine_video_scores([]) is None
+    combined = combine_video_scores(
+        [(1.0, {"O46": 2.0, "O35": 3.0, "O23": 5.0}), (3.0, {"O46": 4.0, "O35": 3.0, "O23": 1.0})]
+    )
+    assert combined == {"O46": 3.5, "O35": 3.0, "O23": 2.0}
+
+
 def test_score_run_adds_scores_to_session_record(tmp_path: Path) -> None:
     dataset = json.loads(CONTENT.read_text())
     (tmp_path / "sessions").mkdir()
@@ -168,8 +176,10 @@ def test_score_run_adds_scores_to_session_record(tmp_path: Path) -> None:
     assert second["p1203_output"]["O23"] < third["p1203_output"]["O23"]
     assert third["p1204_1_segment_scores"][0]["video_quality_mos"] > second["p1204_1_segment_scores"][0]["video_quality_mos"]
     session = record["session_summary"]["p1203_output"]
-    assert session["O22"] == second["p1203_output"]["O22"] + third["p1203_output"]["O22"]
-    assert 1 <= session["O46"] <= 5
+    for score in ("O46", "O35", "O23"):
+        expected = (4 * second["p1203_output"][score] + 6 * third["p1203_output"][score]) / 10
+        assert session[score] == pytest.approx(expected)
+    assert "O22" not in session
     assert scoring["integration_model"]["version"] == "1.11.0"
     assert scoring["video_model"]["commit"]
     assert scoring["settings"]["device"] == "mobile"

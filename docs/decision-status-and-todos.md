@@ -66,6 +66,7 @@ Owner: Werner
 - [ ] Generate swipe times from the swipe profile and seed.
 - [ ] Call `set_ue_control()` and the player's CAP reports from the runner, so that L1 to L3 can run ([Signaling](signaling.md)).
 - [ ] Pass `NetworkTelemetryReceived` into the SFV engine for L2 policies. The runner logs telemetry, but the engine has no input for it yet.
+- [ ] Decide whether to unify the naming in `sessions/ue-<id>.json`: the SFV result object uses camelCase (`sessionRecord`, `terminationReason`), while the record inside it uses snake_case (`session_id`, `representation_intervals`).
 
 ## L3 Bidirectional Collaboration Controller
 
@@ -86,7 +87,11 @@ Owners: Werner and Pablo. Emir offered to define the oracle precisely.
 
 Owners: Werner, Markus, Federica
 
-- [x] Feed P.1204.1 Mode 0 segment scores into the P.1203 session score ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Feed P.1204.1 Mode 0 segment scores into the P.1203 score of each video ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Use the device class `mobile` and a full HD display (1080x1920 in portrait) as the scoring defaults ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Treat the wait after a swipe as initial loading delay, which is a stalling event at position 0 in P.1203 ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Apply P.1203 per video and combine the video scores into the session score as their mean, weighted by played duration ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Score videos shorter than 1 minute fully, knowing that P.1203 is only valid from 1 minute ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [ ] Replace the assumed constant good audio quality (O21 5.0) with real audio scores for future encodings; this needs audio in the content, the player and the session record ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [ ] Replace the assumed frame rate of 30 fps with the frame rate per representation in the content file for future encodings ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [ ] Add the Hoßfeld QoE-fairness and Jain throughput-fairness metrics ([Results and Scoring](results-and-scoring.md#aggregate-evaluation-formulas)).

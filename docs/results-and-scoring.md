@@ -10,7 +10,7 @@ Each run produces one structured session record per video UE. Scoring is compute
 - `run-manifest.json`: configuration, source revisions, timing, byte accounting and quality model versions in `scoring`
 - `network-steps.jsonl`: every network step with the player's response
 - `telemetry.jsonl`: network telemetry samples per UE
-- `kpis.csv` and `report.md`: KPIs per UE, including session P.1203 scores; the report also lists scores per video and the model versions
+- `kpis.csv` and `report.md`: KPIs per UE, including the combined P.1203 scores; the report also lists scores per video and the model versions
 - `player.log`: error output of the player process
 - `fikore-effective.ini` and `fikore.log`: scenario and log of the FikoRE backend
 
@@ -97,7 +97,7 @@ Scoring adds these fields after the simulation. See [QoE Estimation Models](#qoe
 
 - `videos[].p1204_1_segment_scores`: played segments with their model inputs and `video_quality_mos`
 - `videos[].p1203_output`: `O46`, `O35`, `O23` and the per-second `O22` of the video, or `null` if less than 0.5 s was played
-- `session_summary.p1203_output`: the same scores over all played media of the session
+- `session_summary.p1203_output`: means of `O46`, `O35` and `O23` over the scored videos, weighted by played duration, or `null` if no video was scored
 
 Prefetch efficiency is planned and not produced yet.
 
@@ -160,32 +160,31 @@ Yields `null` when aggregate throughput is zero.
 
 ## QoE Estimation Models
 
-The primary audiovisual score uses ITU-T P.1203.3 session integration, computed by the [P.1203 reference implementation](https://github.com/itu-p1203/itu-p1203). Video scores come from ITU-T P.1204.1 Mode 0 (AVQBits|M0) instead of the P.1203.1 video module, using [`mode0-retraining`](https://github.com/aveq-research/p1203-mode0-retraining) with its default coefficients. `capcsp/scoring/` holds this code. Both packages are pinned in `pyproject.toml`.
+The primary audiovisual score uses ITU-T P.1203.3 integration, applied to each video on its own and computed by the [P.1203 reference implementation](https://github.com/itu-p1203/itu-p1203). Video scores come from ITU-T P.1204.1 Mode 0 (AVQBits|M0) instead of the P.1203.1 video module, using [`mode0-retraining`](https://github.com/aveq-research/p1203-mode0-retraining) with its default coefficients. `capcsp/scoring/` holds this code. Both packages are pinned in `pyproject.toml`.
 
 Scoring works as follows:
 
 1. Split each played interval into media segments. The representation gives the resolution and codec. The segment size and duration in the content file give the segment bitrate.
 2. Compute one Mode 0 score per segment.
-3. Sample the segment scores once per played second as O22. The number of samples is the played duration rounded to full seconds. Played media of a session is concatenated in playback order.
-4. Pass O21, O22 and the stalling events to `P1203Standalone`. All amendment switches are off.
+3. Sample the segment scores once per played second as O22. The number of samples is the played duration rounded to full seconds.
+4. Pass O21, O22 and the stalling events of the video to `P1203Standalone`. All amendment switches are off.
+5. Combine the video scores into the session score as their mean, weighted by played duration. Videos are not joined into one P.1203 session.
 
-The stalling events are the initial loading delay of each video, at the start of that video, and its stall events, at their played media position. In session scores, the delay after a swipe therefore counts as a stalling event at that position.
+The stalling events of a video are its initial loading delay at position 0 and its stall events at their played media position. The initial loading delay is the wait after a swipe or, for the first video, the wait for the first playback.
 
 The optional `scoring` block of an experiment configuration sets the model inputs that session records and content files do not hold:
 
 - `device`: `mobile` (default) or `pc`
-- `display_width` and `display_height`: display resolution for the upscaling degradation, by default 1080x1920
+- `display_width` and `display_height`: display resolution for the upscaling degradation, by default 1080x1920 (portrait full HD)
 - `frame_rate_fps`: assumed frame rate of all representations, by default 30, as stated in the manifests of the SFV fixture
 - `audio_o21`: assumed constant audio score, by default 5.0 (constant good quality), as the player does not request audio
 
-P.1203 is specified for sessions of 1 to 5 minutes. Scores of single short videos and of shorter sessions are outside this range.
+P.1203 is only valid for media of 1 minute or longer. Shorter videos are scored fully anyway, knowing this limit. Only videos with less than 0.5 s of played media have no score, as they have no per-second O22 value. They do not count towards the session score.
 
 Two inputs are assumptions and not measured, and must be addressed for future encodings:
 
 - Audio is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
 - The frame rate is assumed to be the same for all representations, because the content file has no frame rate. Future content files need the frame rate per representation.
-
-The license of the P.1203 implementation allows non-commercial research use and forbids distribution. Its source is therefore a dependency and not part of this repository.
 
 Reports must state model versions. Short-Video Streaming Challenge metrics may be reported as supplementary comparative benchmarks.
 

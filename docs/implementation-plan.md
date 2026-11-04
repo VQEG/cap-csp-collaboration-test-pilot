@@ -34,7 +34,7 @@ cap-csp-collaboration-test-pilot/
       records.py                # * Scoring inputs from session records and the content file
       p1203.py                  # * P.1203.3 integration of O21, O22 and stalling events
       p1204_1_pv.py             # * Per-segment video score from P.1204.1 Mode 0
-      session_scoring.py        # * Scores per video and session of one run
+      session_scoring.py        # * Scores per video and their combination per session
       aggregate.py
     runner/
       run.py                    # * One experiment: backend, player process, outputs
@@ -71,7 +71,7 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 7. L3 controller design and network-side adaptation hooks.
 8. Real-HTTP runs with the multi-video dash.js player (with Michi) and offline-versus-real validation runs.
 
-Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records, a KPI table and a report. The provisional FikoRE condition pack C1–C8b runs end to end with the B1/B2 fixture. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
+Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records with P.1203 scores, a KPI table and a report. The provisional FikoRE condition pack C1–C8b runs end to end with the B1/B2 fixture. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
 
 ## Mock Backend
 

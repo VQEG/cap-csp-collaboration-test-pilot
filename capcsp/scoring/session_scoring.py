@@ -1,4 +1,4 @@
-"""P.1203 scores per video and session for the session files of one run."""
+"""P.1203 scores per video and their combination per session for the session files of one run."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ class ScoringSettings:
 
     # P.1204.1 device class
     device: Literal["pc", "mobile"] = "mobile"
-    # Display resolution for the upscaling degradation
+    # Display resolution for the upscaling degradation (portrait full HD)
     display_width: int = 1080
     display_height: int = 1920
     # Assumed frame rate of all representations; the manifests of the SFV fixture state 30 fps
@@ -55,14 +55,9 @@ def _model_package_version(package: str) -> dict[str, Any]:
 def _score_session_record(record: dict[str, Any], dataset: dict[str, Any], settings: ScoringSettings) -> None:
     """Add `p1204_1_segment_scores` and `p1203_output` to the videos and summary of a session record."""
     video_content_by_id = {video["videoId"]: video for video in dataset["videos"]}
-    session_segment_scores: list[tuple[float, float]] = []
-    session_stalling_events: list[tuple[float, float]] = []
+    scored_videos: list[tuple[float, dict[str, Any]]] = []
 
-    def first_playback_time(video: dict[str, Any]) -> float:
-        intervals = video.get("representation_intervals") or []
-        return min((interval["start_at_s"] for interval in intervals), default=float("inf"))
-
-    for video in sorted(record["videos"], key=first_playback_time):
+    for video in record["videos"]:
         segment_outputs = []
         segment_scores = []
         for segment in played_segments_of_video(video, video_content_by_id[video["video_id"]]):
@@ -79,30 +74,30 @@ def _score_session_record(record: dict[str, Any], dataset: dict[str, Any], setti
             segment_outputs.append({**segment.to_dict(), "video_quality_mos": mos})
             segment_scores.append((segment.played_duration_s, mos))
 
-        stalling_events = stalling_events_of_video(video)
-        session_position_s = sum(duration_s for duration_s, _ in session_segment_scores)
-        session_stalling_events += [(position_s + session_position_s, length_s) for position_s, length_s in stalling_events]
-        session_segment_scores += segment_scores
-
+        per_second_video_o22 = per_second_scores(segment_scores)
+        scores = p1203_integration_scores(
+            per_second_video_o22=per_second_video_o22,
+            audio_o21=settings.audio_o21,
+            stalling_events=stalling_events_of_video(video),
+            device=settings.device,
+        )
         video["p1204_1_segment_scores"] = segment_outputs
-        video["p1203_output"] = _p1203_output(segment_scores, stalling_events, settings)
+        video["p1203_output"] = None if scores is None else {**scores, "O22": per_second_video_o22}
+        if scores is not None:
+            scored_videos.append((sum(duration_s for duration_s, _ in segment_scores), scores))
 
-    record["session_summary"]["p1203_output"] = _p1203_output(session_segment_scores, session_stalling_events, settings)
+    record["session_summary"]["p1203_output"] = combine_video_scores(scored_videos)
 
 
-def _p1203_output(
-    segment_scores: list[tuple[float, float]],
-    stalling_events: list[tuple[float, float]],
-    settings: ScoringSettings,
-) -> dict[str, Any] | None:
-    per_second_video_o22 = per_second_scores(segment_scores)
-    scores = p1203_integration_scores(
-        per_second_video_o22=per_second_video_o22,
-        audio_o21=settings.audio_o21,
-        stalling_events=stalling_events,
-        device=settings.device,
-    )
-    return None if scores is None else {**scores, "O22": per_second_video_o22}
+def combine_video_scores(scored_videos: list[tuple[float, dict[str, Any]]]) -> dict[str, float] | None:
+    """Return the means of O46, O35 and O23 over `(played duration, scores)` of the videos, weighted by duration."""
+    if not scored_videos:
+        return None
+    total_played_duration_s = sum(duration_s for duration_s, _ in scored_videos)
+    return {
+        score: sum(duration_s * scores[score] for duration_s, scores in scored_videos) / total_played_duration_s
+        for score in ("O46", "O35", "O23")
+    }
 
 
 def score_run(run_dir: Path, dataset: dict[str, Any], settings: ScoringSettings) -> dict[str, Any]:

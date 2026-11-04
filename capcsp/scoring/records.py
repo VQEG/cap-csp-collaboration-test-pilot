@@ -89,7 +89,10 @@ def _played_duration_until(intervals: list[dict[str, Any]], time_s: float) -> fl
 
 
 def stalling_events_of_video(video_record: dict[str, Any]) -> list[tuple[float, float]]:
-    """Return `(played media position, duration)` of the loading delay and all stalls of a video."""
+    """Return `(played media position, duration)` of the initial loading delay and all stalls of a video.
+
+    The initial loading delay is at position 0 and includes the wait after a swipe.
+    """
     events = []
     initial_loading_delay_s = video_record.get("initial_loading_delay_s")
     if initial_loading_delay_s:
