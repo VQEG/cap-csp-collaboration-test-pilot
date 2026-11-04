@@ -12,6 +12,7 @@ import json
 import math
 import shutil
 import tempfile
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -39,6 +40,17 @@ class ScheduledSet:
 def _resolve_repo_path(value: str) -> str:
     path = Path(value)
     return str(path if path.is_absolute() else (REPO_ROOT / path).resolve())
+
+
+class _SortedRequestKeys(set):
+    """Set of request keys that iterates in sorted order.
+
+    The order of a plain set of strings changes with Python's per-process hash
+    seed, which changes the order of network events and therefore the results.
+    """
+
+    def __iter__(self) -> Iterator[tuple[int, str]]:
+        return iter(sorted(super().__iter__()))
 
 
 def _timeline_tti(message: dict[str, Any], line_no: int) -> int:
@@ -409,6 +421,7 @@ class TransportFikoreBackend(TransportBackend):
                 ack_over_link=config.ack_over_link,
             ),
         )
+        self._active_requests = _SortedRequestKeys()
 
     def accounting(self) -> dict[str, Any] | None:
         """Byte conservation counters of the link, or None for the loopback link."""

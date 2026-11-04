@@ -1,7 +1,11 @@
 """End-to-end runs of the example experiment on each backend."""
 
+import hashlib
 import json
+import os
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -105,3 +109,28 @@ def test_transport_over_fikore(tmp_path: Path) -> None:
     check_sessions(output, "transport_fikore")
     manifest = json.loads((output / "run-manifest.json").read_text())
     assert manifest["byte_accounting"]["bytes_conserved"]
+
+
+def _run_with_hash_seed(config: Path, output: Path, hash_seed: str) -> dict[str, str]:
+    """Run `config` in a new process and return a digest per result file."""
+    subprocess.run(
+        [sys.executable, "-m", "capcsp.cli", "run", str(config), str(output)],
+        check=True,
+        capture_output=True,
+        env={**os.environ, "PYTHONHASHSEED": hash_seed},
+    )
+    files = [output / "network-steps.jsonl", output / "telemetry.jsonl", *sorted((output / "sessions").glob("*.json"))]
+    return {file.name: hashlib.sha256(file.read_bytes()).hexdigest() for file in files}
+
+
+@pytest.mark.skipif(
+    not Path(TransportFikoreConfig().fikore_binary).exists(), reason="FikoRE is not built"
+)
+def test_fikore_run_repeats_with_a_different_python_hash_seed(tmp_path: Path) -> None:
+    config = CONFIGS / "stall-example" / "stall-example-b1-b2.json"
+    first = _run_with_hash_seed(config, tmp_path / "first", "1")
+    second = _run_with_hash_seed(config, tmp_path / "second", "2")
+    assert first == second
+    # The stalls come from the timeline set by the section override in the config
+    record = json.loads((tmp_path / "first" / "sessions" / "ue-0.json").read_text())["sessionRecord"]
+    assert record["session_summary"]["stall_count_total"] == 1
