@@ -101,6 +101,50 @@ Scoring adds these fields after the simulation. See [QoE Estimation Models](#qoe
 
 Prefetch efficiency is planned and not produced yet.
 
+## KPI Table
+
+`kpis.csv` has one row per UE. Empty cells are `null` values. `capcsp/runner/kpis.py` computes the table.
+
+Run and session:
+
+- `run_id`, `network_backend`, `condition`, `signaling_level`: run identifiers from the configuration
+- `ue_id`, `player_behavior`: UE number and player, `simple` (B1) or `preload` (B2)
+- `termination_reason`: `session_end` or `simulation_cutoff`
+- `requests`: number of requests in the session file
+
+Swipes and delays:
+
+- `swipes`: number of swipes
+- `swipe_to_playback_delay_mean_s`: mean time from a swipe to playback of the next video, without swipes where playback did not start
+- `swipe_wait_total_s`: sum of all swipe delays
+- `initial_playback_delay_s`: time to the start of playback of the first video, empty if the user swiped away before it started
+
+Playback:
+
+- `videos_started`, `videos_completed`: videos with played media, and videos played to their end
+- `stall_count_total`, `stall_duration_total_s`: number and total duration of stalls
+- `quality_switch_count_total`: quality changes within and between videos
+
+Bytes, as described in [Byte Attribution and Waste Classification](#byte-attribution-and-waste-classification):
+
+- `bytes_delivered`: all delivered bytes
+- `bytes_data_wastage`: delivered media bytes that can no longer be used
+- `data_wastage_ratio`: `bytes_data_wastage` divided by the delivered media bytes
+- `bytes_unresolved_at_cutoff`: unplayed bytes that could still become useful at the simulation cutoff
+
+Quality, from `session_summary.p1203_output`, on a scale of 1 to 5. See [QoE Estimation Models](#qoe-estimation-models).
+
+- `p1203_o46`: final audiovisual score
+- `p1203_o35`: audiovisual score without the effect of stalls
+- `p1203_o23`: stalling indication, where 5 means no effect of stalls
+
+Network:
+
+- `active_download_time_s`: time with at least one request open
+- `goodput_mbps`: bytes delivered to the player, divided by `active_download_time_s`
+- `throughput_mbps`: mean of the telemetry samples taken while a request was open
+- `rtt_mean_ms`: mean round-trip time of the same samples
+
 ## Byte Attribution and Waste Classification
 
 Delivered bytes map directly to the corresponding media object in the request registry, regardless of which video is actively displaying when bytes arrive.
