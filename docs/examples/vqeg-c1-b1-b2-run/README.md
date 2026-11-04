@@ -51,8 +51,8 @@ The table lists the representations of `v2`, the video that plays to the end in 
 
 ## Limits of This Example
 
-- Each session has only one swipe, after about 0.1 s, so the swipe delays are short (0.13 s and 0.03 s) and the viewing time before the swipe is close to 0. See the [swipe example](../swipe-during-dropout-b1-b2-run/README.md) for several swipes and longer delays.
+- Each session has only one swipe, after about 0.1 s, so the swipe delays are short (0.33 s and 0.03 s) and the viewing time before the swipe is close to 0. See the [swipe example](../swipe-during-dropout-b1-b2-run/README.md) for several swipes and longer delays.
 - `stall_events` is empty for both UEs. None of the nine VQEG conditions currently produces a stall. See the [stall example](../stall-example-b1-b2-run/README.md) for filled stall events.
-- The fixture has three videos of 6 s with 2 s segments, and sessions swipe once, after about 0.1 s. Only `v2` plays for longer than a moment. It plays 4 s at representation 0 and then 2 s at representation 2, in all nine conditions.
+- The fixture has three videos of 6 s with 2 s segments, and sessions swipe once, after about 0.1 s. Only `v2` plays for longer than a moment. In this run, UE 0 plays it at representation 2 throughout, and UE 1 plays 4 s at representation 0 and then 2 s at representation 2. Most other conditions play it like UE 1, and in C4 no video starts.
 - The content has no frame rate. It lists one audio representation per video, but the player does not request audio, so the record has no audio data. A QoE model that needs these inputs has to assume them for now.
 - The record includes the fields `p1204_1_segment_scores` and `p1203_output`. Only 6 s of media play, far less than the 1 to 5 minutes for which P.1203 is specified, so the scores show the format only. See [Results and Scoring](../../results-and-scoring.md#session-record-format).

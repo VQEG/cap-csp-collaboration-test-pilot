@@ -14,8 +14,8 @@ uv run capcsp run configs/experiments/stall-example/stall-example-b1-b2.json out
 
 | UE | Player | Stall start (s) | Stall end (s) | Stall duration (s) |
 |---|---|---|---|---|
-| 0 | `simple` | 4.44 | 7.66 | 3.22 |
-| 1 | `preload` | 4.34 | 7.69 | 3.35 |
+| 0 | `simple` | 4.43 | 7.48 | 3.05 |
+| 1 | `preload` | 4.36 | 7.60 | 3.24 |
 
 Both UEs play `v2` at representation 0 until the buffer runs out. The next segment, at representation 2, is requested during the dropout and only arrives after it. Both UEs then play `v2` to the end.
 

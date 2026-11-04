@@ -1,7 +1,7 @@
 {
   "run_id": "vqeg-c1-b1-b2",
   "status": "completed",
-  "started_at": "2026-11-04T15:15:53+00:00",
+  "started_at": "2026-11-04T16:55:24+00:00",
   "config_path": "configs/experiments/vqeg/c1-b1-b2.json",
   "config": {
     "run_id": "vqeg-c1-b1-b2",
@@ -84,11 +84,11 @@
   ],
   "revisions": {
     "capcsp": {
-      "commit": "127a3156ba732a4c5470b7ae1c8ab3c3273d79d8",
+      "commit": "97098faf4b1a196a6054de9f9f46eef0cf6dae70",
       "dirty": false
     },
     "fikore": {
-      "commit": "67e5e638ce5917cd7371677f225cb714a7f64a88",
+      "commit": "13f9b835564921c4045fb0ca94e4b5b5910cc3d0",
       "dirty": false
     },
     "sfv_reference_implementation": {
@@ -96,12 +96,12 @@
       "dirty": false
     }
   },
-  "wall_s": 5.305,
+  "wall_s": 6.027,
   "network_steps": 12001,
   "byte_accounting": {
-    "submitted_bytes": 865120,
+    "submitted_bytes": 1119670,
     "terminal_bytes": {
-      "delivered": 865120,
+      "delivered": 1119670,
       "dropped": 0,
       "expired": 0
     },

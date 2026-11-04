@@ -1,7 +1,7 @@
 {
   "run_id": "stall-example-b1-b2",
   "status": "completed",
-  "started_at": "2026-11-04T15:16:00+00:00",
+  "started_at": "2026-11-04T16:55:31+00:00",
   "config_path": "configs/experiments/stall-example/stall-example-b1-b2.json",
   "config": {
     "run_id": "stall-example-b1-b2",
@@ -87,11 +87,11 @@
   ],
   "revisions": {
     "capcsp": {
-      "commit": "127a3156ba732a4c5470b7ae1c8ab3c3273d79d8",
+      "commit": "97098faf4b1a196a6054de9f9f46eef0cf6dae70",
       "dirty": false
     },
     "fikore": {
-      "commit": "67e5e638ce5917cd7371677f225cb714a7f64a88",
+      "commit": "13f9b835564921c4045fb0ca94e4b5b5910cc3d0",
       "dirty": false
     },
     "sfv_reference_implementation": {
@@ -99,12 +99,12 @@
       "dirty": false
     }
   },
-  "wall_s": 1.05,
+  "wall_s": 1.219,
   "network_steps": 2001,
   "byte_accounting": {
-    "submitted_bytes": 888849,
+    "submitted_bytes": 976416,
     "terminal_bytes": {
-      "delivered": 888849,
+      "delivered": 976416,
       "dropped": 0,
       "expired": 0
     },

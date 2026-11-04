@@ -1510,8 +1510,8 @@
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r5",
       "time": 0.08,
-      "deltaBytes": 27000,
-      "totalBytes": 45000,
+      "deltaBytes": 24000,
+      "totalBytes": 42000,
       "request": {
         "requestId": "ue1-r5",
         "resource": {
@@ -1530,7 +1530,7 @@
         "startTime": 0.03,
         "firstByteTime": 0.05,
         "endTime": null,
-        "bytesDelivered": 45000,
+        "bytesDelivered": 42000,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
@@ -1592,29 +1592,29 @@
     {
       "eventId": 46,
       "eventType": "REQUEST_PROGRESS",
-      "requestId": "ue1-r5",
+      "requestId": "ue1-r6",
       "time": 0.09,
-      "deltaBytes": 7129,
-      "totalBytes": 52129,
+      "deltaBytes": 3852,
+      "totalBytes": 48852,
       "request": {
-        "requestId": "ue1-r5",
+        "requestId": "ue1-r6",
         "resource": {
           "videoId": "v1",
           "resourceType": "media",
           "mediaType": "video",
           "representationId": "0",
-          "segmentIndex": 0,
-          "startS": 0,
+          "segmentIndex": 1,
+          "startS": 2,
           "durationS": 2,
-          "url": "/media/v1/chunk-0-00001.m4s"
+          "url": "/media/v1/chunk-0-00002.m4s"
         },
-        "bytesTotal": 52129,
+        "bytesTotal": 48852,
         "retryAttempt": 0,
         "state": "ACTIVE",
         "startTime": 0.03,
         "firstByteTime": 0.05,
         "endTime": null,
-        "bytesDelivered": 52129,
+        "bytesDelivered": 48852,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
@@ -1624,10 +1624,10 @@
         "resourceType": "media",
         "mediaType": "video",
         "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
+        "segmentIndex": 1,
+        "startS": 2,
         "durationS": 2,
-        "url": "/media/v1/chunk-0-00001.m4s"
+        "url": "/media/v1/chunk-0-00002.m4s"
       },
       "triggerDecision": true
     },
@@ -1635,22 +1635,22 @@
       "eventId": 47,
       "time": 0.09,
       "eventType": "RESOURCE_CACHED",
-      "requestId": "ue1-r5",
+      "requestId": "ue1-r6",
       "resource": {
         "videoId": "v1",
         "resourceType": "media",
         "mediaType": "video",
         "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
+        "segmentIndex": 1,
+        "startS": 2,
         "durationS": 2,
-        "url": "/media/v1/chunk-0-00001.m4s"
+        "url": "/media/v1/chunk-0-00002.m4s"
       },
       "cache": {
         "admitted": true,
-        "key": "v1|video|0|media|0",
-        "bytes": 52129,
-        "usedBytes": 53781,
+        "key": "v1|video|0|media|1",
+        "bytes": 48852,
+        "usedBytes": 50504,
         "maxBytes": null
       },
       "triggerDecision": false
@@ -1658,29 +1658,29 @@
     {
       "eventId": 48,
       "eventType": "REQUEST_COMPLETED",
-      "requestId": "ue1-r5",
+      "requestId": "ue1-r6",
       "time": 0.09,
-      "totalBytes": 52129,
+      "totalBytes": 48852,
       "request": {
-        "requestId": "ue1-r5",
+        "requestId": "ue1-r6",
         "resource": {
           "videoId": "v1",
           "resourceType": "media",
           "mediaType": "video",
           "representationId": "0",
-          "segmentIndex": 0,
-          "startS": 0,
+          "segmentIndex": 1,
+          "startS": 2,
           "durationS": 2,
-          "url": "/media/v1/chunk-0-00001.m4s"
+          "url": "/media/v1/chunk-0-00002.m4s"
         },
-        "bytesTotal": 52129,
+        "bytesTotal": 48852,
         "retryAttempt": 0,
         "state": "COMPLETED",
         "startTime": 0.03,
         "firstByteTime": 0.05,
         "endTime": 0.09,
-        "bytesDelivered": 52129,
-        "finalBytesDelivered": 52129,
+        "bytesDelivered": 48852,
+        "finalBytesDelivered": 48852,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
       },
@@ -1689,10 +1689,10 @@
         "resourceType": "media",
         "mediaType": "video",
         "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
+        "segmentIndex": 1,
+        "startS": 2,
         "durationS": 2,
-        "url": "/media/v1/chunk-0-00001.m4s"
+        "url": "/media/v1/chunk-0-00002.m4s"
       },
       "triggerDecision": true
     },
@@ -1752,160 +1752,6 @@
     },
     {
       "eventId": 50,
-      "eventType": "REQUEST_PROGRESS",
-      "requestId": "ue1-r6",
-      "time": 0.09,
-      "deltaBytes": 3852,
-      "totalBytes": 48852,
-      "request": {
-        "requestId": "ue1-r6",
-        "resource": {
-          "videoId": "v1",
-          "resourceType": "media",
-          "mediaType": "video",
-          "representationId": "0",
-          "segmentIndex": 1,
-          "startS": 2,
-          "durationS": 2,
-          "url": "/media/v1/chunk-0-00002.m4s"
-        },
-        "bytesTotal": 48852,
-        "retryAttempt": 0,
-        "state": "ACTIVE",
-        "startTime": 0.03,
-        "firstByteTime": 0.05,
-        "endTime": null,
-        "bytesDelivered": 48852,
-        "finalBytesDelivered": null,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null
-      },
-      "resource": {
-        "videoId": "v1",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 1,
-        "startS": 2,
-        "durationS": 2,
-        "url": "/media/v1/chunk-0-00002.m4s"
-      },
-      "triggerDecision": true
-    },
-    {
-      "eventId": 51,
-      "time": 0.09,
-      "eventType": "RESOURCE_CACHED",
-      "requestId": "ue1-r6",
-      "resource": {
-        "videoId": "v1",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 1,
-        "startS": 2,
-        "durationS": 2,
-        "url": "/media/v1/chunk-0-00002.m4s"
-      },
-      "cache": {
-        "admitted": true,
-        "key": "v1|video|0|media|1",
-        "bytes": 48852,
-        "usedBytes": 102633,
-        "maxBytes": null
-      },
-      "triggerDecision": false
-    },
-    {
-      "eventId": 52,
-      "eventType": "REQUEST_COMPLETED",
-      "requestId": "ue1-r6",
-      "time": 0.09,
-      "totalBytes": 48852,
-      "request": {
-        "requestId": "ue1-r6",
-        "resource": {
-          "videoId": "v1",
-          "resourceType": "media",
-          "mediaType": "video",
-          "representationId": "0",
-          "segmentIndex": 1,
-          "startS": 2,
-          "durationS": 2,
-          "url": "/media/v1/chunk-0-00002.m4s"
-        },
-        "bytesTotal": 48852,
-        "retryAttempt": 0,
-        "state": "COMPLETED",
-        "startTime": 0.03,
-        "firstByteTime": 0.05,
-        "endTime": 0.09,
-        "bytesDelivered": 48852,
-        "finalBytesDelivered": 48852,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null
-      },
-      "resource": {
-        "videoId": "v1",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 1,
-        "startS": 2,
-        "durationS": 2,
-        "url": "/media/v1/chunk-0-00002.m4s"
-      },
-      "triggerDecision": true
-    },
-    {
-      "eventId": 53,
-      "time": 0.09,
-      "eventType": "REQUEST_STARTED",
-      "requestId": "ue1-r10",
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "init",
-        "mediaType": "video",
-        "representationId": "0",
-        "url": "/media/v3/init-0.m4s"
-      },
-      "bytesTotal": 826,
-      "request": {
-        "requestId": "ue1-r10",
-        "resource": {
-          "videoId": "v3",
-          "resourceType": "init",
-          "mediaType": "video",
-          "representationId": "0",
-          "url": "/media/v3/init-0.m4s"
-        },
-        "bytesTotal": 826,
-        "state": "ACTIVE",
-        "queuedAt": 0.03,
-        "startTime": 0.09,
-        "firstByteTime": null,
-        "endTime": null,
-        "retryOf": null,
-        "retryAttempt": 0,
-        "originalAction": {
-          "actionType": "FETCH_INIT",
-          "videoId": "v3",
-          "mediaType": "video",
-          "representationId": "0"
-        },
-        "bytesDelivered": 0,
-        "finalBytesDelivered": null,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null,
-        "admittedAt": 0.09,
-        "queueWaitS": 0.06
-      },
-      "queuedAt": 0.03,
-      "queueWaitS": 0.06,
-      "triggerDecision": false
-    },
-    {
-      "eventId": 54,
       "eventType": "REQUEST_FIRST_BYTE",
       "requestId": "ue1-r8",
       "time": 0.09,
@@ -1945,7 +1791,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 55,
+      "eventId": 51,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r8",
       "time": 0.09,
@@ -1987,7 +1833,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 56,
+      "eventId": 52,
       "time": 0.09,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -1998,20 +1844,12 @@
           "videoId": "v1",
           "mediaType": "video",
           "representationId": "2"
-        },
-        {
-          "actionType": "APPEND",
-          "videoId": "v1",
-          "resourceType": "media",
-          "mediaType": "video",
-          "representationId": "0",
-          "segmentIndex": 0
         }
       ],
       "triggerDecision": false
     },
     {
-      "eventId": 57,
+      "eventId": 53,
       "time": 0.09,
       "eventType": "REQUEST_QUEUED",
       "requestId": "ue1-r13",
@@ -2054,222 +1892,177 @@
       "triggerDecision": false
     },
     {
-      "eventId": 58,
-      "time": 0.09,
-      "eventType": "RESOURCE_APPENDED",
-      "videoId": "v1",
-      "segmentIndex": 0,
-      "representationId": "0",
-      "triggerDecision": true
-    },
-    {
-      "eventId": 59,
-      "time": 0.09,
-      "eventType": "RULE_DECISION",
-      "rule": "SFVMultiVideoPrefetchRule",
-      "reason": "active+prefetch MPS=4 PSPV=2",
-      "actions": [
-        {
-          "actionType": "APPEND",
-          "videoId": "v1",
-          "resourceType": "media",
-          "mediaType": "video",
-          "representationId": "0",
-          "segmentIndex": 1
-        }
-      ],
-      "triggerDecision": false
-    },
-    {
-      "eventId": 60,
-      "time": 0.09,
-      "eventType": "RESOURCE_APPENDED",
-      "videoId": "v1",
-      "segmentIndex": 1,
-      "representationId": "0",
-      "triggerDecision": true
-    },
-    {
-      "eventId": 61,
-      "time": 0.09,
-      "eventType": "RULE_DECISION",
-      "rule": "SFVMultiVideoPrefetchRule",
-      "reason": "active+prefetch MPS=4 PSPV=2",
-      "actions": [],
-      "triggerDecision": false
-    },
-    {
-      "eventId": 62,
-      "time": 0.1,
-      "eventType": "PLAYBACK_STARTED",
-      "videoId": "v1",
-      "positionS": 0.0050000000000000044,
-      "triggerDecision": true
-    },
-    {
-      "eventId": 63,
-      "time": 0.1,
-      "eventType": "RULE_DECISION",
-      "rule": "SFVMultiVideoPrefetchRule",
-      "reason": "active+prefetch MPS=4 PSPV=2",
-      "actions": [],
-      "triggerDecision": false
-    },
-    {
-      "eventId": 64,
-      "eventType": "REQUEST_FIRST_BYTE",
-      "requestId": "ue1-r10",
-      "time": 0.11,
-      "request": {
-        "requestId": "ue1-r10",
-        "resource": {
-          "videoId": "v3",
-          "resourceType": "init",
-          "mediaType": "video",
-          "representationId": "0",
-          "url": "/media/v3/init-0.m4s"
-        },
-        "bytesTotal": 826,
-        "retryAttempt": 0,
-        "state": "ACTIVE",
-        "startTime": 0.09,
-        "firstByteTime": 0.11,
-        "endTime": null,
-        "bytesDelivered": 0,
-        "finalBytesDelivered": null,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null
-      },
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "init",
-        "mediaType": "video",
-        "representationId": "0",
-        "url": "/media/v3/init-0.m4s"
-      },
-      "triggerDecision": false
-    },
-    {
-      "eventId": 65,
+      "eventId": 54,
       "eventType": "REQUEST_PROGRESS",
-      "requestId": "ue1-r10",
-      "time": 0.11,
-      "deltaBytes": 826,
-      "totalBytes": 826,
+      "requestId": "ue1-r5",
+      "time": 0.1,
+      "deltaBytes": 6000,
+      "totalBytes": 48000,
       "request": {
-        "requestId": "ue1-r10",
+        "requestId": "ue1-r5",
         "resource": {
-          "videoId": "v3",
-          "resourceType": "init",
-          "mediaType": "video",
-          "representationId": "0",
-          "url": "/media/v3/init-0.m4s"
-        },
-        "bytesTotal": 826,
-        "retryAttempt": 0,
-        "state": "ACTIVE",
-        "startTime": 0.09,
-        "firstByteTime": 0.11,
-        "endTime": null,
-        "bytesDelivered": 826,
-        "finalBytesDelivered": null,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null
-      },
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "init",
-        "mediaType": "video",
-        "representationId": "0",
-        "url": "/media/v3/init-0.m4s"
-      },
-      "triggerDecision": true
-    },
-    {
-      "eventId": 66,
-      "time": 0.11,
-      "eventType": "RESOURCE_CACHED",
-      "requestId": "ue1-r10",
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "init",
-        "mediaType": "video",
-        "representationId": "0",
-        "url": "/media/v3/init-0.m4s"
-      },
-      "cache": {
-        "admitted": true,
-        "key": "v3|video|0|init",
-        "bytes": 826,
-        "usedBytes": 103459,
-        "maxBytes": null
-      },
-      "triggerDecision": false
-    },
-    {
-      "eventId": 67,
-      "eventType": "REQUEST_COMPLETED",
-      "requestId": "ue1-r10",
-      "time": 0.11,
-      "totalBytes": 826,
-      "request": {
-        "requestId": "ue1-r10",
-        "resource": {
-          "videoId": "v3",
-          "resourceType": "init",
-          "mediaType": "video",
-          "representationId": "0",
-          "url": "/media/v3/init-0.m4s"
-        },
-        "bytesTotal": 826,
-        "retryAttempt": 0,
-        "state": "COMPLETED",
-        "startTime": 0.09,
-        "firstByteTime": 0.11,
-        "endTime": 0.11,
-        "bytesDelivered": 826,
-        "finalBytesDelivered": 826,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null
-      },
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "init",
-        "mediaType": "video",
-        "representationId": "0",
-        "url": "/media/v3/init-0.m4s"
-      },
-      "triggerDecision": true
-    },
-    {
-      "eventId": 68,
-      "time": 0.11,
-      "eventType": "REQUEST_STARTED",
-      "requestId": "ue1-r11",
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
-        "durationS": 2,
-        "url": "/media/v3/chunk-0-00001.m4s"
-      },
-      "bytesTotal": 52673,
-      "request": {
-        "requestId": "ue1-r11",
-        "resource": {
-          "videoId": "v3",
+          "videoId": "v1",
           "resourceType": "media",
           "mediaType": "video",
           "representationId": "0",
           "segmentIndex": 0,
           "startS": 0,
           "durationS": 2,
-          "url": "/media/v3/chunk-0-00001.m4s"
+          "url": "/media/v1/chunk-0-00001.m4s"
         },
-        "bytesTotal": 52673,
+        "bytesTotal": 52129,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.03,
+        "firstByteTime": 0.05,
+        "endTime": null,
+        "bytesDelivered": 48000,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v1",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v1/chunk-0-00001.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 55,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r5",
+      "time": 0.11,
+      "deltaBytes": 4129,
+      "totalBytes": 52129,
+      "request": {
+        "requestId": "ue1-r5",
+        "resource": {
+          "videoId": "v1",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 0,
+          "startS": 0,
+          "durationS": 2,
+          "url": "/media/v1/chunk-0-00001.m4s"
+        },
+        "bytesTotal": 52129,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.03,
+        "firstByteTime": 0.05,
+        "endTime": null,
+        "bytesDelivered": 52129,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v1",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v1/chunk-0-00001.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 56,
+      "time": 0.11,
+      "eventType": "RESOURCE_CACHED",
+      "requestId": "ue1-r5",
+      "resource": {
+        "videoId": "v1",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v1/chunk-0-00001.m4s"
+      },
+      "cache": {
+        "admitted": true,
+        "key": "v1|video|0|media|0",
+        "bytes": 52129,
+        "usedBytes": 102633,
+        "maxBytes": null
+      },
+      "triggerDecision": false
+    },
+    {
+      "eventId": 57,
+      "eventType": "REQUEST_COMPLETED",
+      "requestId": "ue1-r5",
+      "time": 0.11,
+      "totalBytes": 52129,
+      "request": {
+        "requestId": "ue1-r5",
+        "resource": {
+          "videoId": "v1",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 0,
+          "startS": 0,
+          "durationS": 2,
+          "url": "/media/v1/chunk-0-00001.m4s"
+        },
+        "bytesTotal": 52129,
+        "retryAttempt": 0,
+        "state": "COMPLETED",
+        "startTime": 0.03,
+        "firstByteTime": 0.05,
+        "endTime": 0.11,
+        "bytesDelivered": 52129,
+        "finalBytesDelivered": 52129,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v1",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v1/chunk-0-00001.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 58,
+      "time": 0.11,
+      "eventType": "REQUEST_STARTED",
+      "requestId": "ue1-r10",
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "init",
+        "mediaType": "video",
+        "representationId": "0",
+        "url": "/media/v3/init-0.m4s"
+      },
+      "bytesTotal": 826,
+      "request": {
+        "requestId": "ue1-r10",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "init",
+          "mediaType": "video",
+          "representationId": "0",
+          "url": "/media/v3/init-0.m4s"
+        },
+        "bytesTotal": 826,
         "state": "ACTIVE",
         "queuedAt": 0.03,
         "startTime": 0.11,
@@ -2278,11 +2071,10 @@
         "retryOf": null,
         "retryAttempt": 0,
         "originalAction": {
-          "actionType": "FETCH_MEDIA",
+          "actionType": "FETCH_INIT",
           "videoId": "v3",
           "mediaType": "video",
-          "representationId": "0",
-          "segmentIndex": 0
+          "representationId": "0"
         },
         "bytesDelivered": 0,
         "finalBytesDelivered": null,
@@ -2296,7 +2088,49 @@
       "triggerDecision": false
     },
     {
-      "eventId": 69,
+      "eventId": 59,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r8",
+      "time": 0.11,
+      "deltaBytes": 3000,
+      "totalBytes": 24000,
+      "request": {
+        "requestId": "ue1-r8",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 0,
+          "startS": 0,
+          "durationS": 2,
+          "url": "/media/v2/chunk-0-00001.m4s"
+        },
+        "bytesTotal": 51676,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.07,
+        "firstByteTime": 0.09,
+        "endTime": null,
+        "bytesDelivered": 24000,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v2/chunk-0-00001.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 60,
       "eventType": "REQUEST_FIRST_BYTE",
       "requestId": "ue1-r9",
       "time": 0.11,
@@ -2336,12 +2170,12 @@
       "triggerDecision": false
     },
     {
-      "eventId": 70,
+      "eventId": 61,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r9",
       "time": 0.11,
-      "deltaBytes": 25500,
-      "totalBytes": 25500,
+      "deltaBytes": 18000,
+      "totalBytes": 18000,
       "request": {
         "requestId": "ue1-r9",
         "resource": {
@@ -2360,7 +2194,7 @@
         "startTime": 0.09,
         "firstByteTime": 0.11,
         "endTime": null,
-        "bytesDelivered": 25500,
+        "bytesDelivered": 18000,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
@@ -2378,7 +2212,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 71,
+      "eventId": 62,
       "time": 0.11,
       "eventType": "CACHE_RESOURCE_RELEASED",
       "resource": {
@@ -2393,25 +2227,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 72,
-      "time": 0.11,
-      "eventType": "CACHE_RESOURCE_RELEASED",
-      "resource": {
-        "videoId": "v1",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
-        "durationS": 2,
-        "url": "/media/v1/chunk-0-00001.m4s"
-      },
-      "bytes": 52129,
-      "reason": "VIDEO_DEPARTED",
-      "triggerDecision": false
-    },
-    {
-      "eventId": 73,
+      "eventId": 63,
       "time": 0.11,
       "eventType": "CACHE_RESOURCE_RELEASED",
       "resource": {
@@ -2429,7 +2245,25 @@
       "triggerDecision": false
     },
     {
-      "eventId": 74,
+      "eventId": 64,
+      "time": 0.11,
+      "eventType": "CACHE_RESOURCE_RELEASED",
+      "resource": {
+        "videoId": "v1",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v1/chunk-0-00001.m4s"
+      },
+      "bytes": 52129,
+      "reason": "VIDEO_DEPARTED",
+      "triggerDecision": false
+    },
+    {
+      "eventId": 65,
       "time": 0.11,
       "eventType": "SWIPE",
       "fromVideoId": "v1",
@@ -2437,7 +2271,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 75,
+      "eventId": 66,
       "time": 0.11,
       "eventType": "REQUEST_ABORT_REQUESTED",
       "requestId": "ue1-r13",
@@ -2452,7 +2286,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 76,
+      "eventId": 67,
       "time": 0.11,
       "eventType": "REQUEST_CANCELLED",
       "requestId": "ue1-r13",
@@ -2495,26 +2329,26 @@
       "triggerDecision": true
     },
     {
-      "eventId": 77,
+      "eventId": 68,
       "time": 0.11,
       "eventType": "PLAYBACK_SLOT_PREPARING",
       "videoId": "v2",
       "triggerDecision": false
     },
     {
-      "eventId": 78,
+      "eventId": 69,
       "time": 0.12,
       "eventType": "PLAYBACK_SLOT_READY",
       "videoId": "v2",
       "triggerDecision": true
     },
     {
-      "eventId": 79,
+      "eventId": 70,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r8",
       "time": 0.12,
-      "deltaBytes": 30000,
-      "totalBytes": 51000,
+      "deltaBytes": 15000,
+      "totalBytes": 39000,
       "request": {
         "requestId": "ue1-r8",
         "resource": {
@@ -2533,7 +2367,7 @@
         "startTime": 0.07,
         "firstByteTime": 0.09,
         "endTime": null,
-        "bytesDelivered": 51000,
+        "bytesDelivered": 39000,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
@@ -2551,11 +2385,11 @@
       "triggerDecision": true
     },
     {
-      "eventId": 80,
+      "eventId": 71,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r9",
       "time": 0.12,
-      "deltaBytes": 24252,
+      "deltaBytes": 31752,
       "totalBytes": 49752,
       "request": {
         "requestId": "ue1-r9",
@@ -2593,7 +2427,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 81,
+      "eventId": 72,
       "time": 0.12,
       "eventType": "RESOURCE_CACHED",
       "requestId": "ue1-r9",
@@ -2611,13 +2445,13 @@
         "admitted": true,
         "key": "v2|video|0|media|1",
         "bytes": 49752,
-        "usedBytes": 51404,
+        "usedBytes": 50578,
         "maxBytes": null
       },
       "triggerDecision": false
     },
     {
-      "eventId": 82,
+      "eventId": 73,
       "eventType": "REQUEST_COMPLETED",
       "requestId": "ue1-r9",
       "time": 0.12,
@@ -2658,34 +2492,34 @@
       "triggerDecision": true
     },
     {
-      "eventId": 83,
+      "eventId": 74,
       "time": 0.12,
       "eventType": "REQUEST_STARTED",
-      "requestId": "ue1-r12",
+      "requestId": "ue1-r11",
       "resource": {
         "videoId": "v3",
         "resourceType": "media",
         "mediaType": "video",
         "representationId": "0",
-        "segmentIndex": 1,
-        "startS": 2,
+        "segmentIndex": 0,
+        "startS": 0,
         "durationS": 2,
-        "url": "/media/v3/chunk-0-00002.m4s"
+        "url": "/media/v3/chunk-0-00001.m4s"
       },
-      "bytesTotal": 49167,
+      "bytesTotal": 52673,
       "request": {
-        "requestId": "ue1-r12",
+        "requestId": "ue1-r11",
         "resource": {
           "videoId": "v3",
           "resourceType": "media",
           "mediaType": "video",
           "representationId": "0",
-          "segmentIndex": 1,
-          "startS": 2,
+          "segmentIndex": 0,
+          "startS": 0,
           "durationS": 2,
-          "url": "/media/v3/chunk-0-00002.m4s"
+          "url": "/media/v3/chunk-0-00001.m4s"
         },
-        "bytesTotal": 49167,
+        "bytesTotal": 52673,
         "state": "ACTIVE",
         "queuedAt": 0.03,
         "startTime": 0.12,
@@ -2698,7 +2532,7 @@
           "videoId": "v3",
           "mediaType": "video",
           "representationId": "0",
-          "segmentIndex": 1
+          "segmentIndex": 0
         },
         "bytesDelivered": 0,
         "finalBytesDelivered": null,
@@ -2712,7 +2546,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 84,
+      "eventId": 75,
       "time": 0.12,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -2734,7 +2568,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 85,
+      "eventId": 76,
       "time": 0.12,
       "eventType": "REQUEST_QUEUED",
       "requestId": "ue1-r14",
@@ -2777,7 +2611,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 86,
+      "eventId": 77,
       "time": 0.12,
       "eventType": "REQUEST_QUEUED",
       "requestId": "ue1-r15",
@@ -2820,23 +2654,20 @@
       "triggerDecision": false
     },
     {
-      "eventId": 87,
+      "eventId": 78,
       "eventType": "REQUEST_FIRST_BYTE",
-      "requestId": "ue1-r11",
+      "requestId": "ue1-r10",
       "time": 0.13,
       "request": {
-        "requestId": "ue1-r11",
+        "requestId": "ue1-r10",
         "resource": {
           "videoId": "v3",
-          "resourceType": "media",
+          "resourceType": "init",
           "mediaType": "video",
           "representationId": "0",
-          "segmentIndex": 0,
-          "startS": 0,
-          "durationS": 2,
-          "url": "/media/v3/chunk-0-00001.m4s"
+          "url": "/media/v3/init-0.m4s"
         },
-        "bytesTotal": 52673,
+        "bytesTotal": 826,
         "retryAttempt": 0,
         "state": "ACTIVE",
         "startTime": 0.11,
@@ -2849,64 +2680,165 @@
       },
       "resource": {
         "videoId": "v3",
-        "resourceType": "media",
+        "resourceType": "init",
         "mediaType": "video",
         "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
-        "durationS": 2,
-        "url": "/media/v3/chunk-0-00001.m4s"
+        "url": "/media/v3/init-0.m4s"
       },
       "triggerDecision": false
     },
     {
-      "eventId": 88,
+      "eventId": 79,
       "eventType": "REQUEST_PROGRESS",
-      "requestId": "ue1-r11",
+      "requestId": "ue1-r10",
       "time": 0.13,
-      "deltaBytes": 31500,
-      "totalBytes": 31500,
+      "deltaBytes": 826,
+      "totalBytes": 826,
       "request": {
-        "requestId": "ue1-r11",
+        "requestId": "ue1-r10",
         "resource": {
           "videoId": "v3",
-          "resourceType": "media",
+          "resourceType": "init",
           "mediaType": "video",
           "representationId": "0",
-          "segmentIndex": 0,
-          "startS": 0,
-          "durationS": 2,
-          "url": "/media/v3/chunk-0-00001.m4s"
+          "url": "/media/v3/init-0.m4s"
         },
-        "bytesTotal": 52673,
+        "bytesTotal": 826,
         "retryAttempt": 0,
         "state": "ACTIVE",
         "startTime": 0.11,
         "firstByteTime": 0.13,
         "endTime": null,
-        "bytesDelivered": 31500,
+        "bytesDelivered": 826,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
       },
       "resource": {
         "videoId": "v3",
-        "resourceType": "media",
+        "resourceType": "init",
         "mediaType": "video",
         "representationId": "0",
-        "segmentIndex": 0,
-        "startS": 0,
-        "durationS": 2,
-        "url": "/media/v3/chunk-0-00001.m4s"
+        "url": "/media/v3/init-0.m4s"
       },
       "triggerDecision": true
     },
     {
-      "eventId": 89,
+      "eventId": 80,
+      "time": 0.13,
+      "eventType": "RESOURCE_CACHED",
+      "requestId": "ue1-r10",
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "init",
+        "mediaType": "video",
+        "representationId": "0",
+        "url": "/media/v3/init-0.m4s"
+      },
+      "cache": {
+        "admitted": true,
+        "key": "v3|video|0|init",
+        "bytes": 826,
+        "usedBytes": 51404,
+        "maxBytes": null
+      },
+      "triggerDecision": false
+    },
+    {
+      "eventId": 81,
+      "eventType": "REQUEST_COMPLETED",
+      "requestId": "ue1-r10",
+      "time": 0.13,
+      "totalBytes": 826,
+      "request": {
+        "requestId": "ue1-r10",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "init",
+          "mediaType": "video",
+          "representationId": "0",
+          "url": "/media/v3/init-0.m4s"
+        },
+        "bytesTotal": 826,
+        "retryAttempt": 0,
+        "state": "COMPLETED",
+        "startTime": 0.11,
+        "firstByteTime": 0.13,
+        "endTime": 0.13,
+        "bytesDelivered": 826,
+        "finalBytesDelivered": 826,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "init",
+        "mediaType": "video",
+        "representationId": "0",
+        "url": "/media/v3/init-0.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 82,
+      "time": 0.13,
+      "eventType": "REQUEST_STARTED",
+      "requestId": "ue1-r12",
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 1,
+        "startS": 2,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00002.m4s"
+      },
+      "bytesTotal": 49167,
+      "request": {
+        "requestId": "ue1-r12",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 1,
+          "startS": 2,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00002.m4s"
+        },
+        "bytesTotal": 49167,
+        "state": "ACTIVE",
+        "queuedAt": 0.03,
+        "startTime": 0.13,
+        "firstByteTime": null,
+        "endTime": null,
+        "retryOf": null,
+        "retryAttempt": 0,
+        "originalAction": {
+          "actionType": "FETCH_MEDIA",
+          "videoId": "v3",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 1
+        },
+        "bytesDelivered": 0,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null,
+        "admittedAt": 0.13,
+        "queueWaitS": 0.1
+      },
+      "queuedAt": 0.03,
+      "queueWaitS": 0.1,
+      "triggerDecision": false
+    },
+    {
+      "eventId": 83,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r8",
       "time": 0.13,
-      "deltaBytes": 676,
+      "deltaBytes": 12676,
       "totalBytes": 51676,
       "request": {
         "requestId": "ue1-r8",
@@ -2944,7 +2876,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 90,
+      "eventId": 84,
       "time": 0.13,
       "eventType": "RESOURCE_CACHED",
       "requestId": "ue1-r8",
@@ -2968,7 +2900,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 91,
+      "eventId": 85,
       "eventType": "REQUEST_COMPLETED",
       "requestId": "ue1-r8",
       "time": 0.13,
@@ -3009,7 +2941,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 92,
+      "eventId": 86,
       "time": 0.13,
       "eventType": "REQUEST_STARTED",
       "requestId": "ue1-r14",
@@ -3056,7 +2988,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 93,
+      "eventId": 87,
       "time": 0.13,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -3074,7 +3006,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 94,
+      "eventId": 88,
       "time": 0.13,
       "eventType": "RESOURCE_APPENDED",
       "videoId": "v2",
@@ -3083,7 +3015,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 95,
+      "eventId": 89,
       "time": 0.13,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -3101,7 +3033,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 96,
+      "eventId": 90,
       "time": 0.13,
       "eventType": "RESOURCE_APPENDED",
       "videoId": "v2",
@@ -3110,7 +3042,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 97,
+      "eventId": 91,
       "time": 0.13,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -3119,7 +3051,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 98,
+      "eventId": 92,
       "time": 0.14,
       "eventType": "PLAYBACK_STARTED",
       "videoId": "v2",
@@ -3127,11 +3059,102 @@
       "triggerDecision": true
     },
     {
-      "eventId": 99,
+      "eventId": 93,
+      "eventType": "REQUEST_FIRST_BYTE",
+      "requestId": "ue1-r11",
+      "time": 0.14,
+      "request": {
+        "requestId": "ue1-r11",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 0,
+          "startS": 0,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00001.m4s"
+        },
+        "bytesTotal": 52673,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.12,
+        "firstByteTime": 0.14,
+        "endTime": null,
+        "bytesDelivered": 0,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00001.m4s"
+      },
+      "triggerDecision": false
+    },
+    {
+      "eventId": 94,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r11",
       "time": 0.14,
-      "deltaBytes": 21173,
+      "deltaBytes": 43500,
+      "totalBytes": 43500,
+      "request": {
+        "requestId": "ue1-r11",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 0,
+          "startS": 0,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00001.m4s"
+        },
+        "bytesTotal": 52673,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.12,
+        "firstByteTime": 0.14,
+        "endTime": null,
+        "bytesDelivered": 43500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 0,
+        "startS": 0,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00001.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 95,
+      "time": 0.14,
+      "eventType": "RULE_DECISION",
+      "rule": "SFVMultiVideoPrefetchRule",
+      "reason": "active+prefetch MPS=4 PSPV=2",
+      "actions": [],
+      "triggerDecision": false
+    },
+    {
+      "eventId": 96,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r11",
+      "time": 0.15,
+      "deltaBytes": 9173,
       "totalBytes": 52673,
       "request": {
         "requestId": "ue1-r11",
@@ -3148,8 +3171,8 @@
         "bytesTotal": 52673,
         "retryAttempt": 0,
         "state": "ACTIVE",
-        "startTime": 0.11,
-        "firstByteTime": 0.13,
+        "startTime": 0.12,
+        "firstByteTime": 0.14,
         "endTime": null,
         "bytesDelivered": 52673,
         "finalBytesDelivered": null,
@@ -3169,8 +3192,8 @@
       "triggerDecision": true
     },
     {
-      "eventId": 100,
-      "time": 0.14,
+      "eventId": 97,
+      "time": 0.15,
       "eventType": "RESOURCE_CACHED",
       "requestId": "ue1-r11",
       "resource": {
@@ -3193,10 +3216,10 @@
       "triggerDecision": false
     },
     {
-      "eventId": 101,
+      "eventId": 98,
       "eventType": "REQUEST_COMPLETED",
       "requestId": "ue1-r11",
-      "time": 0.14,
+      "time": 0.15,
       "totalBytes": 52673,
       "request": {
         "requestId": "ue1-r11",
@@ -3213,9 +3236,9 @@
         "bytesTotal": 52673,
         "retryAttempt": 0,
         "state": "COMPLETED",
-        "startTime": 0.11,
-        "firstByteTime": 0.13,
-        "endTime": 0.14,
+        "startTime": 0.12,
+        "firstByteTime": 0.14,
+        "endTime": 0.15,
         "bytesDelivered": 52673,
         "finalBytesDelivered": 52673,
         "abortRequestedAt": null,
@@ -3234,8 +3257,8 @@
       "triggerDecision": true
     },
     {
-      "eventId": 102,
-      "time": 0.14,
+      "eventId": 99,
+      "time": 0.15,
       "eventType": "REQUEST_STARTED",
       "requestId": "ue1-r15",
       "resource": {
@@ -3258,7 +3281,7 @@
         "bytesTotal": 828,
         "state": "ACTIVE",
         "queuedAt": 0.12,
-        "startTime": 0.14,
+        "startTime": 0.15,
         "firstByteTime": null,
         "endTime": null,
         "retryOf": null,
@@ -3273,18 +3296,18 @@
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null,
-        "admittedAt": 0.14,
-        "queueWaitS": 0.020000000000000018
+        "admittedAt": 0.15,
+        "queueWaitS": 0.03
       },
       "queuedAt": 0.12,
-      "queueWaitS": 0.020000000000000018,
+      "queueWaitS": 0.03,
       "triggerDecision": false
     },
     {
-      "eventId": 103,
+      "eventId": 100,
       "eventType": "REQUEST_FIRST_BYTE",
       "requestId": "ue1-r12",
-      "time": 0.14,
+      "time": 0.15,
       "request": {
         "requestId": "ue1-r12",
         "resource": {
@@ -3300,8 +3323,8 @@
         "bytesTotal": 49167,
         "retryAttempt": 0,
         "state": "ACTIVE",
-        "startTime": 0.12,
-        "firstByteTime": 0.14,
+        "startTime": 0.13,
+        "firstByteTime": 0.15,
         "endTime": null,
         "bytesDelivered": 0,
         "finalBytesDelivered": null,
@@ -3321,12 +3344,12 @@
       "triggerDecision": false
     },
     {
-      "eventId": 104,
+      "eventId": 101,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r12",
-      "time": 0.14,
-      "deltaBytes": 49167,
-      "totalBytes": 49167,
+      "time": 0.15,
+      "deltaBytes": 21000,
+      "totalBytes": 21000,
       "request": {
         "requestId": "ue1-r12",
         "resource": {
@@ -3342,10 +3365,10 @@
         "bytesTotal": 49167,
         "retryAttempt": 0,
         "state": "ACTIVE",
-        "startTime": 0.12,
-        "firstByteTime": 0.14,
+        "startTime": 0.13,
+        "firstByteTime": 0.15,
         "endTime": null,
-        "bytesDelivered": 49167,
+        "bytesDelivered": 21000,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
@@ -3363,81 +3386,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 105,
-      "time": 0.14,
-      "eventType": "RESOURCE_CACHED",
-      "requestId": "ue1-r12",
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 1,
-        "startS": 2,
-        "durationS": 2,
-        "url": "/media/v3/chunk-0-00002.m4s"
-      },
-      "cache": {
-        "admitted": true,
-        "key": "v3|video|0|media|1",
-        "bytes": 49167,
-        "usedBytes": 204920,
-        "maxBytes": null
-      },
-      "triggerDecision": false
-    },
-    {
-      "eventId": 106,
-      "eventType": "REQUEST_COMPLETED",
-      "requestId": "ue1-r12",
-      "time": 0.14,
-      "totalBytes": 49167,
-      "request": {
-        "requestId": "ue1-r12",
-        "resource": {
-          "videoId": "v3",
-          "resourceType": "media",
-          "mediaType": "video",
-          "representationId": "0",
-          "segmentIndex": 1,
-          "startS": 2,
-          "durationS": 2,
-          "url": "/media/v3/chunk-0-00002.m4s"
-        },
-        "bytesTotal": 49167,
-        "retryAttempt": 0,
-        "state": "COMPLETED",
-        "startTime": 0.12,
-        "firstByteTime": 0.14,
-        "endTime": 0.14,
-        "bytesDelivered": 49167,
-        "finalBytesDelivered": 49167,
-        "abortRequestedAt": null,
-        "bytesDeliveredAtAbort": null
-      },
-      "resource": {
-        "videoId": "v3",
-        "resourceType": "media",
-        "mediaType": "video",
-        "representationId": "0",
-        "segmentIndex": 1,
-        "startS": 2,
-        "durationS": 2,
-        "url": "/media/v3/chunk-0-00002.m4s"
-      },
-      "triggerDecision": true
-    },
-    {
-      "eventId": 107,
-      "time": 0.14,
-      "eventType": "RULE_DECISION",
-      "rule": "SFVMultiVideoPrefetchRule",
-      "reason": "active+prefetch MPS=4 PSPV=2",
-      "actions": [],
-      "triggerDecision": false
-    },
-    {
-      "eventId": 108,
+      "eventId": 102,
       "eventType": "REQUEST_FIRST_BYTE",
       "requestId": "ue1-r14",
       "time": 0.15,
@@ -3471,7 +3420,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 109,
+      "eventId": 103,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r14",
       "time": 0.15,
@@ -3507,7 +3456,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 110,
+      "eventId": 104,
       "time": 0.15,
       "eventType": "RESOURCE_CACHED",
       "requestId": "ue1-r14",
@@ -3522,13 +3471,13 @@
         "admitted": true,
         "key": "v2|video|2|init",
         "bytes": 828,
-        "usedBytes": 205748,
+        "usedBytes": 156581,
         "maxBytes": null
       },
       "triggerDecision": false
     },
     {
-      "eventId": 111,
+      "eventId": 105,
       "eventType": "REQUEST_COMPLETED",
       "requestId": "ue1-r14",
       "time": 0.15,
@@ -3563,7 +3512,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 112,
+      "eventId": 106,
       "time": 0.15,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -3572,10 +3521,94 @@
       "triggerDecision": false
     },
     {
-      "eventId": 113,
+      "eventId": 107,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r12",
+      "time": 0.16,
+      "deltaBytes": 19500,
+      "totalBytes": 40500,
+      "request": {
+        "requestId": "ue1-r12",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 1,
+          "startS": 2,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00002.m4s"
+        },
+        "bytesTotal": 49167,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.13,
+        "firstByteTime": 0.15,
+        "endTime": null,
+        "bytesDelivered": 40500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 1,
+        "startS": 2,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00002.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 108,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r12",
+      "time": 0.17,
+      "deltaBytes": 6000,
+      "totalBytes": 46500,
+      "request": {
+        "requestId": "ue1-r12",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 1,
+          "startS": 2,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00002.m4s"
+        },
+        "bytesTotal": 49167,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.13,
+        "firstByteTime": 0.15,
+        "endTime": null,
+        "bytesDelivered": 46500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 1,
+        "startS": 2,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00002.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 109,
       "eventType": "REQUEST_FIRST_BYTE",
       "requestId": "ue1-r15",
-      "time": 0.16,
+      "time": 0.17,
       "request": {
         "requestId": "ue1-r15",
         "resource": {
@@ -3588,8 +3621,8 @@
         "bytesTotal": 828,
         "retryAttempt": 0,
         "state": "ACTIVE",
-        "startTime": 0.14,
-        "firstByteTime": 0.16,
+        "startTime": 0.15,
+        "firstByteTime": 0.17,
         "endTime": null,
         "bytesDelivered": 0,
         "finalBytesDelivered": null,
@@ -3606,10 +3639,10 @@
       "triggerDecision": false
     },
     {
-      "eventId": 114,
+      "eventId": 110,
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r15",
-      "time": 0.16,
+      "time": 0.17,
       "deltaBytes": 828,
       "totalBytes": 828,
       "request": {
@@ -3624,8 +3657,8 @@
         "bytesTotal": 828,
         "retryAttempt": 0,
         "state": "ACTIVE",
-        "startTime": 0.14,
-        "firstByteTime": 0.16,
+        "startTime": 0.15,
+        "firstByteTime": 0.17,
         "endTime": null,
         "bytesDelivered": 828,
         "finalBytesDelivered": null,
@@ -3642,8 +3675,8 @@
       "triggerDecision": true
     },
     {
-      "eventId": 115,
-      "time": 0.16,
+      "eventId": 111,
+      "time": 0.17,
       "eventType": "RESOURCE_CACHED",
       "requestId": "ue1-r15",
       "resource": {
@@ -3657,16 +3690,16 @@
         "admitted": true,
         "key": "v3|video|2|init",
         "bytes": 828,
-        "usedBytes": 206576,
+        "usedBytes": 157409,
         "maxBytes": null
       },
       "triggerDecision": false
     },
     {
-      "eventId": 116,
+      "eventId": 112,
       "eventType": "REQUEST_COMPLETED",
       "requestId": "ue1-r15",
-      "time": 0.16,
+      "time": 0.17,
       "totalBytes": 828,
       "request": {
         "requestId": "ue1-r15",
@@ -3680,9 +3713,9 @@
         "bytesTotal": 828,
         "retryAttempt": 0,
         "state": "COMPLETED",
-        "startTime": 0.14,
-        "firstByteTime": 0.16,
-        "endTime": 0.16,
+        "startTime": 0.15,
+        "firstByteTime": 0.17,
+        "endTime": 0.17,
         "bytesDelivered": 828,
         "finalBytesDelivered": 828,
         "abortRequestedAt": null,
@@ -3698,8 +3731,124 @@
       "triggerDecision": true
     },
     {
+      "eventId": 113,
+      "time": 0.17,
+      "eventType": "RULE_DECISION",
+      "rule": "SFVMultiVideoPrefetchRule",
+      "reason": "active+prefetch MPS=4 PSPV=2",
+      "actions": [],
+      "triggerDecision": false
+    },
+    {
+      "eventId": 114,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r12",
+      "time": 0.18,
+      "deltaBytes": 2667,
+      "totalBytes": 49167,
+      "request": {
+        "requestId": "ue1-r12",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 1,
+          "startS": 2,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00002.m4s"
+        },
+        "bytesTotal": 49167,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 0.13,
+        "firstByteTime": 0.15,
+        "endTime": null,
+        "bytesDelivered": 49167,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 1,
+        "startS": 2,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00002.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 115,
+      "time": 0.18,
+      "eventType": "RESOURCE_CACHED",
+      "requestId": "ue1-r12",
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 1,
+        "startS": 2,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00002.m4s"
+      },
+      "cache": {
+        "admitted": true,
+        "key": "v3|video|0|media|1",
+        "bytes": 49167,
+        "usedBytes": 206576,
+        "maxBytes": null
+      },
+      "triggerDecision": false
+    },
+    {
+      "eventId": 116,
+      "eventType": "REQUEST_COMPLETED",
+      "requestId": "ue1-r12",
+      "time": 0.18,
+      "totalBytes": 49167,
+      "request": {
+        "requestId": "ue1-r12",
+        "resource": {
+          "videoId": "v3",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "0",
+          "segmentIndex": 1,
+          "startS": 2,
+          "durationS": 2,
+          "url": "/media/v3/chunk-0-00002.m4s"
+        },
+        "bytesTotal": 49167,
+        "retryAttempt": 0,
+        "state": "COMPLETED",
+        "startTime": 0.13,
+        "firstByteTime": 0.15,
+        "endTime": 0.18,
+        "bytesDelivered": 49167,
+        "finalBytesDelivered": 49167,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v3",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "0",
+        "segmentIndex": 1,
+        "startS": 2,
+        "durationS": 2,
+        "url": "/media/v3/chunk-0-00002.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
       "eventId": 117,
-      "time": 0.16,
+      "time": 0.18,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
       "reason": "active+prefetch MPS=4 PSPV=2",
@@ -4169,8 +4318,8 @@
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r16",
       "time": 2.16,
-      "deltaBytes": 84000,
-      "totalBytes": 84000,
+      "deltaBytes": 21000,
+      "totalBytes": 21000,
       "request": {
         "requestId": "ue1-r16",
         "resource": {
@@ -4189,7 +4338,7 @@
         "startTime": 2.14,
         "firstByteTime": 2.16,
         "endTime": null,
-        "bytesDelivered": 84000,
+        "bytesDelivered": 21000,
         "finalBytesDelivered": null,
         "abortRequestedAt": null,
         "bytesDeliveredAtAbort": null
@@ -4211,7 +4360,267 @@
       "eventType": "REQUEST_PROGRESS",
       "requestId": "ue1-r16",
       "time": 2.17,
-      "deltaBytes": 69539,
+      "deltaBytes": 27000,
+      "totalBytes": 48000,
+      "request": {
+        "requestId": "ue1-r16",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "2",
+          "segmentIndex": 2,
+          "startS": 4,
+          "durationS": 2,
+          "url": "/media/v2/chunk-2-00003.m4s"
+        },
+        "bytesTotal": 153539,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 2.14,
+        "firstByteTime": 2.16,
+        "endTime": null,
+        "bytesDelivered": 48000,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "2",
+        "segmentIndex": 2,
+        "startS": 4,
+        "durationS": 2,
+        "url": "/media/v2/chunk-2-00003.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 165,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r16",
+      "time": 2.18,
+      "deltaBytes": 4500,
+      "totalBytes": 52500,
+      "request": {
+        "requestId": "ue1-r16",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "2",
+          "segmentIndex": 2,
+          "startS": 4,
+          "durationS": 2,
+          "url": "/media/v2/chunk-2-00003.m4s"
+        },
+        "bytesTotal": 153539,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 2.14,
+        "firstByteTime": 2.16,
+        "endTime": null,
+        "bytesDelivered": 52500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "2",
+        "segmentIndex": 2,
+        "startS": 4,
+        "durationS": 2,
+        "url": "/media/v2/chunk-2-00003.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 166,
+      "time": 2.19,
+      "eventType": "PLAYBACK_POSITION_SAMPLE",
+      "videoId": "v2",
+      "positionS": 2.0549999999999997,
+      "triggerDecision": false
+    },
+    {
+      "eventId": 167,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r16",
+      "time": 2.19,
+      "deltaBytes": 21000,
+      "totalBytes": 73500,
+      "request": {
+        "requestId": "ue1-r16",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "2",
+          "segmentIndex": 2,
+          "startS": 4,
+          "durationS": 2,
+          "url": "/media/v2/chunk-2-00003.m4s"
+        },
+        "bytesTotal": 153539,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 2.14,
+        "firstByteTime": 2.16,
+        "endTime": null,
+        "bytesDelivered": 73500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "2",
+        "segmentIndex": 2,
+        "startS": 4,
+        "durationS": 2,
+        "url": "/media/v2/chunk-2-00003.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 168,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r16",
+      "time": 2.2,
+      "deltaBytes": 27000,
+      "totalBytes": 100500,
+      "request": {
+        "requestId": "ue1-r16",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "2",
+          "segmentIndex": 2,
+          "startS": 4,
+          "durationS": 2,
+          "url": "/media/v2/chunk-2-00003.m4s"
+        },
+        "bytesTotal": 153539,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 2.14,
+        "firstByteTime": 2.16,
+        "endTime": null,
+        "bytesDelivered": 100500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "2",
+        "segmentIndex": 2,
+        "startS": 4,
+        "durationS": 2,
+        "url": "/media/v2/chunk-2-00003.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 169,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r16",
+      "time": 2.21,
+      "deltaBytes": 6000,
+      "totalBytes": 106500,
+      "request": {
+        "requestId": "ue1-r16",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "2",
+          "segmentIndex": 2,
+          "startS": 4,
+          "durationS": 2,
+          "url": "/media/v2/chunk-2-00003.m4s"
+        },
+        "bytesTotal": 153539,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 2.14,
+        "firstByteTime": 2.16,
+        "endTime": null,
+        "bytesDelivered": 106500,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "2",
+        "segmentIndex": 2,
+        "startS": 4,
+        "durationS": 2,
+        "url": "/media/v2/chunk-2-00003.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 170,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r16",
+      "time": 2.22,
+      "deltaBytes": 28500,
+      "totalBytes": 135000,
+      "request": {
+        "requestId": "ue1-r16",
+        "resource": {
+          "videoId": "v2",
+          "resourceType": "media",
+          "mediaType": "video",
+          "representationId": "2",
+          "segmentIndex": 2,
+          "startS": 4,
+          "durationS": 2,
+          "url": "/media/v2/chunk-2-00003.m4s"
+        },
+        "bytesTotal": 153539,
+        "retryAttempt": 0,
+        "state": "ACTIVE",
+        "startTime": 2.14,
+        "firstByteTime": 2.16,
+        "endTime": null,
+        "bytesDelivered": 135000,
+        "finalBytesDelivered": null,
+        "abortRequestedAt": null,
+        "bytesDeliveredAtAbort": null
+      },
+      "resource": {
+        "videoId": "v2",
+        "resourceType": "media",
+        "mediaType": "video",
+        "representationId": "2",
+        "segmentIndex": 2,
+        "startS": 4,
+        "durationS": 2,
+        "url": "/media/v2/chunk-2-00003.m4s"
+      },
+      "triggerDecision": true
+    },
+    {
+      "eventId": 171,
+      "eventType": "REQUEST_PROGRESS",
+      "requestId": "ue1-r16",
+      "time": 2.23,
+      "deltaBytes": 18539,
       "totalBytes": 153539,
       "request": {
         "requestId": "ue1-r16",
@@ -4249,8 +4658,8 @@
       "triggerDecision": true
     },
     {
-      "eventId": 165,
-      "time": 2.17,
+      "eventId": 172,
+      "time": 2.23,
       "eventType": "RESOURCE_CACHED",
       "requestId": "ue1-r16",
       "resource": {
@@ -4273,10 +4682,10 @@
       "triggerDecision": false
     },
     {
-      "eventId": 166,
+      "eventId": 173,
       "eventType": "REQUEST_COMPLETED",
       "requestId": "ue1-r16",
-      "time": 2.17,
+      "time": 2.23,
       "totalBytes": 153539,
       "request": {
         "requestId": "ue1-r16",
@@ -4295,7 +4704,7 @@
         "state": "COMPLETED",
         "startTime": 2.14,
         "firstByteTime": 2.16,
-        "endTime": 2.17,
+        "endTime": 2.23,
         "bytesDelivered": 153539,
         "finalBytesDelivered": 153539,
         "abortRequestedAt": null,
@@ -4314,8 +4723,8 @@
       "triggerDecision": true
     },
     {
-      "eventId": 167,
-      "time": 2.17,
+      "eventId": 174,
+      "time": 2.23,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
       "reason": "active+prefetch MPS=4 PSPV=2",
@@ -4332,8 +4741,8 @@
       "triggerDecision": false
     },
     {
-      "eventId": 168,
-      "time": 2.17,
+      "eventId": 175,
+      "time": 2.23,
       "eventType": "RESOURCE_APPENDED",
       "videoId": "v2",
       "segmentIndex": 2,
@@ -4341,8 +4750,8 @@
       "triggerDecision": true
     },
     {
-      "eventId": 169,
-      "time": 2.17,
+      "eventId": 176,
+      "time": 2.23,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
       "reason": "active+prefetch MPS=4 PSPV=2",
@@ -4350,15 +4759,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 170,
-      "time": 2.19,
-      "eventType": "PLAYBACK_POSITION_SAMPLE",
-      "videoId": "v2",
-      "positionS": 2.0549999999999997,
-      "triggerDecision": false
-    },
-    {
-      "eventId": 171,
+      "eventId": 177,
       "time": 2.24,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4366,7 +4767,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 172,
+      "eventId": 178,
       "time": 2.29,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4374,7 +4775,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 173,
+      "eventId": 179,
       "time": 2.34,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4382,7 +4783,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 174,
+      "eventId": 180,
       "time": 2.39,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4390,7 +4791,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 175,
+      "eventId": 181,
       "time": 2.44,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4398,7 +4799,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 176,
+      "eventId": 182,
       "time": 2.49,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4406,7 +4807,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 177,
+      "eventId": 183,
       "time": 2.54,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4414,7 +4815,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 178,
+      "eventId": 184,
       "time": 2.59,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4422,7 +4823,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 179,
+      "eventId": 185,
       "time": 2.64,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4430,7 +4831,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 180,
+      "eventId": 186,
       "time": 2.69,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4438,7 +4839,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 181,
+      "eventId": 187,
       "time": 2.74,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4446,7 +4847,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 182,
+      "eventId": 188,
       "time": 2.79,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4454,7 +4855,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 183,
+      "eventId": 189,
       "time": 2.84,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4462,7 +4863,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 184,
+      "eventId": 190,
       "time": 2.89,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4470,7 +4871,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 185,
+      "eventId": 191,
       "time": 2.94,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4478,7 +4879,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 186,
+      "eventId": 192,
       "time": 2.99,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4486,7 +4887,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 187,
+      "eventId": 193,
       "time": 3.04,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4494,7 +4895,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 188,
+      "eventId": 194,
       "time": 3.09,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4502,7 +4903,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 189,
+      "eventId": 195,
       "time": 3.14,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4510,7 +4911,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 190,
+      "eventId": 196,
       "time": 3.19,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4518,7 +4919,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 191,
+      "eventId": 197,
       "time": 3.24,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4526,7 +4927,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 192,
+      "eventId": 198,
       "time": 3.29,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4534,7 +4935,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 193,
+      "eventId": 199,
       "time": 3.34,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4542,7 +4943,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 194,
+      "eventId": 200,
       "time": 3.39,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4550,7 +4951,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 195,
+      "eventId": 201,
       "time": 3.44,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4558,7 +4959,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 196,
+      "eventId": 202,
       "time": 3.49,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4566,7 +4967,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 197,
+      "eventId": 203,
       "time": 3.54,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4574,7 +4975,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 198,
+      "eventId": 204,
       "time": 3.59,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4582,7 +4983,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 199,
+      "eventId": 205,
       "time": 3.64,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4590,7 +4991,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 200,
+      "eventId": 206,
       "time": 3.69,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4598,7 +4999,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 201,
+      "eventId": 207,
       "time": 3.74,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4606,7 +5007,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 202,
+      "eventId": 208,
       "time": 3.79,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4614,7 +5015,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 203,
+      "eventId": 209,
       "time": 3.84,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4622,7 +5023,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 204,
+      "eventId": 210,
       "time": 3.89,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4630,7 +5031,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 205,
+      "eventId": 211,
       "time": 3.94,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4638,7 +5039,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 206,
+      "eventId": 212,
       "time": 3.99,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4646,7 +5047,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 207,
+      "eventId": 213,
       "time": 4.04,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4654,7 +5055,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 208,
+      "eventId": 214,
       "time": 4.09,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4662,7 +5063,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 209,
+      "eventId": 215,
       "time": 4.14,
       "eventType": "CACHE_RESOURCE_RELEASED",
       "resource": {
@@ -4680,7 +5081,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 210,
+      "eventId": 216,
       "time": 4.14,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4688,7 +5089,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 211,
+      "eventId": 217,
       "time": 4.14,
       "eventType": "PLAYBACK_POSITION_UPDATED",
       "videoId": "v2",
@@ -4697,7 +5098,7 @@
       "triggerDecision": true
     },
     {
-      "eventId": 212,
+      "eventId": 218,
       "time": 4.14,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -4706,7 +5107,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 213,
+      "eventId": 219,
       "time": 4.19,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4714,7 +5115,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 214,
+      "eventId": 220,
       "time": 4.24,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4722,7 +5123,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 215,
+      "eventId": 221,
       "time": 4.29,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4730,7 +5131,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 216,
+      "eventId": 222,
       "time": 4.34,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4738,7 +5139,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 217,
+      "eventId": 223,
       "time": 4.39,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4746,7 +5147,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 218,
+      "eventId": 224,
       "time": 4.44,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4754,7 +5155,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 219,
+      "eventId": 225,
       "time": 4.49,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4762,7 +5163,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 220,
+      "eventId": 226,
       "time": 4.54,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4770,7 +5171,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 221,
+      "eventId": 227,
       "time": 4.59,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4778,7 +5179,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 222,
+      "eventId": 228,
       "time": 4.64,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4786,7 +5187,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 223,
+      "eventId": 229,
       "time": 4.69,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4794,7 +5195,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 224,
+      "eventId": 230,
       "time": 4.74,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4802,7 +5203,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 225,
+      "eventId": 231,
       "time": 4.79,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4810,7 +5211,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 226,
+      "eventId": 232,
       "time": 4.84,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4818,7 +5219,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 227,
+      "eventId": 233,
       "time": 4.89,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4826,7 +5227,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 228,
+      "eventId": 234,
       "time": 4.94,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4834,7 +5235,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 229,
+      "eventId": 235,
       "time": 4.99,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4842,7 +5243,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 230,
+      "eventId": 236,
       "time": 5.04,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4850,7 +5251,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 231,
+      "eventId": 237,
       "time": 5.09,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4858,7 +5259,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 232,
+      "eventId": 238,
       "time": 5.14,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4866,7 +5267,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 233,
+      "eventId": 239,
       "time": 5.19,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4874,7 +5275,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 234,
+      "eventId": 240,
       "time": 5.24,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4882,7 +5283,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 235,
+      "eventId": 241,
       "time": 5.29,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4890,7 +5291,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 236,
+      "eventId": 242,
       "time": 5.34,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4898,7 +5299,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 237,
+      "eventId": 243,
       "time": 5.39,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4906,7 +5307,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 238,
+      "eventId": 244,
       "time": 5.44,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4914,7 +5315,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 239,
+      "eventId": 245,
       "time": 5.49,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4922,7 +5323,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 240,
+      "eventId": 246,
       "time": 5.54,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4930,7 +5331,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 241,
+      "eventId": 247,
       "time": 5.59,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4938,7 +5339,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 242,
+      "eventId": 248,
       "time": 5.64,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4946,7 +5347,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 243,
+      "eventId": 249,
       "time": 5.69,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4954,7 +5355,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 244,
+      "eventId": 250,
       "time": 5.74,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4962,7 +5363,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 245,
+      "eventId": 251,
       "time": 5.79,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4970,7 +5371,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 246,
+      "eventId": 252,
       "time": 5.84,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4978,7 +5379,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 247,
+      "eventId": 253,
       "time": 5.89,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4986,7 +5387,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 248,
+      "eventId": 254,
       "time": 5.94,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -4994,7 +5395,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 249,
+      "eventId": 255,
       "time": 5.99,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -5002,7 +5403,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 250,
+      "eventId": 256,
       "time": 6.04,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -5010,7 +5411,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 251,
+      "eventId": 257,
       "time": 6.09,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -5018,7 +5419,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 252,
+      "eventId": 258,
       "time": 6.14,
       "eventType": "CACHE_RESOURCE_RELEASED",
       "resource": {
@@ -5036,7 +5437,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 253,
+      "eventId": 259,
       "time": 6.14,
       "eventType": "PLAYBACK_POSITION_SAMPLE",
       "videoId": "v2",
@@ -5044,14 +5445,14 @@
       "triggerDecision": false
     },
     {
-      "eventId": 254,
+      "eventId": 260,
       "time": 6.14,
       "eventType": "VIDEO_COMPLETED",
       "videoId": "v2",
       "triggerDecision": true
     },
     {
-      "eventId": 255,
+      "eventId": 261,
       "time": 6.14,
       "eventType": "RULE_DECISION",
       "rule": "SFVMultiVideoPrefetchRule",
@@ -5060,7 +5461,7 @@
       "triggerDecision": false
     },
     {
-      "eventId": 256,
+      "eventId": 262,
       "time": 120,
       "eventType": "SIMULATION_CUTOFF",
       "triggerDecision": false
@@ -5193,7 +5594,7 @@
       "queuedAt": null,
       "startTime": 0.03,
       "firstByteTime": 0.05,
-      "endTime": 0.09,
+      "endTime": 0.11,
       "retryOf": null,
       "retryAttempt": 0,
       "originalAction": {
@@ -5359,9 +5760,9 @@
       "bytesTotal": 826,
       "state": "COMPLETED",
       "queuedAt": 0.03,
-      "startTime": 0.09,
-      "firstByteTime": 0.11,
-      "endTime": 0.11,
+      "startTime": 0.11,
+      "firstByteTime": 0.13,
+      "endTime": 0.13,
       "retryOf": null,
       "retryAttempt": 0,
       "originalAction": {
@@ -5374,8 +5775,8 @@
       "finalBytesDelivered": 826,
       "abortRequestedAt": null,
       "bytesDeliveredAtAbort": null,
-      "admittedAt": 0.09,
-      "queueWaitS": 0.06,
+      "admittedAt": 0.11,
+      "queueWaitS": 0.08,
       "cacheAdmitted": true
     },
     {
@@ -5393,9 +5794,9 @@
       "bytesTotal": 52673,
       "state": "COMPLETED",
       "queuedAt": 0.03,
-      "startTime": 0.11,
-      "firstByteTime": 0.13,
-      "endTime": 0.14,
+      "startTime": 0.12,
+      "firstByteTime": 0.14,
+      "endTime": 0.15,
       "retryOf": null,
       "retryAttempt": 0,
       "originalAction": {
@@ -5409,8 +5810,8 @@
       "finalBytesDelivered": 52673,
       "abortRequestedAt": null,
       "bytesDeliveredAtAbort": null,
-      "admittedAt": 0.11,
-      "queueWaitS": 0.08,
+      "admittedAt": 0.12,
+      "queueWaitS": 0.09,
       "cacheAdmitted": true
     },
     {
@@ -5428,9 +5829,9 @@
       "bytesTotal": 49167,
       "state": "COMPLETED",
       "queuedAt": 0.03,
-      "startTime": 0.12,
-      "firstByteTime": 0.14,
-      "endTime": 0.14,
+      "startTime": 0.13,
+      "firstByteTime": 0.15,
+      "endTime": 0.18,
       "retryOf": null,
       "retryAttempt": 0,
       "originalAction": {
@@ -5444,8 +5845,8 @@
       "finalBytesDelivered": 49167,
       "abortRequestedAt": null,
       "bytesDeliveredAtAbort": null,
-      "admittedAt": 0.12,
-      "queueWaitS": 0.09,
+      "admittedAt": 0.13,
+      "queueWaitS": 0.1,
       "cacheAdmitted": true
     },
     {
@@ -5519,9 +5920,9 @@
       "bytesTotal": 828,
       "state": "COMPLETED",
       "queuedAt": 0.12,
-      "startTime": 0.14,
-      "firstByteTime": 0.16,
-      "endTime": 0.16,
+      "startTime": 0.15,
+      "firstByteTime": 0.17,
+      "endTime": 0.17,
       "retryOf": null,
       "retryAttempt": 0,
       "originalAction": {
@@ -5534,8 +5935,8 @@
       "finalBytesDelivered": 828,
       "abortRequestedAt": null,
       "bytesDeliveredAtAbort": null,
-      "admittedAt": 0.14,
-      "queueWaitS": 0.020000000000000018,
+      "admittedAt": 0.15,
+      "queueWaitS": 0.03,
       "cacheAdmitted": true
     },
     {
@@ -5555,7 +5956,7 @@
       "queuedAt": null,
       "startTime": 2.14,
       "firstByteTime": 2.16,
-      "endTime": 2.17,
+      "endTime": 2.23,
       "retryOf": null,
       "retryAttempt": 0,
       "originalAction": {
@@ -5587,15 +5988,15 @@
       "ue1-r3",
       "ue1-r4",
       "ue1-r7",
-      "ue1-r5",
       "ue1-r6",
-      "ue1-r10",
+      "ue1-r5",
       "ue1-r9",
+      "ue1-r10",
       "ue1-r8",
       "ue1-r11",
-      "ue1-r12",
       "ue1-r14",
       "ue1-r15",
+      "ue1-r12",
       "ue1-r16"
     ],
     "estimator": {
@@ -5606,19 +6007,19 @@
         "safetyFactor": 0.9
       },
       "state": {
-        "fastEstimate": 1251.4543027571158,
-        "slowEstimate": 473.4428976633702,
-        "totalWeight": 0.2264999999999997,
+        "fastEstimate": 1221.4088581272686,
+        "slowEstimate": 469.12744019220224,
+        "totalWeight": 0.3899999999999997,
         "samples": [
-          {
-            "value": 10426,
-            "downloadTimeMs": 39.99999999999999,
-            "bytes": 52129
-          },
           {
             "value": 9770,
             "downloadTimeMs": 39.99999999999999,
             "bytes": 48852
+          },
+          {
+            "value": 6951,
+            "downloadTimeMs": 60,
+            "bytes": 52129
           },
           {
             "value": 39802,
@@ -5632,17 +6033,17 @@
           },
           {
             "value": 42138,
-            "downloadTimeMs": 10.000000000000009,
+            "downloadTimeMs": 9.99999999999998,
             "bytes": 52673
           },
           {
-            "value": 393336,
-            "downloadTimeMs": 1,
+            "value": 13111,
+            "downloadTimeMs": 30,
             "bytes": 49167
           },
           {
-            "value": 122831,
-            "downloadTimeMs": 9.999999999999787,
+            "value": 17547,
+            "downloadTimeMs": 69.99999999999984,
             "bytes": 153539
           }
         ]
@@ -5693,7 +6094,7 @@
       "rejections": [],
       "releases": [
         {
-          "eventId": 71,
+          "eventId": 62,
           "time": 0.11,
           "eventType": "CACHE_RESOURCE_RELEASED",
           "resource": {
@@ -5708,25 +6109,7 @@
           "triggerDecision": false
         },
         {
-          "eventId": 72,
-          "time": 0.11,
-          "eventType": "CACHE_RESOURCE_RELEASED",
-          "resource": {
-            "videoId": "v1",
-            "resourceType": "media",
-            "mediaType": "video",
-            "representationId": "0",
-            "segmentIndex": 0,
-            "startS": 0,
-            "durationS": 2,
-            "url": "/media/v1/chunk-0-00001.m4s"
-          },
-          "bytes": 52129,
-          "reason": "VIDEO_DEPARTED",
-          "triggerDecision": false
-        },
-        {
-          "eventId": 73,
+          "eventId": 63,
           "time": 0.11,
           "eventType": "CACHE_RESOURCE_RELEASED",
           "resource": {
@@ -5740,6 +6123,24 @@
             "url": "/media/v1/chunk-0-00002.m4s"
           },
           "bytes": 48852,
+          "reason": "VIDEO_DEPARTED",
+          "triggerDecision": false
+        },
+        {
+          "eventId": 64,
+          "time": 0.11,
+          "eventType": "CACHE_RESOURCE_RELEASED",
+          "resource": {
+            "videoId": "v1",
+            "resourceType": "media",
+            "mediaType": "video",
+            "representationId": "0",
+            "segmentIndex": 0,
+            "startS": 0,
+            "durationS": 2,
+            "url": "/media/v1/chunk-0-00001.m4s"
+          },
+          "bytes": 52129,
           "reason": "VIDEO_DEPARTED",
           "triggerDecision": false
         },
@@ -5762,7 +6163,7 @@
           "triggerDecision": false
         },
         {
-          "eventId": 209,
+          "eventId": 215,
           "time": 4.14,
           "eventType": "CACHE_RESOURCE_RELEASED",
           "resource": {
@@ -5780,7 +6181,7 @@
           "triggerDecision": false
         },
         {
-          "eventId": 252,
+          "eventId": 258,
           "time": 6.14,
           "eventType": "CACHE_RESOURCE_RELEASED",
           "resource": {
@@ -5807,9 +6208,9 @@
         "session_started_at_s": 0,
         "start_reference": "session_start",
         "play_requested_at_s": 0,
-        "playback_started_at_s": 0.1,
-        "delay_s": 0.1,
-        "status": "started"
+        "playback_started_at_s": null,
+        "delay_s": null,
+        "status": "not_started"
       },
       "swipe_to_playback": [
         {
@@ -5954,11 +6355,11 @@
         "video_id": "v1",
         "video_sequence_number": 0,
         "video_duration_s": 6,
-        "watch_duration_s": 0.015,
+        "watch_duration_s": 0,
         "swiped_away": true,
         "time_to_first_byte_s": 0.02,
-        "initial_loading_delay_s": 0.1,
-        "play_request_to_playback_delay_s": 0.1,
+        "initial_loading_delay_s": null,
+        "play_request_to_playback_delay_s": null,
         "swipe_to_playback_delay_s": null,
         "stall_count": 0,
         "stall_duration_s": 0,
@@ -5969,28 +6370,15 @@
         "unattributed_played_duration_s": 0,
         "bytes_delivered": 104495,
         "bytes_media_delivered": 100981,
-        "bytes_data_wastage": 100590,
+        "bytes_data_wastage": 100981,
         "data_wastage_by_reason": {
-          "swipe": 100590,
+          "swipe": 100981,
           "representation_superseded": 0,
           "cache_admission_rejected": 0,
           "session_end": 0
         },
         "bytes_unresolved_at_cutoff": 0,
-        "rendered_quality_timeline": [
-          {
-            "time": 0.09,
-            "segmentIndex": 0,
-            "representationId": "0",
-            "playbackPositionS": 0
-          },
-          {
-            "time": 0.09,
-            "segmentIndex": 1,
-            "representationId": "0",
-            "playbackPositionS": 0
-          }
-        ],
+        "rendered_quality_timeline": [],
         "p1204_1_segment_scores": [],
         "p1203_output": null
       },
@@ -6063,10 +6451,10 @@
             "playbackPositionS": 0
           },
           {
-            "time": 2.17,
+            "time": 2.23,
             "segmentIndex": 2,
             "representationId": "2",
-            "playbackPositionS": 2.0349999999999997
+            "playbackPositionS": 2.0949999999999998
           }
         ],
         "p1204_1_segment_scores": [
@@ -6151,7 +6539,7 @@
       }
     ],
     "session_summary": {
-      "initial_playback_delay_s": 0.1,
+      "initial_playback_delay_s": null,
       "swipe_to_playback_delays_s": [
         0.030000000000000013
       ],
@@ -6164,20 +6552,20 @@
         "v2|0": 3.995,
         "v2|2": 2
       },
-      "videos_started": 2,
+      "videos_started": 1,
       "videos_completed": 1,
       "stall_count_total": 0,
       "stall_duration_total_s": 0,
       "bytes_delivered": 469986,
       "bytes_media_delivered": 457788,
-      "bytes_data_wastage": 100590,
+      "bytes_data_wastage": 100981,
       "data_wastage_by_reason": {
-        "swipe": 100590,
+        "swipe": 100981,
         "representation_superseded": 0,
         "cache_admission_rejected": 0,
         "session_end": 0
       },
-      "data_wastage_ratio": 0.21973053028912948,
+      "data_wastage_ratio": 0.2205846374304263,
       "bytes_unresolved_at_cutoff": 101840,
       "p1203_output": {
         "O46": 3.5862874329091237,

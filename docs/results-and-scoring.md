@@ -42,28 +42,28 @@ This excerpt comes from UE 0 of the example run. It shows one of the three video
       "watch_duration_s": 6,
       "swiped_away": false,
       "time_to_first_byte_s": 0.02,
-      "initial_loading_delay_s": 0.13,
-      "swipe_to_playback_delay_s": 0.13,
+      "initial_loading_delay_s": 0.33,
+      "swipe_to_playback_delay_s": 0.33,
       "stall_count": 0,
       "stall_duration_s": 0,
       "stall_events": [],
-      "quality_switch_count": 1,
+      "quality_switch_count": 0,
       "representation_intervals": [
         {
           "video_id": "v2",
-          "representation_id": "0",
-          "bitrate_kbps": 180,
+          "representation_id": "2",
+          "bitrate_kbps": 650,
           "segment_index": 0,
-          "segment_index_end": 1,
-          "start_at_s": 0.23,
-          "end_at_s": 4.225,
+          "segment_index_end": 2,
+          "start_at_s": 0.43,
+          "end_at_s": 6.43,
           "start_position_s": 0.005,
-          "end_position_s": 4,
-          "played_duration_s": 3.995
+          "end_position_s": 6,
+          "played_duration_s": 5.995
         }
       ],
-      "bytes_delivered": 259309,
-      "bytes_media_delivered": 254967,
+      "bytes_delivered": 519838,
+      "bytes_media_delivered": 516322,
       "bytes_data_wastage": 0,
       "data_wastage_by_reason": {
         "swipe": 0,
@@ -76,16 +76,16 @@ This excerpt comes from UE 0 of the example run. It shows one of the three video
   ],
   "session_summary": {
     "initial_playback_delay_s": null,
-    "swipe_to_playback_delays_s": [0.13],
+    "swipe_to_playback_delays_s": [0.33],
     "videos_started": 1,
     "videos_completed": 1,
     "stall_count_total": 0,
     "stall_duration_total_s": 0,
-    "quality_switch_count_total": 1,
-    "bytes_delivered": 353675,
-    "bytes_media_delivered": 345819,
+    "quality_switch_count_total": 0,
+    "bytes_delivered": 614204,
+    "bytes_media_delivered": 607174,
     "bytes_data_wastage": 90852,
-    "data_wastage_ratio": 0.2627,
+    "data_wastage_ratio": 0.1496,
     "bytes_unresolved_at_cutoff": 0
   }
 }

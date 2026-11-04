@@ -14,14 +14,14 @@ uv run capcsp run configs/experiments/swipe-example/swipe-during-dropout-b1-b2.j
 
 | UE | Player | Swipe at (s) | Next video | Swipe delay (s) |
 |---|---|---|---|---|
-| 0 | `simple` | 3 | `v2` | 4.58 |
-| 0 | `simple` | 9 | `v3` | 0.89 |
+| 0 | `simple` | 3 | `v2` | 5.01 |
+| 0 | `simple` | 9 | `v3` | 1.13 |
 | 1 | `preload` | 3 | `v2` | 0.02 |
 | 1 | `preload` | 9 | `v3` | 0.02 |
 
-UE 0 does not preload, so its first swipe waits for the end of the dropout. UE 1 has already preloaded the next video and starts it almost at once, but it stalls for 1.04 s later in `v2`.
+UE 0 does not preload, so its first swipe waits for the end of the dropout. UE 1 has already preloaded the next video and starts it almost at once, but it stalls for 0.93 s later in `v2`.
 
-The watch durations are 2.73 s, 1.42 s and 6 s for UE 0, and 2.78 s, 4.94 s and 6 s for UE 1.
+The watch durations are 2.70 s, 1.00 s and 6 s for UE 0, and 2.71 s, 5.05 s and 6 s for UE 1.
 
 ## Files
 
