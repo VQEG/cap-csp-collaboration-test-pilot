@@ -1,7 +1,7 @@
 {
   "run_id": "vqeg-c1-b1-b2",
   "status": "completed",
-  "started_at": "2026-11-04T14:28:51+00:00",
+  "started_at": "2026-11-04T15:15:53+00:00",
   "config_path": "configs/experiments/vqeg/c1-b1-b2.json",
   "config": {
     "run_id": "vqeg-c1-b1-b2",
@@ -84,7 +84,7 @@
   ],
   "revisions": {
     "capcsp": {
-      "commit": "d3a9e54c2814259bf7119a3c983cb73b21b8f67b",
+      "commit": "127a3156ba732a4c5470b7ae1c8ab3c3273d79d8",
       "dirty": false
     },
     "fikore": {
@@ -96,7 +96,7 @@
       "dirty": false
     }
   },
-  "wall_s": 5.544,
+  "wall_s": 5.305,
   "network_steps": 12001,
   "byte_accounting": {
     "submitted_bytes": 865120,
@@ -108,5 +108,26 @@
     "in_flight_bytes": 0,
     "bytes_conserved": true
   },
-  "sim_time_s": 120
+  "sim_time_s": 120,
+  "scoring": {
+    "integration_model": {
+      "standard": "ITU-T P.1203.3",
+      "package": "itu-p1203",
+      "version": "1.11.0",
+      "commit": "ffed4678a5d9b6d5a77e6e248aae31a37b3d773f"
+    },
+    "video_model": {
+      "standard": "ITU-T P.1204.1 Mode 0 (AVQBits|M0)",
+      "package": "mode0-retraining",
+      "version": "0.1.0",
+      "commit": "e4ebd2ed2cd6b93295d50c71af773f0dfb2745a0"
+    },
+    "settings": {
+      "device": "mobile",
+      "display_width": 1080,
+      "display_height": 1920,
+      "frame_rate_fps": 30.0,
+      "audio_o21": 5.0
+    }
+  }
 }

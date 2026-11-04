@@ -13,7 +13,7 @@ uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json output/vqeg/c1
 - `sessions/ue-0.json`: full player result for UE 0 (B1, `simple`), including `sessionRecord`
 - `sessions/ue-1.json`: full player result for UE 1 (B2, `preload`), including `sessionRecord`
 - `run-manifest.json`: configuration, source revisions, timing and byte accounting
-- `kpis.csv`: one row of KPIs per UE
+- `kpis.csv`: one row of KPIs per UE, with the columns described in [Results and Scoring](../../results-and-scoring.md#kpi-table)
 - `report.md`: readable summary of the KPIs
 - `fikore-effective.ini`: FikoRE scenario used in the run
 - `network-steps-first-second.jsonl`: network steps with the player's response, first second only
@@ -55,4 +55,4 @@ The table lists the representations of `v2`, the video that plays to the end in 
 - `stall_events` is empty for both UEs. None of the nine VQEG conditions currently produces a stall. See the [stall example](../stall-example-b1-b2-run/README.md) for filled stall events.
 - The fixture has three videos of 6 s with 2 s segments, and sessions swipe once, after about 0.1 s. Only `v2` plays for longer than a moment. It plays 4 s at representation 0 and then 2 s at representation 2, in all nine conditions.
 - The content has no frame rate. It lists one audio representation per video, but the player does not request audio, so the record has no audio data. A QoE model that needs these inputs has to assume them for now.
-- The run was made without quality scoring, so the record has no score fields.
+- The record includes the fields `p1204_1_segment_scores` and `p1203_output`. Only 6 s of media play, far less than the 1 to 5 minutes for which P.1203 is specified, so the scores show the format only. See [Results and Scoring](../../results-and-scoring.md#session-record-format).

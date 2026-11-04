@@ -8298,7 +8298,9 @@
           "session_end": 0
         },
         "bytes_unresolved_at_cutoff": 0,
-        "rendered_quality_timeline": []
+        "rendered_quality_timeline": [],
+        "p1204_1_segment_scores": [],
+        "p1203_output": null
       },
       {
         "video_id": "v2",
@@ -8383,7 +8385,55 @@
             "representationId": "2",
             "playbackPositionS": 4
           }
-        ]
+        ],
+        "p1204_1_segment_scores": [
+          {
+            "video_id": "v2",
+            "representation_id": "0",
+            "segment_index": 0,
+            "content_codec": "avc1",
+            "bitrate_kbps": 206.704,
+            "width": 180,
+            "height": 320,
+            "played_duration_s": 1.995,
+            "video_quality_mos": 2.4728565480772966
+          },
+          {
+            "video_id": "v2",
+            "representation_id": "0",
+            "segment_index": 1,
+            "content_codec": "avc1",
+            "bitrate_kbps": 199.008,
+            "width": 180,
+            "height": 320,
+            "played_duration_s": 2,
+            "video_quality_mos": 2.4602744265010954
+          },
+          {
+            "video_id": "v2",
+            "representation_id": "2",
+            "segment_index": 2,
+            "content_codec": "avc1",
+            "bitrate_kbps": 614.156,
+            "width": 360,
+            "height": 640,
+            "played_duration_s": 1.9500000000000002,
+            "video_quality_mos": 3.333474664869428
+          }
+        ],
+        "p1203_output": {
+          "O46": 2.5014043726953994,
+          "O35": 3.7942954090768444,
+          "O23": 2.666754134680442,
+          "O22": [
+            2.4728565480772966,
+            2.4728565480772966,
+            2.4602744265010954,
+            2.4602744265010954,
+            3.333474664869428,
+            3.333474664869428
+          ]
+        }
       },
       {
         "video_id": "v3",
@@ -8412,7 +8462,9 @@
           "session_end": 0
         },
         "bytes_unresolved_at_cutoff": 101840,
-        "rendered_quality_timeline": []
+        "rendered_quality_timeline": [],
+        "p1204_1_segment_scores": [],
+        "p1203_output": null
       }
     ],
     "session_summary": {
@@ -8443,7 +8495,12 @@
         "session_end": 0
       },
       "data_wastage_ratio": 0.044199546217992165,
-      "bytes_unresolved_at_cutoff": 101840
+      "bytes_unresolved_at_cutoff": 101840,
+      "p1203_output": {
+        "O46": 2.5014043726953994,
+        "O35": 3.7942954090768444,
+        "O23": 2.666754134680442
+      }
     }
   }
 }

@@ -21,11 +21,12 @@ Both UEs play `v2` at representation 0 until the buffer runs out. The next segme
 
 ## Files
 
-The run was made without quality scoring. The folder has the same layout as the [C1 example](../vqeg-c1-b1-b2-run/README.md), which also explains which fields to read. `network-steps.jsonl`, `telemetry.jsonl`, `fikore.log` and the empty `player.log` are left out to keep the example small. Regenerate the run to get them. The manifest's `config_path` and `content_path` are relative to the repository root.
+The folder has the same layout as the [C1 example](../vqeg-c1-b1-b2-run/README.md), which also explains which fields to read. `network-steps.jsonl`, `telemetry.jsonl`, `fikore.log` and the empty `player.log` are left out to keep the example small. Regenerate the run to get them. The manifest's `config_path` and `content_path` are relative to the repository root.
 
 Stall events are in `videos[].stall_events` and `playback_metrics.stall_events` of `sessionRecord`. Each event has `video_id`, `started_at_s`, `ended_at_s`, `observed_until_s`, `duration_s` and `status`.
 
 ## Limits of This Example
 
 - The two representation intervals of `v2` add up to about 5.95 s of the 6 s watched. The missing 0.05 s, just after the stall, is reported as `unattributed_played_duration_s`.
+- Only 6 s of media play, far less than the 1 to 5 minutes for which P.1203 is specified, so the scores show the format only.
 - It has the same content limits as the C1 example: three 6 s videos, no frame rate and no audio data.
