@@ -1,8 +1,6 @@
 # PR body draft — SFV collaboration hooks (`SFV-Reference-Implementation`)
 
-**GitHub PR description only** — not a `git commit` message. For commits on the SFV repo use the companion file in the pilot tree: [`commit-message-draft-sfv-collaboration-hooks.txt`](commit-message-draft-sfv-collaboration-hooks.txt) (copy into `micseu/SFV-Reference-Implementation`).
-
-Paste into GitHub when opening the **player engine** PR on [micseu/SFV-Reference-Implementation](https://github.com/micseu/SFV-Reference-Implementation).
+**GitHub PR description only** — paste into GitHub when opening the **player engine** PR on [micseu/SFV-Reference-Implementation](https://github.com/micseu/SFV-Reference-Implementation).
 
 Field semantics and signaling levels are defined in the pilot: [signaling.md](https://github.com/VQEG/cap-csp-collaboration-test-pilot/blob/master/docs/signaling.md) and [player-api.md](https://github.com/VQEG/cap-csp-collaboration-test-pilot/blob/master/docs/player-api.md). This repository change adds **engine APIs only**—no Python table, no FikoRE wire format.
 

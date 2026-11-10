@@ -1,8 +1,6 @@
 # PR body draft — collaboration wiring (`cap-csp-collaboration-test-pilot`)
 
-**GitHub PR description only** — not a `git commit` message. For commits use [`commit-message-draft-collaboration-wiring.txt`](commit-message-draft-collaboration-wiring.txt).
-
-Paste into GitHub when opening the pilot PR. Normative field rules stay in [`collaboration.md`](collaboration.md) and [`signaling.md`](signaling.md); this text is for **Michi**, **Werner**, and other reviewers who need the change story in one place.
+**GitHub PR description only** — paste into GitHub when opening the pilot PR. Normative field rules stay in [`collaboration.md`](collaboration.md) and [`signaling.md`](signaling.md); this text is for **Michi**, **Werner**, and other reviewers who need the change story in one place.
 
 **Proposed merge:** `feature/shared-state-table-v1` → `master` on [VQEG/cap-csp-collaboration-test-pilot](https://github.com/VQEG/cap-csp-collaboration-test-pilot).
 
@@ -16,7 +14,7 @@ The change also bumps the **`5g-network-emulator`** submodule to the current **`
 
 **B1/B2 scoring and SFV policy are unchanged.** Rules do not consume `getCspFields()` yet.
 
-**Out of this repository:** SFV engine hooks (`applyCspUpdate`, `buildCapReport`) are delivered in a **separate** [SFV-Reference-Implementation](https://github.com/micseu/SFV-Reference-Implementation) pull request. This pilot PR only defines the IPC contract and calls those methods from `capcsp/player/js/network_step_harness.js`. Companion reviewer text for the SFV repo: [`commit-message-draft-sfv-collaboration-hooks.txt`](commit-message-draft-sfv-collaboration-hooks.txt) (commit) and [`pr-body-draft-sfv-collaboration-hooks.md`](pr-body-draft-sfv-collaboration-hooks.md) (PR body), kept in this repo’s `docs/` for convenience.
+**Out of this repository:** SFV engine hooks (`applyCspUpdate`, `buildCapReport`) are delivered in a **separate** [SFV-Reference-Implementation](https://github.com/micseu/SFV-Reference-Implementation) pull request. This pilot PR only defines the IPC contract and calls those methods from `capcsp/player/js/network_step_harness.js`. Companion SFV reviewer text: [`pr-body-draft-sfv-collaboration-hooks.md`](pr-body-draft-sfv-collaboration-hooks.md) in this repo’s `docs/`.
 
 ---
 
