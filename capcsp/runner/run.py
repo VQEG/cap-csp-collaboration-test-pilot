@@ -6,6 +6,8 @@ Output directory layout:
 - sessions/ue-<id>.json: full player result per UE, including the scored session record
 - network-steps.jsonl: every NetworkStep with the player's response
 - telemetry.jsonl: NetworkTelemetryReceived events
+- shared-state.jsonl: append-only audit log for the VQEG shared state table
+- csp-control.jsonl: CSPController proposals at signaling L3+ (when configured)
 - player.log: stderr of the player process
 """
 
@@ -20,8 +22,10 @@ from typing import Any
 
 from capcsp.network.mock import MockNetworkBackend
 from capcsp.network.transport_fikore import TransportFikoreBackend, TransportFikoreConfig
+from capcsp.collaboration.factory import build_collaboration_stack
 from capcsp.player.bridge import NodePlayerBridge, run_sessions
 from capcsp.scoring.session_scoring import ScoringSettings, score_run
+from capcsp.shared_state.table import InMemorySharedStateTable, _parse_signaling_level
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONTENT = REPO_ROOT / "sfv-reference-implementation" / "fixtures" / "content" / "content.json"
@@ -54,6 +58,14 @@ def load_config(path: Path) -> dict[str, Any]:
     content = config.get("content")
     config["content_path"] = str((path.parent / content).resolve() if content else DEFAULT_CONTENT)
     config.setdefault("run_id", path.stem)
+    config.setdefault("signaling_level", "L0")
+    config.setdefault("clock_mode", "simulation")
+    _parse_signaling_level(config["signaling_level"])
+    controller = config.get("csp_controller")
+    if controller is not None and controller != "dummy":
+        raise ValueError('csp_controller must be null or "dummy"')
+    if config.get("clock_mode") != "simulation":
+        raise ValueError('Only clock_mode "simulation" is implemented')
     return config
 
 
@@ -99,6 +111,18 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
     player_config["network_backend"] = config["network_backend"]
     ue_ids = {session["ue_id"] for session in config["sessions"]}
 
+    shared_state_log_name = "shared-state.jsonl"
+    shared_state_path = output_dir / shared_state_log_name
+    shared_table = InMemorySharedStateTable(
+        signaling_level=config["signaling_level"],
+        log_path=shared_state_path,
+    )
+    csp_control_log_name: str | None = None
+    csp_control_path: Path | None = None
+    if config.get("csp_controller") == "dummy" and _parse_signaling_level(config["signaling_level"]) >= 3:
+        csp_control_log_name = "csp-control.jsonl"
+        csp_control_path = output_dir / csp_control_log_name
+
     manifest: dict[str, Any] = {
         "run_id": config["run_id"],
         "status": "failed",
@@ -113,14 +137,38 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
             "fikore": git_revision(REPO_ROOT / "5g-network-emulator"),
             "sfv_reference_implementation": git_revision(REPO_ROOT / "sfv-reference-implementation"),
         },
+        "shared_state_log": shared_state_log_name,
+        "csp_control_log": csp_control_log_name,
+        "clock_mode": config["clock_mode"],
+        "cap_application": "sfv",
     }
     transcript: list[dict[str, Any]] = []
     telemetry: list[dict[str, Any]] = []
     wall_start = time.perf_counter()
     backend = create_backend(config, output_dir)
     try:
+        plan_downlink = config.get("plan_downlink_mbps_by_ue")
+        if plan_downlink is not None:
+            if not isinstance(plan_downlink, dict):
+                raise ValueError("plan_downlink_mbps_by_ue must be a dict when set")
+            plan_downlink = {int(k): float(v) for k, v in plan_downlink.items()}
         with NodePlayerBridge(player_config, log_path=output_dir / "player.log") as bridge:
-            result = run_sessions(backend, bridge, ue_ids=ue_ids, transcript=transcript, telemetry=telemetry)
+            collaboration = build_collaboration_stack(
+                config,
+                table=shared_table,
+                backend=backend,
+                bridge=bridge,
+                plan_downlink_mbps_by_ue=plan_downlink,
+                csp_control_log_path=csp_control_path,
+            )
+            result = run_sessions(
+                backend,
+                bridge,
+                ue_ids=ue_ids,
+                transcript=transcript,
+                telemetry=telemetry,
+                collaboration=collaboration,
+            )
         manifest["status"] = "completed"
     finally:
         backend.close()

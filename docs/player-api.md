@@ -117,7 +117,7 @@ The player engine evaluates policy decisions when the following events occur:
 - User swipe or playback completion of current video
 - Segment download completion or cancellation
 - Playback stall start or recovery
-- Arrival of updated CSP telemetry
+- Arrival of updated CSP telemetry (in the offline harness, mapped from `network_step.collaboration` into `Observation.csp_fields`; policy use is not implemented yet)
 
 The policy is not evaluated on raw clock ticks. If multiple events occur within a single simulation step, the engine applies all state updates and invokes the policy once.
 
@@ -163,7 +163,7 @@ For example, `MPS = 6` with `PSPV = 3` preloads three segments each for the next
 
 Michi's group owns the exact B1 and B2 rules and their parameters (MPS, PSPV, start and re-evaluation of preloading, bandwidth estimation, quality choice). The [open points](decision-status-and-todos.md#player-and-video-definitions) are tracked separately.
 
-Signaling levels provide additional telemetry fields to policies. A policy that ignores CSP telemetry operates as an L0 baseline under all configurations.
+Signaling levels provide additional telemetry fields to policies via the shared table snapshot on each step. A policy that ignores `csp_fields` operates as an L0 baseline under all configurations. See [Collaboration runtime](collaboration.md) and [Signaling](signaling.md).
 
 ## Multi-Video dash.js Integration
 

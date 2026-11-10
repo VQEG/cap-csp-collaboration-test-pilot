@@ -91,6 +91,8 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
     def set_ue_control(self, ue_id: int, control: UeControl) -> None: ...
 ```
 
+The common harness does not call `set_ue_control` from the player process. At signaling L3+, the default **`DummyCSPController`** logs proposals to `csp-control.jsonl` only; a future controller plugin may use **`FikoreControlAdapter.apply`** to call `set_ue_control`. See [Collaboration runtime](collaboration.md).
+
 `NetworkEvent` is an internal Python union. Each backend creates these events from its native telemetry: `TransportBackend` builds them from `FikoreLink` feedback, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
 
 `ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.

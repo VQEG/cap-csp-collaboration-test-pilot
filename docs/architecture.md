@@ -89,34 +89,35 @@ sequenceDiagram
 
 ### One Step
 
-The player sees only the serialized `NetworkStep` and answers with opaque request actions. All UEs move to the same time before any event is applied.
+Each tick has two parallel concerns. The **byte path** is unchanged: the player receives download events only (no raw `NetworkTelemetryReceived` on IPC) and returns opaque submit/cancel actions. The **collaboration path** updates the shared state table, sends a filtered CSP snapshot on the same IPC message, collects CAP reports, and may run a `CSPController` at L3+. B1/B2 rules do not read `collaboration` yet. The transcript `network-steps.jsonl` matches the IPC shape; backend telemetry stays in `telemetry.jsonl` and table writes in `shared-state.jsonl`. Signaling filters, artifacts, and component names are in [Collaboration runtime](collaboration.md).
+
+For `transport_fikore`, `advance()` runs modelled TCP and FikoRE TTIs internally ([co-simulation](fikore-cosim.md)). For `mock`, `advance()` returns the next step directly.
 
 ```mermaid
 sequenceDiagram
     participant R as Runner
-    participant B as TransportBackend
-    participant L as FikoreLink
-    participant F as FikoRE process
-    participant P as Player process (Node.js)
+    participant B as NetworkBackend
+    participant T as SharedStateTable
+    participant P as Player (Node.js SFV)
     R->>B: advance()
-    loop 10 TTIs of 1 ms
-        B->>L: submit(TCP segments)
-        L->>F: inject, events, grant
-        F->>F: run one TTI
-        F-->>L: acks and per-tag byte deltas
-        L-->>B: segment arrivals
-        B->>B: TCP ACK, congestion control, retransmission
-    end
     B-->>R: NetworkStep(time_s, events, is_final)
-    R->>R: check events against submitted requests, log telemetry
-    R->>P: network_step
-    P->>P: advance playback of all UEs to time_s
-    P->>P: apply download events, apply due swipes
-    P->>P: B1/B2 rule decides next requests
-    P-->>R: player_actions (submit_request, cancel_request)
-    R->>B: submit_request(ue_id, request_id, bytes_total)
-    R->>B: cancel_request(ue_id, request_id)
+    R->>R: validate download events, append telemetry.jsonl
+    R->>T: write_csp_fields from NetworkTelemetryReceived
+    R->>T: read_csp_fields (signaling filter)
+    R->>P: network_step (step plus collaboration)
+    P->>P: advance all UEs, apply downloads, swipes, B1/B2
+    P-->>R: player_actions or player_step_result
+    R->>P: cap_reports
+    P-->>R: CapReport per UE
+    R->>T: write_cap_report
+    opt L3+ and csp_controller configured
+        R->>T: read_cap_report
+        R->>R: CSPController logs csp-control.jsonl
+    end
+    R->>B: submit_request, cancel_request
 ```
+
+On the final step, `player_step_result` replaces `player_actions`, and the runner does not submit new requests after the player returns.
 
 ### End of Run
 
@@ -133,13 +134,15 @@ sequenceDiagram
     P-->>R: player_step_result (sessions)
     R->>B: close()
     B->>F: close socket, stop process
-    R->>R: write run-manifest.json, sessions/, network-steps.jsonl, telemetry.jsonl
+    R->>R: write run-manifest.json, sessions/, network-steps.jsonl, telemetry.jsonl, shared-state.jsonl, csp-control.jsonl if L3+ and csp_controller set
     R->>R: collect_kpis() -> kpis.csv, write_report() -> report.md
 ```
 
 ## Implementation Structure
 
 The Python side lives in two packages: `capcsp` in this repository and `fikore_transport` in the FikoRE submodule. `capcsp` imports the Network Backend API types from `fikore_transport`.
+
+The VQEG **shared state table** (`capcsp/shared_state`) is the collaboration bus for CSP telemetry (`CspFields`) and CAP reports (`CapReport`). The **`capcsp/collaboration`** package runs a step-synchronized tick: telemetry and CAP reports into the table, filtered **`collaboration`** snapshots to the Node harness, and an optional **`CSPController`** at L3+. See [Collaboration runtime](collaboration.md). SFV B1/B2 rules are unchanged; the harness does not feed `collaboration` into the SFV engine.
 
 ```mermaid
 classDiagram

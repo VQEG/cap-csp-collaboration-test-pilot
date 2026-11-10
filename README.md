@@ -27,6 +27,8 @@ The player then plays, stalls or swipes to the next video, and we collect that i
 
 Depending on the signaling level (L0 to L4), the player also receives network information, such as the plan rate or live throughput. Each run writes session records, key numbers and a report, so that runs with and without information exchange can be compared.
 
+The harness implements L0–L3 **information wiring** (shared state table, collaboration snapshots, dummy `CSPController`) without changing SFV B1/B2 behaviour at L0. Design: [docs/collaboration.md](docs/collaboration.md).
+
 ## Requirements
 
 > [!NOTE]

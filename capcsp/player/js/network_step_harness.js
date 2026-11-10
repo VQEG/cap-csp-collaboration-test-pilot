@@ -5,7 +5,7 @@ import { SFVSimulationController, SFVCurrentVideoRule, SFVMultiVideoPrefetchRule
 import { SFVExternalTransport } from './external_transport.js';
 
 const EPS = 1e-8;
-const EVENT_TYPES = new Set(['DownloadProgress', 'DownloadCompleted', 'DownloadCancelled', 'NetworkTelemetryReceived']);
+const EVENT_TYPES = new Set(['DownloadProgress', 'DownloadCompleted', 'DownloadCancelled']);
 
 /** Shared-time SFV sessions behind the NetworkBackend API, without FikoRE wire semantics.
  * Python supplies a whole NetworkStep and receives opaque network actions only after
@@ -27,7 +27,6 @@ export class NetworkStepHarness {
     this.signaling_level = signaling_level;
     this.duration_s = duration_s;
     this.network_backend = network_backend;
-    this.lastStep = null;
     for (const [index, session] of sessions.entries()) {
       const ue_id = session.ue_id ?? session.config?.ueId ?? index;
       if (!Number.isSafeInteger(ue_id) || ue_id < 0 || this.states.has(ue_id)) throw new TypeError('Duplicate or invalid UE');
@@ -45,8 +44,7 @@ export class NetworkStepHarness {
         rule: structuredClone(session.rule_config ?? session.abr?.config ?? session.config?.rule ?? {}) };
       const controller = new SFVSimulationController({dataset, rule: new Rule(), config, transport,
         requestIdPrefix: `ue${ue_id}-r`});
-      this.states.set(ue_id, {controller, transport, started: false, done: false, result: null,
-        telemetry: null});
+      this.states.set(ue_id, {controller, transport, started: false, done: false, result: null});
     }
   }
 
@@ -62,7 +60,7 @@ export class NetworkStepHarness {
     }
     this.sequence++;
     this.time = step.time_s;
-    this.lastStep = structuredClone(step);
+    this.#applyCollaborationSnapshot(step);
     // Advance every UE to the same backend timestamp before applying any network events.
     for (const state of this.states.values()) {
       if (state.started && !state.done) state.controller.advancePlaybackTo(this.time);
@@ -74,11 +72,6 @@ export class NetworkStepHarness {
         throw new TypeError('Invalid NetworkStep event');
       }
       const state = this.states.get(event.ue_id);
-      if (event.event_type === 'NetworkTelemetryReceived') {
-        // Kept for L2 policies; the SFV engine has no telemetry input yet
-        state.telemetry = {time_s: event.time_s, ...event.fields};
-        continue;
-      }
       if (!state.started) throw new Error('Network event for unstarted session');
       state.transport.receiveEvent(event, e => state.controller.applyNetworkEvent(e));
     }
@@ -126,14 +119,26 @@ export class NetworkStepHarness {
     return {type: 'player_actions', actions};
   }
 
+  #applyCollaborationSnapshot(step) {
+    const byUe = step.collaboration?.csp_by_ue;
+    if (byUe == null || typeof byUe !== 'object') return;
+    for (const [ue_id, state] of this.states) {
+      if (state.done) continue;
+      state.controller.applyCspUpdate(byUe[String(ue_id)] ?? null, this.time);
+    }
+  }
+
   getCapReports() {
-    return Object.fromEntries([...this.states].filter(([, state]) => state.started).map(([ue_id, state]) => {
-      const controller = state.controller;
-      const recent = controller.userEvents.filter(event => event.eventType === 'SWIPE' &&
-        event.time > this.time - 1 && event.time <= this.time + EPS).length;
-      return [String(ue_id), {time_s: this.time, is_stalled: controller.playback.stalled,
-        playable_buffer_s: Math.max(0, controller.playback.bufferEnd() - controller.playback.positionS),
-        current_video_id: controller.playback.videoId ?? '', swipe_rate_per_s: recent}];
-    }));
+    return Object.fromEntries(
+      [...this.states]
+        .filter(([, state]) => state.started)
+        .map(([ue_id, state]) => {
+          const build = state.controller.buildCapReport;
+          if (typeof build !== 'function') {
+            throw new Error('SFV engine missing buildCapReport; bump sfv-reference-implementation submodule');
+          }
+          return [String(ue_id), build.call(state.controller, this.time)];
+        }),
+    );
   }
 }

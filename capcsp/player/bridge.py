@@ -4,9 +4,11 @@ Adapted from scripts/generic_player_bridge.py in SFV-VQEG-CAP-CSP-Collaboration-
 v0.7.2 by Michael Seufert:
 https://github.com/micseu/SFV-VQEG-CAP-CSP-Collaboration-Experiments/blob/9d7d6f9/scripts/generic_player_bridge.py
 
-One Node.js process runs the sessions of all UEs. For each backend step, the
-bridge sends the whole NetworkStep, then applies the returned submissions and
-cancellations to the backend. The player never sees backend-specific messages.
+One Node.js process runs the sessions of all UEs. For each backend step, Python
+filters raw telemetry out of the player-facing step, attaches ``collaboration``,
+then sends that step over IPC; after CAP reports (and optional CSPController)
+it applies returned submissions and cancellations to the backend. The player
+never sees backend-specific messages such as ``NetworkTelemetryReceived``.
 """
 
 from __future__ import annotations
@@ -16,6 +18,12 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from capcsp.collaboration.factory import CollaborationContext
+from capcsp.collaboration.runtime import (
+    apply_player_actions,
+    apply_player_network_events,
+    run_collaboration_tick,
+)
 from capcsp.network.api import NetworkBackend, step_to_dict
 
 WORKER = Path(__file__).resolve().parent / "js" / "worker.mjs"
@@ -83,6 +91,7 @@ def run_sessions(
     ue_ids: set[int],
     transcript: list[dict[str, Any]],
     telemetry: list[dict[str, Any]],
+    collaboration: CollaborationContext,
     max_steps: int = 1_000_000,
 ) -> dict[str, Any]:
     """Run all sessions on the backend clock until the final step.
@@ -100,48 +109,25 @@ def run_sessions(
             raise ValueError(f"Backend time did not advance: {step.time_s} after {previous_time}")
         previous_time = step.time_s
         step_dict = step_to_dict(step)
-        for event in step_dict["events"]:
-            if event["ue_id"] not in ue_ids:
-                raise ValueError(f"Event for unknown UE {event['ue_id']}")
-            if event["event_type"] == "NetworkTelemetryReceived":
-                telemetry.append({"ue_id": event["ue_id"], "time_s": event["time_s"], **event["fields"]})
-                continue
-            key = (event["ue_id"], event["request_id"])
-            if key not in sizes or key in terminal:
-                raise ValueError(f"Event for unknown or finished request {key}")
-            if "bytes_delivered" in event:
-                if not delivered[key] <= event["bytes_delivered"] <= sizes[key]:
-                    raise ValueError(f"Invalid cumulative byte count for {key}")
-                delivered[key] = event["bytes_delivered"]
-            if event["event_type"] == "DownloadCompleted":
-                # Completion implies all bytes arrived, even without a final progress event
-                delivered[key] = sizes[key]
-                terminal.add(key)
-            elif event["event_type"] == "DownloadCancelled":
-                terminal.add(key)
-        response = bridge.on_step(step_dict)
-        transcript.append({"network_step": step_dict, "player_response": response})
+        apply_player_network_events(
+            step_dict,
+            ue_ids=ue_ids,
+            sizes=sizes,
+            delivered=delivered,
+            terminal=terminal,
+            telemetry=telemetry,
+            collaboration=collaboration,
+        )
+        response, logged_step = run_collaboration_tick(
+            step_dict,
+            bridge=bridge,
+            collaboration=collaboration,
+            ue_ids=ue_ids,
+        )
+        transcript.append({"network_step": logged_step, "player_response": response})
         if step.is_final:
             if response.get("type") != "player_step_result" or response.get("actions"):
                 raise ValueError("Expected a final player result without actions")
             return response["result"]
-        if response.get("type") != "player_actions":
-            raise ValueError(f"Unexpected player response type {response.get('type')!r}")
-        for action in response["actions"]:
-            key = (action.get("ue_id"), action.get("request_id"))
-            if key[0] not in ue_ids or not isinstance(key[1], str) or not key[1]:
-                raise ValueError(f"Invalid request identity {key}")
-            if action.get("op") == "submit_request":
-                size = action.get("bytes_total")
-                if key in sizes:
-                    raise ValueError(f"Duplicate request ID {key}")
-                if not isinstance(size, int) or isinstance(size, bool) or size <= 0:
-                    raise ValueError(f"Invalid byte count for {key}")
-                backend.submit_request(key[0], key[1], size)
-                sizes[key] = size
-                delivered[key] = 0
-            elif action.get("op") == "cancel_request":
-                backend.cancel_request(key[0], key[1])
-            else:
-                raise ValueError(f"Unknown player action {action.get('op')!r}")
+        apply_player_actions(backend, response, ue_ids=ue_ids, sizes=sizes, delivered=delivered)
     raise RuntimeError(f"Run exceeded {max_steps} steps")

@@ -1,14 +1,20 @@
 # Signaling and Shared State
 
-The signaling level governs what network information the player observes and whether the application sends playback state to a network controller. Signaling levels do not swap the underlying player engine or network backend.
+The signaling level governs what network information the CAP may receive on the collaboration IPC path and whether CAP reports are visible to a network-side `CSPController`. Signaling levels do not swap the underlying player engine or network backend.
+
+In the current harness, filtered CSP fields are **written** to the shared table from backend telemetry, **read** back in Python, and sent to the player as `network_step.collaboration`. The SFV B1/B2 rules do not yet consume that payload for adaptation; see [Collaboration runtime](collaboration.md) and the [implementation plan](implementation-plan.md) for wiring versus policy work.
 
 ## Signaling Levels
 
-- **L0**: baseline without collaboration. The player estimates throughput solely from past segment downloads.
-- **L1**: static subscription context. The player receives the provisioned subscriber downlink rate.
-- **L2**: live network telemetry. The player receives real-time network measurements supplied by the network backend.
-- **L3**: bidirectional collaboration. The player sends CAP telemetry reports to a network-side controller, which dynamically adjusts UE scheduling weights or rate limits via a controllable backend.
-- **L4**: theoretical capacity oracle. The player receives a lookahead trace of future available capacity as an upper-bound reference.
+Signaling levels define **what may be read** from the shared table (`read_csp_fields`, `read_cap_report`) and therefore what appears in `network_step.collaboration` or reaches a `CSPController`. The harness **always writes** CSP and CAP updates to the table and **`shared-state.jsonl`**; filtering applies on read.
+
+- **L0**: no CSP fields exposed to the CAP (`collaboration.csp_by_ue` is empty). The player policy is expected to rely on download history only once L2/L1 policies are implemented in the SFV engine.
+- **L1**: the CAP receives the provisioned subscriber downlink rate (`plan_downlink_mbps`) via `collaboration`.
+- **L2**: the CAP receives live `CspFields` from the network backend via `collaboration`.
+- **L3**: the CAP still receives CSP via `collaboration`; CAP reports are written to the table and may be read by a `CSPController`, which may act on the CSP through `BackendControlAdapter` (dummy controller today logs proposals only).
+- **L4**: the CAP receives a capacity oracle trace via `collaboration` (not implemented in the harness yet).
+
+Player policy consumption and effective FikoRE control are tracked in the [implementation plan](implementation-plan.md).
 
 Unavailable measurements default to `None`. Backends must not fabricate synthetic values for missing metrics.
 
@@ -62,7 +68,9 @@ from typing import Protocol
 class SharedStateTable(Protocol):
     def read_csp_fields(self, ue_id: int) -> CspFields | None: ...
 
-    def write_csp_fields(self, ue_id: int, fields: CspFields) -> None: ...
+    def write_csp_fields(
+        self, ue_id: int, fields: CspFields, *, extensions: dict | None = None
+    ) -> None: ...
 
     def read_cap_report(self, ue_id: int) -> CapReport | None: ...
 
@@ -71,7 +79,24 @@ class SharedStateTable(Protocol):
 
 The baseline implementation is an in-process Python data structure. It maintains current per-UE state and records all reads and updates to an append-only JSONL log (timestamp, UE ID, direction, field, and value).
 
-The shared table enforces signaling-level filtering, exposing only permitted fields to the active player policy.
+**Writes** store the full measurement set; optional `extensions` (for example radio hints from FikoRE) appear in `shared-state.jsonl` but not in the narrow `CspFields` schema.
+
+**Reads** apply signaling-level filters: only permitted fields are returned to callers. The harness uses `read_csp_fields` to build `collaboration.csp_by_ue` for the player process; at L3+, `read_cap_report` is used by `CSPController`. The CAP process does not read the table directly.
+
+## Reference implementation
+
+The pilot implements this interface in `capcsp/shared_state/`. `InMemorySharedStateTable` holds the latest `CspFields` and `CapReport` per UE and appends an audit row to **`shared-state.jsonl`** in the run output directory on each write. Each line is a JSON object with at least:
+
+- `record_type`: `"write"` (reads are optional via `log_reads`)
+- `direction`: `"csp_to_cap"` or `"cap_to_csp"`
+- `ue_id`, `time_s`, `signaling_level`
+- `payload`: `csp_fields` with optional `extensions` (extra telemetry keys for audit), or `cap_report` for CAP→CSP rows
+
+The harness feeds the table from `NetworkTelemetryReceived` events (mapped to `CspFields`) and from **`cap_reports`** IPC messages after each `NetworkStep`. The step-synchronized collaboration runtime lives in `capcsp/collaboration/`; see **[Collaboration runtime](collaboration.md)** for the full tick order, IPC `collaboration` field, and artifacts. Optional experiment key **`plan_downlink_mbps_by_ue`** (`dict`, UE id → Mbps) sets `plan_downlink_mbps` on `CspFields` for L1 experiments.
+
+## CSPController (harness)
+
+At signaling L3+, the harness may run a **`CSPController`** (experiment level L3, code name agnostic of backend). The pilot ships **`DummyCSPController`** with `csp_controller: "dummy"`: it reads `CapReport` from the shared table, logs a `CspControlIntent` proposal to **`csp-control.jsonl`**, and does not call `BackendControlAdapter.apply` (so FikoRE knobs stay unchanged). Real mapping from CAP telemetry to scheduler weights remains future work.
 
 ## Data Sources Across Modes
 
@@ -82,11 +107,11 @@ All telemetry records use backend simulation or elapsed run time.
 
 ## L3 Network Controller Interface
 
-The architecture reserves a `UeControl` structure for dynamic scheduling adjustments (scheduler priority and rate caps).
+The architecture reserves a `UeControl` structure for dynamic scheduling adjustments (scheduler priority and rate caps). The harness applies control through **`FikoreControlAdapter`** (`CspControlIntent` → `UeControl` → `TransportBackend.set_ue_control`); see [Collaboration runtime](collaboration.md).
 
-The network-side mechanism is specified: both parameters are written per UE at runtime through the [control protocol](fikore-cosim-messages.md#set), applied at a stated TTI and acknowledged with the exact instant of application. SINR offset, mobility, background traffic rate and the delay budget are in the same knob catalogue, so the controller's action space is not limited by the interface. What this section still owes is the controller itself.
+The network-side mechanism is specified: both parameters are written per UE at runtime through the [control protocol](fikore-cosim-messages.md#set), applied at a stated TTI and acknowledged with the exact instant of application. SINR offset, mobility, background traffic rate and the delay budget are in the same knob catalogue, so the controller's action space is not limited by the interface.
 
-Specification of L3 requires defining:
+The **collaboration algorithm** for L3 still requires:
 
 - Input CAP telemetry fields evaluated by the controller
 - Mapping function from CAP inputs to scheduler weights and rate limits
@@ -94,7 +119,7 @@ Specification of L3 requires defining:
 - Persistence duration of control policies
 - Compatibility guarantees between offline and emulated execution
 
-L3 is excluded from milestone 1 pending controller design.
+The pilot wires CAP reports, the shared table, and dummy `CSPController` output; the policy itself is not yet specified.
 
 ## L4 Capacity Oracle
 

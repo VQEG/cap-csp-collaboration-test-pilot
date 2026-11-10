@@ -64,7 +64,8 @@ Owner: Werner
 - [ ] Add the `constant_rate` and `trace` backends ([Network Backend API](network-backend-api.md#backend-implementations)). `constant_rate` is needed to check B2 against the analytical results of Wehner et al. before using FikoRE.
 - [ ] Expand experiment grids (conditions × signaling levels × player behaviour × swipe profiles × seeds) into single runs, instead of one hand-written JSON file per run ([Experiments](experiments.md#experiment-grid)).
 - [ ] Generate swipe times from the swipe profile and seed.
-- [ ] Call `set_ue_control()` and the player's CAP reports from the runner, so that L1 to L3 can run ([Signaling](signaling.md)).
+- [x] Wire CAP reports, shared state table, collaboration snapshots, and dummy `CSPController` in the runner ([Collaboration](collaboration.md), [Signaling](signaling.md)).
+- [ ] Call effective `set_ue_control()` and feed CSP fields into SFV policies so that L1–L3 change player behaviour ([Signaling](signaling.md)).
 - [ ] Pass `NetworkTelemetryReceived` into the SFV engine for L2 policies. The runner logs telemetry, but the engine has no input for it yet.
 - [ ] Decide whether to unify the naming in `sessions/ue-<id>.json`: the SFV result object uses camelCase (`sessionRecord`, `terminationReason`), while the record inside it uses snake_case (`session_id`, `representation_intervals`).
 
@@ -72,9 +73,10 @@ Owner: Werner
 
 Owners: Pablo and Werner
 
+- [x] Harness tick: `CapReport` → shared table → `DummyCSPController` → `csp-control.jsonl` ([Collaboration](collaboration.md)).
 - [ ] Turn each `CapReport` into scheduler weights and `rmax_mbps` caps ([Signaling](signaling.md#l3-network-controller-interface)).
 - [ ] Choose how often the controller runs, how quickly it may change values, and how long changes remain active ([Signaling](signaling.md#l3-network-controller-interface)).
-- [ ] Connect the L3 policy in the common harness to the implemented `TransportBackend.set_ue_control()` hook ([Network Backend API](network-backend-api.md#interface-definition), [Message Reference](fikore-cosim-messages.md#set)). Priority and rate cap are already mapped to FikoRE; conditions must use proportional-fair scheduling or priority is ignored.
+- [ ] Enable effective `TransportBackend.set_ue_control()` from a real `CSPController` ([Network Backend API](network-backend-api.md#interface-definition), [Message Reference](fikore-cosim-messages.md#set)). Priority and rate cap are already mapped to FikoRE; conditions must use proportional-fair scheduling or priority is ignored.
 
 ## L4 Lookahead Capacity Oracle
 

@@ -1,0 +1,42 @@
+{
+  "run_id": "l3-dummy-mock",
+  "network_backend": "mock",
+  "network": {
+    "step_s": 0.01,
+    "cell_bytes_per_step": 80000,
+    "cancellation_tail_bytes": 512
+  },
+  "condition": "collaboration-example",
+  "signaling_level": "L3",
+  "csp_controller": "dummy",
+  "clock_mode": "simulation",
+  "duration_s": 0.2,
+  "timingDefaults": {
+    "playbackTiming": {
+      "mode": "causal-simple",
+      "slotPreparationS": 0.01,
+      "appendDurationS": 0.005,
+      "startupDelayS": 0.005,
+      "observationIntervalS": 0.05
+    }
+  },
+  "sessions": [
+    {
+      "ue_id": 0,
+      "player_behavior": "simple",
+      "config": {
+        "sessionId": "l3-ue0",
+        "seed": 17,
+        "scheduling": {
+          "maxConcurrentRequests": 2
+        },
+        "swipeTimesS": [
+          0.1
+        ]
+      },
+      "rule_config": {
+        "activeBufferTargetSegments": 2
+      }
+    }
+  ]
+}

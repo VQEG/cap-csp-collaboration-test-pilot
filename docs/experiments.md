@@ -154,14 +154,16 @@ session:
   max_duration_s: 300
 grid:
   network_condition: [C1, C2, C3, C4, C5]
-  signaling_level: [L0, L1, L2, L4]
+  signaling_level: [L0, L1, L2, L3, L4]
   player_behavior: [simple, preload]
   swipe_profile: [slow, medium, fast]
   seed: {from: 1, to: 30}
 content: content.yaml
 ```
 
-Signaling level L3 is excluded until the network controller algorithm is specified.
+At L3, set `csp_controller: "dummy"` to exercise the collaboration bus without changing FikoRE (the dummy controller logs proposals only). Example: `configs/experiments/collaboration/l3-dummy-mock.json`. See [Collaboration runtime](collaboration.md).
+
+Optional keys: `csp_baseline_control_by_ue`, `clock_mode` (`"simulation"` only), `plan_downlink_mbps_by_ue` (L1).
 
 >[!NOTE]
 > The runner does not expand grids yet. Each run is one JSON file (see `configs/experiments/`), and swipe times are given per session as `swipeTimesS` instead of being drawn from a swipe profile.
@@ -184,7 +186,7 @@ The runner validates configurations before spawning child processes:
 - UE IDs must be unique across the cell.
 - Every referenced video segment and quality level must exist in the content registry.
 - Selected conditions must supply all required fields for the active backend.
-- L3 configurations must specify a valid network controller.
+- At signaling L3+, `csp_controller` must be `"dummy"` (only supported value today) or omitted; other values are rejected.
 
 Validation errors output the offending YAML path and halt execution immediately.
 

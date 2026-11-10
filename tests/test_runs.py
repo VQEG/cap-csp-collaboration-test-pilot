@@ -88,9 +88,36 @@ def test_kpis_ignore_swipes_without_a_playback_measurement(
 def test_mock(tmp_path: Path) -> None:
     output = run(tmp_path, "b1-b2-two-ue-mock")
     check_sessions(output, "mock")
-    first, *_, last = (output / "network-steps.jsonl").read_text().splitlines()
+    lines = (output / "network-steps.jsonl").read_text().splitlines()
+    first, *_, last = lines
     assert json.loads(first)["network_step"]["time_s"] == 0.0
     assert json.loads(last)["network_step"]["is_final"]
+    step1 = json.loads(lines[1])["network_step"]
+    assert "collaboration" in step1
+    assert all(
+        e.get("event_type") != "NetworkTelemetryReceived" for e in step1.get("events", [])
+    )
+
+
+def test_l3_dummy_writes_csp_control(tmp_path: Path) -> None:
+    output = run(
+        tmp_path,
+        "b1-b2-two-ue-mock",
+        signaling_level="L3",
+        csp_controller="dummy",
+        duration_s=0.2,
+    )
+    manifest = json.loads((output / "run-manifest.json").read_text())
+    assert manifest["csp_control_log"] == "csp-control.jsonl"
+    assert (output / "csp-control.jsonl").is_file()
+
+
+def test_l0_determinism_hash_stable(tmp_path: Path) -> None:
+    """Session/KPI determinism for default L0 mock (hash file set excludes L3-only artifacts)."""
+    config = CONFIGS / "b1-b2-two-ue-mock.json"
+    first = _run_with_hash_seed(config, tmp_path / "a", "1")
+    second = _run_with_hash_seed(config, tmp_path / "b", "2")
+    assert first == second
 
 
 def test_run_writes_p1203_scores(tmp_path: Path) -> None:
@@ -100,6 +127,12 @@ def test_run_writes_p1203_scores(tmp_path: Path) -> None:
     record = json.loads((output / "sessions" / "ue-0.json").read_text())["sessionRecord"]
     assert any(video["p1204_1_segment_scores"] for video in record["videos"])
     manifest = json.loads((output / "run-manifest.json").read_text())
+    assert manifest["shared_state_log"] == "shared-state.jsonl"
+    assert (output / "shared-state.jsonl").is_file()
+    assert manifest.get("csp_control_log") is None
+    assert not (output / "csp-control.jsonl").exists()
+    assert manifest["clock_mode"] == "simulation"
+    assert manifest["cap_application"] == "sfv"
     assert manifest["scoring"]["settings"]["frame_rate_fps"] == 30.0
     write_report([output], output / "report.md")
     report = (output / "report.md").read_text()
@@ -133,7 +166,12 @@ def _run_with_hash_seed(config: Path, output: Path, hash_seed: str) -> dict[str,
         capture_output=True,
         env={**os.environ, "PYTHONHASHSEED": hash_seed},
     )
-    files = [output / "network-steps.jsonl", output / "telemetry.jsonl", *sorted((output / "sessions").glob("*.json"))]
+    files = [
+        output / "network-steps.jsonl",
+        output / "telemetry.jsonl",
+        output / "shared-state.jsonl",
+        *sorted((output / "sessions").glob("*.json")),
+    ]
     return {file.name: hashlib.sha256(file.read_bytes()).hexdigest() for file in files}
 
 

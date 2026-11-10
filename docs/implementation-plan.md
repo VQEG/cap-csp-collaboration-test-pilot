@@ -25,9 +25,10 @@ cap-csp-collaboration-test-pilot/
       trace.py
       transport_fikore.py       # * Backend `transport_fikore`: wiring to submodule TransportBackend
       http.py
+    shared_state/             # * VQEG shared state table
+    collaboration/              # * Step runtime, CSPController, adapters
     exchange/
-      shared_state.py
-      emulated_telemetry.py
+      emulated_telemetry.py     # (planned; telemetry ingest partly in collaboration/)
     origin/
       server.py
     scoring/
@@ -41,7 +42,7 @@ cap-csp-collaboration-test-pilot/
       kpis.py                   # * Per-UE KPI table
       report.py                 # * Markdown report over one or more runs
       grid.py
-      l3_controller.py
+      csp_controller.py         # in collaboration/csp_controller.py
   configs/
     content.yaml
     network_conditions.yaml
@@ -70,6 +71,15 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 6. Real HTTP origin server and live traffic path through FikoRE in emulated mode.
 7. L3 controller design and network-side adaptation hooks.
 8. Real-HTTP runs with the multi-video dash.js player (with Michi) and offline-versus-real validation runs.
+
+### Progress (pilot harness)
+
+| Step | Status | Notes |
+|------|--------|--------|
+| 1–2, 4–5 | **Done** | `mock` and `transport_fikore`, scoring, examples C1–C8b (see paragraph below). |
+| 3 (partial) | **Done: bus and gating** | `capcsp/shared_state`, signaling read filters, `plan_downlink_mbps_by_ue`. **Open:** `constant_rate` / `trace` backends; **open:** SFV policies that consume CSP fields (L1, L2, L4). See [Collaboration runtime](collaboration.md). |
+| 6–8 | Planned | Real HTTP path and validation matrix. |
+| 7 (partial) | **Done: wiring** | `capcsp/collaboration`, CAP/CSP paths, `DummyCSPController`, `FikoreControlAdapter` / `NoOpControlAdapter`, `csp-control.jsonl`. **Open:** real control algorithm and effective `set_ue_control`. |
 
 Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records with P.1203 scores, a KPI table and a report. The provisional FikoRE condition pack C1–C8b runs end to end with the B1/B2 fixture. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
 

@@ -7,9 +7,11 @@ Each run produces one structured session record per video UE. Scoring is compute
 `capcsp run` writes these files to the output directory, which git ignores. Real runs are available in [`examples/vqeg-c1-b1-b2-run/`](examples/vqeg-c1-b1-b2-run/README.md) and, with stalls, in [`examples/stall-example-b1-b2-run/`](examples/stall-example-b1-b2-run/README.md).
 
 - `sessions/ue-<id>.json`: full player result per UE: `events`, `requests`, `ruleState`, `cache` and `sessionRecord`
-- `run-manifest.json`: configuration, source revisions, timing, byte accounting and quality model versions in `scoring`
-- `network-steps.jsonl`: every network step with the player's response
-- `telemetry.jsonl`: network telemetry samples per UE
+- `run-manifest.json`: configuration, source revisions, timing, byte accounting, quality model versions in `scoring`, and collaboration metadata (`shared_state_log`, `csp_control_log` or null, `clock_mode`, `cap_application`)
+- `network-steps.jsonl`: every network step with the player's response (download events only, plus `collaboration`); raw `NetworkTelemetryReceived` samples are not duplicated here—see `telemetry.jsonl`
+- `telemetry.jsonl`: network telemetry samples per UE (backend flat log and KPI input)
+- `shared-state.jsonl`: append-only audit of shared table writes (CSP and CAP fields per UE)
+- `csp-control.jsonl`: present when `signaling_level` is L3+ and `csp_controller` is `"dummy"`; control proposals from `CSPController`
 - `kpis.csv` and `report.md`: KPIs per UE, including the combined P.1203 scores; the report also lists scores per video and the model versions
 - `player.log`: error output of the player process
 - `fikore-effective.ini` and `fikore.log`: scenario and log of the FikoRE backend
@@ -237,6 +239,5 @@ Reports must state model versions. Short-Video Streaming Challenge metrics may b
 Each experiment run writes these diagnostic logs:
 
 - **Network request log**: per-request state transitions and terminal events in `requests` and `events` of the session file, and cumulative delivery steps in `network-steps.jsonl`.
-- **Telemetry log**: network samples per UE in `telemetry.jsonl`.
-
-A CAP–CSP exchange log, with all signaling fields, state changes and feedback reports, is planned.
+- **Telemetry log**: network samples per UE in `telemetry.jsonl` (flat backend samples for KPI means; not the CAP–CSP collaboration bus).
+- **Collaboration audit**: `shared-state.jsonl` records every shared table write (CSP and CAP directions). At L3+ with `csp_controller: "dummy"`, `csp-control.jsonl` records control proposals. See [Collaboration runtime](collaboration.md).
