@@ -89,7 +89,7 @@ sequenceDiagram
 
 ### One Step
 
-Each tick has two parallel concerns. The **byte path** is unchanged: the player receives download events only (no raw `NetworkTelemetryReceived` on IPC) and returns opaque submit/cancel actions. The **collaboration path** updates the shared state table, sends a filtered CSP snapshot on the same IPC message, collects CAP reports, and may run a `CSPController` at L3+. B1/B2 rules do not read `collaboration` yet. The transcript `network-steps.jsonl` matches the IPC shape; backend telemetry stays in `telemetry.jsonl` and table writes in `shared-state.jsonl`. Signaling filters, artifacts, and component names are in [Collaboration runtime](collaboration.md).
+Each tick has two parallel concerns. The **byte path** is unchanged: the player receives download events only (`NetworkStep` carries no telemetry) and returns opaque submit/cancel actions. The **collaboration path** updates the shared state table, sends a filtered CSP snapshot on the same IPC message, collects CAP reports, and may run a `CSPController` at L3+. B1/B2 rules do not read `collaboration` yet. The transcript `network-steps.jsonl` matches the IPC shape; backend telemetry stays in `telemetry.jsonl` and table writes in `shared-state.jsonl`. Signaling filters, artifacts, and component names are in [Collaboration runtime](collaboration.md).
 
 For `transport_fikore`, `advance()` runs modelled TCP and FikoRE TTIs internally ([co-simulation](fikore-cosim.md)). For `mock`, `advance()` returns the next step directly.
 
@@ -101,8 +101,9 @@ sequenceDiagram
     participant P as Player (Node.js SFV)
     R->>B: advance()
     B-->>R: NetworkStep(time_s, events, is_final)
-    R->>R: validate download events, append telemetry.jsonl
-    R->>T: write_csp_fields from NetworkTelemetryReceived
+    R->>R: validate download events
+    R->>B: csp_telemetry.poll() (due every csp_telemetry_interval_s)
+    R->>T: write_csp_fields from the samples, append telemetry.jsonl
     R->>T: read_csp_fields (signaling filter)
     R->>P: network_step (step plus collaboration)
     P->>P: advance all UEs, apply downloads, swipes, B1/B2

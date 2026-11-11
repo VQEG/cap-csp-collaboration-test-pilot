@@ -169,6 +169,55 @@ def test_transport_over_loopback(tmp_path: Path, tcp_connection_mode: str) -> No
     assert (output / "telemetry.jsonl").read_text()
 
 
+def test_loopback_csp_telemetry_reaches_the_player_at_l2(tmp_path: Path) -> None:
+    output = run(
+        tmp_path,
+        "b1-b2-two-ue-fikore",
+        network={"link": "loopback"},
+        duration_s=2.5,
+        signaling_level="L2",
+    )
+    rows = [json.loads(line) for line in (output / "telemetry.jsonl").read_text().splitlines()]
+    # One sample per UE and second, and a forced sample closing the last half second
+    assert [(row["time_s"], row["ue_id"]) for row in rows] == [
+        (1.0, 0), (1.0, 1), (2.0, 0), (2.0, 1), (2.5, 0), (2.5, 1)
+    ]
+    assert any(row["throughput_mbps"] > 0 and row["rtt_ms"] for row in rows)
+
+    audit = [json.loads(line) for line in (output / "shared-state.jsonl").read_text().splitlines()]
+    assert {row["ue_id"] for row in audit if row["direction"] == "csp_to_cap"} == {0, 1}
+
+    steps = [json.loads(line)["network_step"] for line in (output / "network-steps.jsonl").read_text().splitlines()]
+    assert all(
+        event["event_type"] != "NetworkTelemetryReceived" for step in steps for event in step["events"]
+    )
+    before = [step for step in steps if step["time_s"] < 1.0]
+    after = [step for step in steps if step["time_s"] >= 1.0]
+    assert all(not step["collaboration"]["csp_by_ue"] for step in before)
+    assert all(
+        step["collaboration"]["csp_by_ue"]["0"]["achieved_throughput_mbps"] is not None for step in after
+    )
+
+
+def test_csp_telemetry_interval_is_configurable(tmp_path: Path) -> None:
+    output = run(
+        tmp_path,
+        "b1-b2-two-ue-fikore",
+        network={"link": "loopback", "csp_telemetry_interval_s": 0.5},
+        duration_s=1.0,
+    )
+    rows = [json.loads(line) for line in (output / "telemetry.jsonl").read_text().splitlines()]
+    assert sorted({row["time_s"] for row in rows}) == [0.5, 1.0]
+
+
+def test_telemetry_interval_ms_is_a_deprecated_alias() -> None:
+    with pytest.warns(DeprecationWarning, match="csp_telemetry_interval_s"):
+        config = TransportFikoreConfig.from_dict({"telemetry_interval_ms": 250})
+    assert config.csp_telemetry_interval_s == 0.25
+    with pytest.raises(ValueError, match="not both"):
+        TransportFikoreConfig.from_dict({"telemetry_interval_ms": 250, "csp_telemetry_interval_s": 1.0})
+
+
 @pytest.mark.skipif(
     not Path(TransportFikoreConfig().fikore_binary).exists(), reason="FikoRE binary is not built (Linux only)"
 )

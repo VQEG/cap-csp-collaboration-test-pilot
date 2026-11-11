@@ -9,20 +9,37 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
+
 from capcsp.collaboration.adapters.noop_control import NoOpControlAdapter
 from capcsp.collaboration.cap_reporter import SfVCapReporter
 from capcsp.collaboration.csp_controller import DummyCSPController
-from capcsp.collaboration.runtime import player_facing_network_step
+from capcsp.collaboration.runtime import apply_player_network_events, player_facing_network_step
 from capcsp.collaboration.snapshot import build_collaboration_payload
-from capcsp.collaboration.telemetry import StepEventCspTelemetrySource
+from capcsp.collaboration.telemetry import CspTelemetryWriter, NoCspTelemetry
+from capcsp.network.api import NetworkTelemetry, NetworkTelemetryReceived
 from capcsp.collaboration.adapters.fikore_control import FikoreControlAdapter
 from capcsp.shared_state.table import InMemorySharedStateTable
 from capcsp.collaboration.types import CspControlIntent
 from capcsp.shared_state.types import CapReport, CspFields
 
 
-def test_player_facing_network_step_strips_telemetry() -> None:
+def test_player_facing_network_step_attaches_collaboration() -> None:
     collab = {"signaling_level": "L0", "csp_by_ue": {}}
+    progress = {
+        "event_type": "DownloadProgress",
+        "ue_id": 0,
+        "time_s": 0.01,
+        "request_id": "r1",
+        "bytes_delivered": 1,
+    }
+    step = {"time_s": 0.01, "is_final": False, "events": [progress]}
+    out = player_facing_network_step(step, collaboration=collab)
+    assert out["events"] == [progress]
+    assert out["collaboration"] is collab
+
+
+def test_in_step_telemetry_is_rejected() -> None:
     step = {
         "time_s": 0.01,
         "is_final": False,
@@ -32,20 +49,11 @@ def test_player_facing_network_step_strips_telemetry() -> None:
                 "ue_id": 0,
                 "time_s": 0.01,
                 "fields": {"throughput_mbps": 1.0},
-            },
-            {
-                "event_type": "DownloadProgress",
-                "ue_id": 0,
-                "time_s": 0.01,
-                "request_id": "r1",
-                "bytes_delivered": 1,
-            },
+            }
         ],
     }
-    out = player_facing_network_step(step, collaboration=collab)
-    assert len(out["events"]) == 1
-    assert out["events"][0]["event_type"] == "DownloadProgress"
-    assert out["collaboration"] is collab
+    with pytest.raises(ValueError, match="csp_telemetry"):
+        apply_player_network_events(step, ue_ids={0}, sizes={}, delivered={}, terminal=set())
 
 
 def test_build_collaboration_payload_l0_empty(tmp_path: Path) -> None:
@@ -67,22 +75,59 @@ def test_build_collaboration_payload_l2_exposes_fields(tmp_path: Path) -> None:
     assert payload["csp_by_ue"]["0"]["achieved_throughput_mbps"] == 3.0
 
 
-def test_step_event_csp_telemetry_source_writes_table(tmp_path: Path) -> None:
+class _FixedSource:
+    def __init__(self, samples: list[NetworkTelemetryReceived]) -> None:
+        self.samples = samples
+        self.forced: list[bool] = []
+
+    def poll(self, *, force: bool = False) -> list[NetworkTelemetryReceived]:
+        self.forced.append(force)
+        samples, self.samples = self.samples, []
+        return samples
+
+
+def test_csp_telemetry_writer_writes_table_and_rows(tmp_path: Path) -> None:
     table = InMemorySharedStateTable(signaling_level="L2", log_path=tmp_path / "s.jsonl")
-    source = StepEventCspTelemetrySource(table, plan_downlink_mbps_by_ue={0: 100.0})
-    source.ingest_step_events(
+    source = _FixedSource(
         [
-            {
-                "event_type": "NetworkTelemetryReceived",
-                "ue_id": 0,
-                "time_s": 0.05,
-                "fields": {"throughput_mbps": 1.5, "rtt_ms": 40.0, "drop_rate": 0.0, "ce_rate": 0.0},
-            }
+            NetworkTelemetryReceived(
+                0,
+                1.0,
+                NetworkTelemetry(throughput_mbps=1.5, rtt_ms=40.0, drop_rate=0.0, ce_rate=0.0, queue_bytes=3000),
+            )
         ]
     )
+    writer = CspTelemetryWriter(table, source, plan_downlink_mbps_by_ue={0: 100.0})
+    rows = writer.poll_and_write(force=True)
+    assert source.forced == [True]
+    assert rows == [
+        {
+            "ue_id": 0,
+            "time_s": 1.0,
+            "throughput_mbps": 1.5,
+            "rtt_ms": 40.0,
+            "ip_latency_ms": None,
+            "pdcp_latency_ms": None,
+            "ce_rate": 0.0,
+            "drop_rate": 0.0,
+            "retransmitted_bytes": None,
+            "sinr_db": None,
+            "queue_bytes": 3000,
+        }
+    ]
     read = table.read_csp_fields(0)
     assert read is not None
+    assert read.updated_at_s == 1.0
     assert read.plan_downlink_mbps == 100.0
+    assert read.achieved_throughput_mbps == 1.5
+    assert read.rtt_ms == 40.0
+    assert writer.poll_and_write() == []
+
+
+def test_no_csp_telemetry_writes_nothing(tmp_path: Path) -> None:
+    table = InMemorySharedStateTable(signaling_level="L2", log_path=tmp_path / "s.jsonl")
+    assert CspTelemetryWriter(table, NoCspTelemetry()).poll_and_write(force=True) == []
+    assert table.read_csp_fields(0) is None
 
 
 def test_dummy_csp_controller_logs_proposal(tmp_path: Path) -> None:

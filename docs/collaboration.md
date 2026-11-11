@@ -1,6 +1,6 @@
 # Collaboration runtime (L0–L3 wiring)
 
-The pilot separates **byte delivery** (opaque `NetworkStep` events) from **collaboration state** (what the CAP and the CSP may exchange under VQEG signaling). **All CAP–CSP collaboration in both directions goes through the shared table**: CSP telemetry is written from backend events, read back for the CAP IPC snapshot; CAP reports are written after `cap_reports` IPC; a `CSPController` reads CAP state from the table at L3+. There is no parallel CAP–CSP path in the Node harness except consuming `step.collaboration` and emitting `cap_reports`.
+The pilot separates **byte delivery** (opaque `NetworkStep` events) from **collaboration state** (what the CAP and the CSP may exchange under VQEG signaling). **All CAP–CSP collaboration in both directions goes through the shared table**: CSP telemetry is sampled from the backend beside the byte path and written to the table, read back for the CAP IPC snapshot; CAP reports are written after `cap_reports` IPC; a `CSPController` reads CAP state from the table at L3+. There is no parallel CAP–CSP path in the Node harness except consuming `step.collaboration` and emitting `cap_reports`.
 
 Collaboration runs in the **Python harness** on the simulation clock. **`telemetry.jsonl`** is a separate flat diagnostic log for network KPIs; it does not replace the shared table.
 
@@ -12,7 +12,7 @@ B1/B2 rules do not yet consume `collaboration`; effective scheduler control uses
 
 | Direction | Mechanism | Consumed by policy today? |
 |-----------|-----------|---------------------------|
-| CSP → shared bus | `NetworkTelemetryReceived` → `write_csp_fields` | No (audited + optional filtered view to CAP) |
+| CSP → shared bus | `backend.csp_telemetry.poll()` (1 s by default) → `write_csp_fields` | No (audited + optional filtered view to CAP) |
 | Bus → CAP | `step.collaboration` on `network_step` IPC | Stored via `applyCspUpdate`; B1/B2 decisions unchanged (`triggerDecision: false`) |
 | CAP → shared bus | `cap_reports` IPC (pending reports only) → `write_cap_report` | No (audited; readable at L3+ by controller) |
 | Bus → CSP control | `CSPController` → `BackendControlAdapter` | Only with a non-dummy controller that calls `apply` |
@@ -38,7 +38,7 @@ Read filtering is implemented in `InMemorySharedStateTable.read_*` ([`capcsp/sha
 |-----------|---------|------|
 | `SharedStateTable` | `capcsp/shared_state` | Per-UE `CspFields` and `CapReport`; JSONL audit |
 | `run_collaboration_tick` (+ `bridge.run_sessions`) | `capcsp/collaboration/runtime.py`, `capcsp/player/bridge.py` | One collaboration tick per `NetworkBackend.advance()` |
-| `CspTelemetrySource` | `capcsp/collaboration/telemetry.py` | Ingest telemetry events into the table |
+| `CspTelemetrySource`, `CspTelemetryWriter` | `capcsp/collaboration/telemetry.py` | Backend-side sampler (`poll()`); the writer maps its samples into the table and `telemetry.jsonl`. `NoCspTelemetry` for backends without one (mock) |
 | `build_collaboration_payload` | `capcsp/collaboration/snapshot.py` | Filtered CSP view for the CAP |
 | `SfVCapReporter` | `capcsp/collaboration/cap_reporter.py` | Node `cap_reports` → table |
 | `CSPController` | `capcsp/collaboration/csp_controller.py` | At L3+: read CAP from table, log control proposals |
@@ -46,7 +46,7 @@ Read filtering is implemented in `InMemorySharedStateTable.read_*` ([`capcsp/sha
 | `FikoreControlAdapter` | `capcsp/collaboration/adapters/fikore_control.py` | Maps `CspControlIntent` → `set_ue_control` (for future real controllers) |
 | `NoOpControlAdapter` | `capcsp/collaboration/adapters/noop_control.py` | Baseline only on `mock` |
 
-FikoRE-specific telemetry mapping: `capcsp/collaboration/adapters/fikore_mapper.py` (wraps `capcsp.shared_state.mapping`). The `sfv-reference-implementation` submodule exposes collaboration IPC hooks (`applyCspUpdate`, `drainCapReports`); B1/B2 policy use is still future work. No changes inside `5g-network-emulator` for this wiring.
+FikoRE-specific telemetry mapping: `capcsp/collaboration/adapters/fikore_mapper.py` (wraps `capcsp.shared_state.mapping`). The `sfv-reference-implementation` submodule exposes collaboration IPC hooks (`applyCspUpdate`, `drainCapReports`); B1/B2 policy use is still future work. The sampler itself is `fikore_transport.telemetry.NetworkTelemetrySampler` in `5g-network-emulator`; `TransportFikoreBackend` exposes it as `csp_telemetry`.
 
 ## Components (CAP / Node.js)
 
@@ -57,7 +57,7 @@ FikoRE-specific telemetry mapping: `capcsp/collaboration/adapters/fikore_mapper.
 
 The Node process does **not** read or write the shared table. It only consumes `step.collaboration` and returns `cap_reports`; Python owns the table.
 
-The Node harness does **not** apply `NetworkTelemetryReceived` to the SFV engine. CAP-facing CSP data must come from `step.collaboration` only.
+`NetworkStep` carries no telemetry; a backend that puts `NetworkTelemetryReceived` in a step is rejected. CAP-facing CSP data comes from `step.collaboration` only.
 
 ## Architecture (one simulation step)
 
@@ -78,9 +78,11 @@ flowchart TB
   end
   subgraph csp [CSP NetworkBackend]
     NB[NetworkBackend]
+    Sampler[csp_telemetry sampler]
   end
-  NB -->|NetworkStep events| Runtime
+  NB -->|NetworkStep download events| Runtime
   Runtime --> Tel
+  Tel -->|poll| Sampler
   Tel -->|write_csp_fields| Table
   Runtime --> Snap
   Snap -->|read_csp_fields| Table
@@ -101,7 +103,7 @@ Solid arrows are what runs on every configured run. The dashed arrow is the **in
 One tick per `backend.advance()` ([`capcsp/collaboration/runtime.py`](../capcsp/collaboration/runtime.py)):
 
 1. Serialize the step (`step_dict`) and validate download events.
-2. For each `NetworkTelemetryReceived`: append **`telemetry.jsonl`**; `CspTelemetrySource.ingest_step_events` → **`shared-state.jsonl`** (CSP→CAP writes).
+2. `CspTelemetryWriter.poll_and_write` polls the backend's CSP telemetry source. When a sample is due (every `csp_telemetry_interval_s`, 1 s by default, and once more on the final step), it is mapped to `CspFields` and written to the table (**`shared-state.jsonl`**), and appended to **`telemetry.jsonl`**. The CAP therefore sees the sample in the same step.
 3. Build `collaboration` from `read_csp_fields` per UE (signaling filter).
 4. Send `network_step` to Node including `collaboration` (also logged in **`network-steps.jsonl`**). The harness calls `SFVSimulationController.applyCspUpdate` for each UE whose CSP snapshot changed; B1/B2 policy consumption is future work.
 5. `SfVCapReporter.fetch_and_write` (separate `cap_reports` IPC) writes CAP→CSP rows **only for pending reports** drained from SFV (stall edges, video switches, buffer changes of 1.0 s or more, at most one per second per UE). The reply is often empty; after the final step the drain ignores the rate limit so terminal state is recorded.
@@ -143,8 +145,8 @@ At L0, `csp_by_ue` is `{}`. Python is the only place that applies signaling filt
 |------|------|
 | `shared-state.jsonl` | Every run (all signaling levels) |
 | `csp-control.jsonl` | L3+ and `csp_controller: "dummy"` |
-| `network-steps.jsonl` | Player-facing steps: download events + `collaboration` (no `NetworkTelemetryReceived`; see `telemetry.jsonl`) |
-| `telemetry.jsonl` | Unchanged flat telemetry log |
+| `network-steps.jsonl` | Player-facing steps: download events + `collaboration` |
+| `telemetry.jsonl` | Flat CSP telemetry samples, one row per UE every `csp_telemetry_interval_s` (empty on `mock`) |
 
 ### `csp-control.jsonl` row shape
 
@@ -175,7 +177,7 @@ Example L3 wiring test: [`configs/experiments/collaboration/l3-dummy-mock.json`]
 
 | Goal | Approach |
 |------|----------|
-| Another CSP (e.g. netem) | New `NetworkBackend` + telemetry mapper + `BackendControlAdapter`; same table API |
+| Another CSP (e.g. netem) | New `NetworkBackend` (or a `Link` with `network_counters()` under `TransportBackend`) + `csp_telemetry` source + `BackendControlAdapter`; same table API |
 | Another CAP (e.g. WebRTC) | New `CapReporter`; same `SharedStateTable` and JSONL grammar |
 | SFV uses CSP hints | Submodule: `applyCspUpdate` from `step.collaboration`; harness calls engine only (no table in Node) |
 | Effective FikoRE control | New `CSPController` implementation that calls `FikoreControlAdapter.apply` |

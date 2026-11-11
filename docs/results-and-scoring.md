@@ -8,8 +8,8 @@ Each run produces one structured session record per video UE. Scoring is compute
 
 - `sessions/ue-<id>.json`: full player result per UE: `events`, `requests`, `ruleState`, `cache` and `sessionRecord`
 - `run-manifest.json`: configuration, source revisions, timing, byte accounting, quality model versions in `scoring`, and collaboration metadata (`shared_state_log`, `csp_control_log` or null, `clock_mode`, `cap_application`)
-- `network-steps.jsonl`: every network step with the player's response (download events only, plus `collaboration`); raw `NetworkTelemetryReceived` samples are not duplicated here—see `telemetry.jsonl`
-- `telemetry.jsonl`: network telemetry samples per UE (backend flat log and KPI input)
+- `network-steps.jsonl`: every network step with the player's response (download events only, plus `collaboration`)
+- `telemetry.jsonl`: CSP telemetry samples per UE, one every `csp_telemetry_interval_s` (1 s by default) plus a final partial one; the same samples are written to the shared table, and they are the KPI input
 - `shared-state.jsonl`: append-only audit of shared table writes (CSP and CAP fields per UE)
 - `csp-control.jsonl`: present when `signaling_level` is L3+ and `csp_controller` is `"dummy"`; control proposals from `CSPController`
 - `kpis.csv` and `report.md`: KPIs per UE, including the combined P.1203 scores; the report also lists scores per video and the model versions
@@ -144,7 +144,7 @@ Network:
 
 - `active_download_time_s`: time with at least one request open
 - `goodput_mbps`: bytes delivered to the player, divided by `active_download_time_s`
-- `throughput_mbps`: mean of the telemetry samples taken while a request was open
+- `throughput_mbps`: mean of the telemetry samples whose interval overlaps a time with a request open. At the 1 s default interval a sample may include idle time, so this is lower than `goodput_mbps` for bursty sessions; set `csp_telemetry_interval_s` lower (e.g. `0.01`) for the earlier per-step resolution
 - `rtt_mean_ms`: mean round-trip time of the same samples
 
 ## Byte Attribution and Waste Classification

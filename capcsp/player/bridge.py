@@ -5,10 +5,11 @@ v0.7.2 by Michael Seufert:
 https://github.com/micseu/SFV-VQEG-CAP-CSP-Collaboration-Experiments/blob/9d7d6f9/scripts/generic_player_bridge.py
 
 One Node.js process runs the sessions of all UEs. For each backend step, Python
-filters raw telemetry out of the player-facing step, attaches ``collaboration``,
-then sends that step over IPC; after CAP reports (and optional CSPController)
-it applies returned submissions and cancellations to the backend. The player
-never sees backend-specific messages such as ``NetworkTelemetryReceived``.
+validates the byte events, polls the backend's CSP telemetry into the shared
+state table, attaches the filtered ``collaboration`` snapshot and sends the step
+over IPC; after CAP reports (and optional CSPController) it applies returned
+submissions and cancellations to the backend. Network telemetry never reaches
+the player except through that snapshot.
 """
 
 from __future__ import annotations
@@ -115,9 +116,8 @@ def run_sessions(
             sizes=sizes,
             delivered=delivered,
             terminal=terminal,
-            telemetry=telemetry,
-            collaboration=collaboration,
         )
+        telemetry.extend(collaboration.telemetry.poll_and_write(force=step.is_final))
         response, logged_step = run_collaboration_tick(
             step_dict,
             bridge=bridge,

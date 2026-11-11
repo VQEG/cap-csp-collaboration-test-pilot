@@ -12,6 +12,7 @@ import json
 import math
 import shutil
 import tempfile
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -207,8 +208,10 @@ class TransportFikoreConfig:
     """Maximum number of idle connections kept in the pool of each UE"""
     step_ms: int = 10
     """Duration of one NetworkStep towards the player in milliseconds"""
-    telemetry_interval_ms: int = 10
-    """Interval of NetworkTelemetryReceived events; a multiple of step_ms"""
+    csp_telemetry_interval_s: float = 1.0
+    """Interval of CSP telemetry samples written to the shared state table and telemetry.jsonl"""
+    telemetry_interval_ms: int | None = None
+    """Deprecated alias of csp_telemetry_interval_s, in milliseconds"""
     fikore_binary: str = str(FIKORE_ROOT / "bin" / "fikore")
     fikore_base_ini: str = str(FIKORE_ROOT / "config" / "control_demo.ini")
     study_ues: list[str] | None = None
@@ -236,6 +239,24 @@ class TransportFikoreConfig:
             values["fikore_base_ini"] = _resolve_repo_path(
                 values["fikore_base_ini"]
             )
+        legacy_interval = values.pop("telemetry_interval_ms", None)
+        if legacy_interval is not None:
+            if "csp_telemetry_interval_s" in values:
+                raise ValueError(
+                    "set csp_telemetry_interval_s or telemetry_interval_ms, not both"
+                )
+            warnings.warn(
+                "telemetry_interval_ms is deprecated; use csp_telemetry_interval_s",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if (
+                isinstance(legacy_interval, bool)
+                or not isinstance(legacy_interval, int)
+                or legacy_interval <= 0
+            ):
+                raise ValueError("telemetry_interval_ms must be a positive integer")
+            values["csp_telemetry_interval_s"] = legacy_interval / 1000.0
         config = cls(**values)
         if config.link not in ("fikore", "loopback"):
             raise ValueError(f"Unknown link {config.link!r}")
@@ -247,8 +268,14 @@ class TransportFikoreConfig:
             raise ValueError("max_idle_tcp_connections_per_ue must not be negative")
         if config.step_ms <= 0 or config.receive_window_bytes <= 0:
             raise ValueError("step_ms and receive_window_bytes must be positive")
-        if config.telemetry_interval_ms <= 0 or config.telemetry_interval_ms % config.step_ms:
-            raise ValueError("telemetry_interval_ms must be a positive multiple of step_ms")
+        interval = config.csp_telemetry_interval_s
+        if (
+            isinstance(interval, bool)
+            or not isinstance(interval, (int, float))
+            or not math.isfinite(interval)
+            or interval < 0.001
+        ):
+            raise ValueError("csp_telemetry_interval_s must be at least 0.001")
         if config.study_ues is not None:
             if (
                 not isinstance(config.study_ues, list)
@@ -405,10 +432,16 @@ class TransportFikoreBackend(TransportBackend):
                 transport=config.transport,
                 tcp_connection_mode=config.tcp_connection_mode,
                 max_idle_tcp_connections_per_ue=config.max_idle_tcp_connections_per_ue,
-                telemetry_every_windows=config.telemetry_interval_ms // config.step_ms,
+                telemetry_every_windows=None,
                 ack_over_link=config.ack_over_link,
             ),
         )
+        interval_s = (
+            config.telemetry_interval_ms / 1000.0
+            if config.telemetry_interval_ms is not None
+            else config.csp_telemetry_interval_s
+        )
+        self.csp_telemetry = self.telemetry_sampler(ue_ids, interval_s=interval_s)
 
     def accounting(self) -> dict[str, Any] | None:
         """Byte conservation counters of the link, or None for the loopback link."""

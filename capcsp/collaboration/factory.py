@@ -12,7 +12,7 @@ from capcsp.collaboration.adapters.fikore_control import FikoreControlAdapter, b
 from capcsp.collaboration.adapters.noop_control import NoOpControlAdapter
 from capcsp.collaboration.cap_reporter import SfVCapReporter
 from capcsp.collaboration.csp_controller import CSPController, DummyCSPController
-from capcsp.collaboration.telemetry import StepEventCspTelemetrySource
+from capcsp.collaboration.telemetry import CspTelemetryWriter, NoCspTelemetry
 from capcsp.network.api import NetworkBackend
 from capcsp.shared_state.signaling import parse_signaling_level
 from capcsp.shared_state.table import SharedStateTable
@@ -24,7 +24,7 @@ class CollaborationContext:
     and :func:`capcsp.collaboration.runtime.run_collaboration_tick`."""
 
     table: SharedStateTable
-    telemetry: StepEventCspTelemetrySource
+    telemetry: CspTelemetryWriter
     signaling_level: str
     cap_reporter: SfVCapReporter
     control: FikoreControlAdapter | NoOpControlAdapter
@@ -60,7 +60,11 @@ def build_collaboration_stack(
     elif controller_name not in (None, "dummy"):
         raise ValueError(f"Unsupported csp_controller {controller_name!r}")
 
-    telemetry = StepEventCspTelemetrySource(table, plan_downlink_mbps_by_ue=plan_downlink_mbps_by_ue)
+    telemetry = CspTelemetryWriter(
+        table,
+        getattr(backend, "csp_telemetry", None) or NoCspTelemetry(),
+        plan_downlink_mbps_by_ue=plan_downlink_mbps_by_ue,
+    )
     return CollaborationContext(
         table=table,
         telemetry=telemetry,

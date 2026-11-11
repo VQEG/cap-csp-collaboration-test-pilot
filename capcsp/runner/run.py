@@ -5,7 +5,7 @@ Output directory layout:
 - run-manifest.json: configuration, revisions, timing and byte accounting
 - sessions/ue-<id>.json: full player result per UE, including the scored session record
 - network-steps.jsonl: every NetworkStep with the player's response
-- telemetry.jsonl: NetworkTelemetryReceived events
+- telemetry.jsonl: CSP telemetry samples, every csp_telemetry_interval_s (1 s by default)
 - shared-state.jsonl: append-only audit log for the VQEG shared state table
 - csp-control.jsonl: CSPController proposals at signaling L3+ (when configured)
 - player.log: stderr of the player process

@@ -35,11 +35,15 @@ class CspFields:
 ```
 
 - `plan_downlink_mbps`: provisioned tariff rate from experiment configuration.
-- `achieved_throughput_mbps`: delivered downlink throughput over the preceding telemetry window. It represents measured delivery, not estimated spare capacity or maximum channel rate.
+- `achieved_throughput_mbps`: delivered downlink throughput over the preceding telemetry interval. It represents measured delivery, not estimated spare capacity or maximum channel rate.
 
 Field mappings from backend telemetry to `CspFields` are logged explicitly. For example, radio packet drop rate maps to `loss_rate` only when configured for that experiment.
 
 Under FikoRE co-simulation, `rtt_ms` comes from the modelled transport's acknowledgement path. FikoRE's one-way PDCP latency remains a separate backend measurement and is not doubled to manufacture RTT.
+
+`rtt_ms` is, strictly, not a CSP measurement: a network operator does not see the end-to-end TCP round trip, the application's transport does. The pilot keeps it in `CspFields` for now because the existing consumers read it there. If it moves, it would become a CAP-side field (reported with `CapReport`, or measured by the player from its own requests) and `CspFields.rtt_ms` would be removed or restricted to a network-measured quantity such as RAN or core delay.
+
+CSP telemetry is sampled once per `csp_telemetry_interval_s` of simulation time (1 s by default, the same cadence as the CAP report rate limit), not once per `NetworkStep`. Each sample covers the interval since the previous one; the last sample of a run covers the remainder.
 
 FikoRE additionally knows each UE's CQI, MCS, spectral efficiency and rank, which yield an achievable rate for that UE's current channel. That is neither measured throughput nor an oracle, and it is closer to what a real CSP could publish than either. It is a candidate additional L2 field, kept out of `CspFields` until an experiment needs it.
 
@@ -94,7 +98,7 @@ The pilot implements this interface in `capcsp/shared_state/`. `InMemorySharedSt
 - `ue_id`, `time_s`, `signaling_level`
 - `payload`: `csp_fields` with optional `extensions` (extra telemetry keys for audit), or `cap_report` for CAP→CSP rows
 
-The harness feeds the table from `NetworkTelemetryReceived` events (mapped to `CspFields`) and from the CAP reports returned by the **`cap_reports`** IPC message after each `NetworkStep` (an empty map when no report is due). The step-synchronized collaboration runtime lives in `capcsp/collaboration/`; see **[Collaboration runtime](collaboration.md)** for the full tick order, IPC `collaboration` field, and artifacts. Optional experiment key **`plan_downlink_mbps_by_ue`** (`dict`, UE id → Mbps) sets `plan_downlink_mbps` on `CspFields` for L1 experiments.
+The harness feeds the table from the backend's CSP telemetry samples (`NetworkTelemetryReceived`, mapped to `CspFields`) and from the CAP reports returned by the **`cap_reports`** IPC message after each `NetworkStep` (an empty map when no report is due). The step-synchronized collaboration runtime lives in `capcsp/collaboration/`; see **[Collaboration runtime](collaboration.md)** for the full tick order, IPC `collaboration` field, and artifacts. Optional experiment key **`plan_downlink_mbps_by_ue`** (`dict`, UE id → Mbps) sets `plan_downlink_mbps` on `CspFields` for L1 experiments.
 
 ## CSPController (harness)
 
@@ -102,7 +106,7 @@ At signaling L3+, the harness may run a **`CSPController`** (experiment level L3
 
 ## Data Sources Across Modes
 
-- **Offline co-simulation**: `TransportBackend` emits `NetworkTelemetryReceived` from transport measurements and FikoreLink's compact `events` state; the common harness maps those fields into `CspFields`.
+- **Offline co-simulation**: the backend's `csp_telemetry` source (FikoRE's `NetworkTelemetrySampler`) samples the link's cumulative per-UE counters (FikoreLink's compact `events` state, or the loopback queue) beside the byte path, adds RTT and retransmissions from the transport, and the common harness maps those fields into `CspFields`. `NetworkStep` carries download events only.
 - **Emulated live mode**: a telemetry collector translates live FikoRE metrics into `CspFields`. The HTTP client supplies application-layer observations (e.g., request latency and application throughput).
 
 All telemetry records use backend simulation or elapsed run time.

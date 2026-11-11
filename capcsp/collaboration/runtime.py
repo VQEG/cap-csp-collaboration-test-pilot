@@ -8,20 +8,14 @@ from typing import Any
 
 from capcsp.collaboration.factory import CollaborationContext
 from capcsp.collaboration.snapshot import build_collaboration_payload
-from capcsp.collaboration.telemetry import append_flat_telemetry
 from capcsp.network.api import NetworkBackend
 
 def player_facing_network_step(step_dict: dict[str, Any], *, collaboration: dict[str, Any]) -> dict[str, Any]:
-    """Byte-path events plus filtered CSP snapshot; no raw ``NetworkTelemetryReceived``."""
-    events = [
-        event
-        for event in step_dict["events"]
-        if event.get("event_type") != "NetworkTelemetryReceived"
-    ]
+    """Byte-path events of the step plus the filtered collaboration snapshot."""
     return {
         "time_s": step_dict["time_s"],
         "is_final": step_dict["is_final"],
-        "events": events,
+        "events": step_dict["events"],
         "collaboration": collaboration,
     }
 
@@ -33,17 +27,16 @@ def apply_player_network_events(
     sizes: dict[tuple[int, str], int],
     delivered: dict[tuple[int, str], int],
     terminal: set[tuple[int, str]],
-    telemetry: list[dict[str, Any]],
-    collaboration: CollaborationContext,
 ) -> None:
-    """Validate download events and feed CSP telemetry into the shared table."""
+    """Validate the download events of a step against the submitted requests."""
     for event in step_dict["events"]:
         if event["ue_id"] not in ue_ids:
             raise ValueError(f"Event for unknown UE {event['ue_id']}")
         if event["event_type"] == "NetworkTelemetryReceived":
-            append_flat_telemetry(telemetry, event)
-            collaboration.telemetry.ingest_step_events([event])
-            continue
+            raise ValueError(
+                "NetworkTelemetryReceived inside a NetworkStep is not supported; "
+                "expose a csp_telemetry source on the backend instead"
+            )
         key = (event["ue_id"], event["request_id"])
         if key not in sizes or key in terminal:
             raise ValueError(f"Event for unknown or finished request {key}")
