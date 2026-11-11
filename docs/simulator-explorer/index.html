@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAP–CSP Simulator Explorer</title>
+    <meta name="description" content="Interactive view of how the CAP–CSP simulation harness components interact at signaling levels L0 to L4, for different backends, conditions and implementation states." />
+    <script>
+      // Apply the dark theme before the first paint to avoid a flash.
+      try {
+        const storedTheme = localStorage.getItem("simulator-explorer-theme");
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (storedTheme === "dark" || (!storedTheme && prefersDark)) document.documentElement.classList.add("dark");
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript><p style="padding: 16px">This page needs JavaScript.</p></noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,217 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+/*
+ * Explorer tokens. Arrow colors mark the direction of information, box
+ * colors mark the repository that holds the code. Both sets are redefined
+ * for dark mode below.
+ */
+:root {
+    --page: oklch(0.985 0.002 250);
+    --flow-main: #2563eb;
+    --flow-csp-to-cap: #0f766e;
+    --flow-cap-to-csp: #c2410c;
+    --flow-oracle-or-log: #a16207;
+    --flow-internal: #64748b;
+    --flow-inactive: #c0c4cc;
+    --repo-harness: #7c3aed;
+    --repo-harness-soft: #f5f3ff;
+    --repo-sfv: #be185d;
+    --repo-sfv-soft: #fdf2f8;
+    --repo-fikore: #4d7c0f;
+    --repo-fikore-soft: #f7fee7;
+    --status-ok: #ccfbf1;
+    --status-partial: #fef3c7;
+    --status-none: #ffedd5;
+    --highlight: #2563eb;
+    --highlight-soft: #dbeafe;
+}
+
+.dark {
+    --page: oklch(0.16 0.004 250);
+    --flow-main: #6ea0ff;
+    --flow-csp-to-cap: #2dd4bf;
+    --flow-cap-to-csp: #fb923c;
+    --flow-oracle-or-log: #facc15;
+    --flow-internal: #94a3b8;
+    --flow-inactive: #4a4f59;
+    --repo-harness: #a78bfa;
+    --repo-harness-soft: #221a3a;
+    --repo-sfv: #f472b6;
+    --repo-sfv-soft: #321627;
+    --repo-fikore: #a3e635;
+    --repo-fikore-soft: #1f2a10;
+    --status-ok: #10302d;
+    --status-partial: #3a3110;
+    --status-none: #3b2412;
+    --highlight: #6ea0ff;
+    --highlight-soft: #1e2c4a;
+}
+
+@theme inline {
+    --color-page: var(--page);
+    --color-flow-main: var(--flow-main);
+    --color-flow-csp-to-cap: var(--flow-csp-to-cap);
+    --color-flow-cap-to-csp: var(--flow-cap-to-csp);
+    --color-flow-oracle-or-log: var(--flow-oracle-or-log);
+    --color-flow-internal: var(--flow-internal);
+    --color-flow-inactive: var(--flow-inactive);
+    --color-repo-harness: var(--repo-harness);
+    --color-repo-harness-soft: var(--repo-harness-soft);
+    --color-repo-sfv: var(--repo-sfv);
+    --color-repo-sfv-soft: var(--repo-sfv-soft);
+    --color-repo-fikore: var(--repo-fikore);
+    --color-repo-fikore-soft: var(--repo-fikore-soft);
+    --color-status-ok: var(--status-ok);
+    --color-status-partial: var(--status-partial);
+    --color-status-none: var(--status-none);
+    --color-highlight: var(--highlight);
+    --color-highlight-soft: var(--highlight-soft);
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+body {
+    background: var(--page);
+}
+
+/* Moving dashes on the arrows of the current walkthrough step */
+@keyframes diagram-edge-flow {
+    to { stroke-dashoffset: -24; }
+}
+.diagram-edge-highlighted {
+    stroke-dasharray: 8 4;
+    animation: diagram-edge-flow 0.8s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+    .diagram-edge-highlighted { animation: none; }
+}

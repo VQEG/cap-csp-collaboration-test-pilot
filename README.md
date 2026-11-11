@@ -76,6 +76,7 @@ Start with these documents:
 - [Architecture](docs/architecture.md): components, ownership, time, and execution modes
 - [Decision Status](docs/decision-status-and-todos.md): unresolved decisions and implementation action items
 - [Offline Transport Validation](docs/offline-transport-validation.md): run the SFV v0.7.2 example against its mock and FikoRE
+- [Simulator Explorer](docs/simulator-explorer/README.md): interactive diagram of which components interact at each signaling level, backend and implementation state (build with `npm run build`, then open `dist/index.html`)
 
 The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
