@@ -101,8 +101,9 @@ def write_report(run_dirs: list[Path], path: Path) -> None:
         "Swipe delay is the mean time from a swipe to playback of the next video. "
         "Wasted is the share of delivered bytes that were never played. "
         "Goodput is the bytes delivered to the player divided by the time with at least one download open. "
-        "Throughput (network-layer, including retransmissions) and RTT are means over the backend's "
-        "telemetry samples taken while a download was open. "
+        "Throughput (network-layer, including retransmissions) and RTT are network-side diagnostics: "
+        "means over the CSP telemetry samples (1 s each by default) that overlap a time with a download "
+        "open, so idle time inside a sample lowers the throughput. "
         "O46, O35 and O23 are the means of the P.1203 scores per video, weighted by played duration.",
         "",
     ]

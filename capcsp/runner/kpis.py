@@ -63,9 +63,10 @@ def _is_active(intervals: list[tuple[float, float]], window_start: float, window
 def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
     """Return one KPI row per UE of the run in `run_dir`.
 
-    Throughput and RTT are means over the telemetry samples taken while the UE
-    had at least one request open. Goodput is the number of bytes delivered to
-    the player divided by the time with at least one request open.
+    Throughput and RTT are network-side diagnostics: means over the CSP
+    telemetry samples whose interval overlaps a time with at least one request
+    open. Goodput is the number of bytes delivered to the player divided by the
+    time with at least one request open.
     """
     manifest = json.loads((run_dir / "run-manifest.json").read_text(encoding="utf-8"))
     end_s = manifest.get("sim_time_s", manifest["config"]["duration_s"])

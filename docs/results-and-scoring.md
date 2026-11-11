@@ -144,8 +144,10 @@ Network:
 
 - `active_download_time_s`: time with at least one request open
 - `goodput_mbps`: bytes delivered to the player, divided by `active_download_time_s`
-- `throughput_mbps`: mean of the telemetry samples whose interval overlaps a time with a request open. At the 1 s default interval a sample may include idle time, so this is lower than `goodput_mbps` for bursty sessions; set `csp_telemetry_interval_s` lower (e.g. `0.01`) for the earlier per-step resolution
-- `rtt_mean_ms`: mean round-trip time of the same samples
+- `throughput_mbps`: network-side diagnostic. Mean throughput of the CSP telemetry samples in `telemetry.jsonl` whose interval overlaps a time with a request open, including retransmissions
+- `rtt_mean_ms`: network-side diagnostic. Mean transport round-trip time of the same samples
+
+The two diagnostics describe the network as the CSP sees it, at the cadence of the CSP telemetry (`csp_telemetry_interval_s`, 1 s by default). They are not application measurements. A sample that covers both download and idle time counts in full, so for bursty sessions `throughput_mbps` is well below `goodput_mbps`. Use `goodput_mbps` for the throughput the player obtained. Before the CSP telemetry was moved out of `NetworkStep`, the samples came every 10 ms, so `throughput_mbps` from older runs is not comparable.
 
 ## Byte Attribution and Waste Classification
 
