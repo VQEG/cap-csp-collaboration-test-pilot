@@ -30,7 +30,7 @@ Signaling level is an experiment knob (`signaling_level` in the JSON config). It
 | L2 | yes | full `CspFields` (filtered) | yes (audit) | no | no |
 | L3+ | yes | full `CspFields` | yes | yes | yes if `csp_controller` set |
 
-Read filtering is implemented in `InMemorySharedStateTable.read_*` ([`capcsp/shared_state/table.py`](../capcsp/shared_state/table.py)). Writes always store the full payload and append **`shared-state.jsonl`**.
+Read filtering is implemented in `InMemorySharedStateTable.read_*` ([`capcsp/shared_state/table.py`](../capcsp/shared_state/table.py)). Writes always store the full payload; **`shared-state.jsonl`** records a row only when the stored CSP fields or CAP report **change** (same run holds the log file open for append).
 
 ## Components (Python harness)
 

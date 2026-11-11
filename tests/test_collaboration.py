@@ -105,6 +105,26 @@ def test_dummy_csp_controller_logs_proposal(tmp_path: Path) -> None:
     row = json.loads(log.read_text().strip())
     assert row["record_type"] == "control_proposal"
     assert row["reason"] == "dummy_stall_boost"
+    ctrl.close()
+
+
+def test_dummy_csp_controller_skips_duplicate_audit_rows(tmp_path: Path) -> None:
+    log = tmp_path / "csp-control.jsonl"
+    table = InMemorySharedStateTable(signaling_level="L3", log_path=None)
+    table.write_cap_report(
+        0,
+        CapReport(1.0, False, 1.0, "v1", 0.0),
+    )
+    ctrl = DummyCSPController(signaling_level="L3", log_path=log)
+    for _ in range(2):
+        ctrl.on_collaboration_tick(
+            time_s=1.0,
+            ue_ids={0},
+            table=table,
+            control=NoOpControlAdapter(),
+        )
+    ctrl.close()
+    assert len(log.read_text(encoding="utf-8").strip().splitlines()) == 1
 
 
 def test_dummy_csp_controller_does_not_call_apply() -> None:

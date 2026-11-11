@@ -8,22 +8,10 @@ import json
 import threading
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, TextIO, runtime_checkable
 
+from capcsp.shared_state.signaling import parse_signaling_level
 from capcsp.shared_state.types import CapReport, CspFields
-
-
-def _parse_signaling_level(level: str) -> int:
-    raw = level.strip().upper()
-    if not raw.startswith("L") or len(raw) != 2:
-        raise ValueError(f"signaling_level must be L0–L4, got {level!r}")
-    try:
-        n = int(raw[1])
-    except ValueError as exc:
-        raise ValueError(f"signaling_level must be L0–L4, got {level!r}") from exc
-    if n not in range(5):
-        raise ValueError(f"signaling_level must be L0–L4, got {level!r}")
-    return n
 
 
 @runtime_checkable
@@ -38,9 +26,11 @@ class SharedStateTable(Protocol):
 
     def write_cap_report(self, ue_id: int, report: CapReport) -> None: ...
 
+    def close(self) -> None: ...
+
 
 class InMemorySharedStateTable:
-    """Thread-safe store with append-only JSONL writes for collaboration audit."""
+    """Thread-safe store with append-only JSONL audit on value changes."""
 
     def __init__(
         self,
@@ -49,22 +39,44 @@ class InMemorySharedStateTable:
         log_path: Path | None = None,
         log_reads: bool = False,
     ) -> None:
-        self._level_n = _parse_signaling_level(signaling_level)
+        self._level_n = parse_signaling_level(signaling_level)
         self._signaling_level = signaling_level.strip().upper()
         self._log_path = log_path
         self._log_reads = log_reads
+        self._log_file: TextIO | None = None
         self._lock = threading.Lock()
         self._csp: dict[int, CspFields] = {}
         self._cap: dict[int, CapReport] = {}
+        self._last_logged_csp: dict[int, tuple[Any, ...]] = {}
+        self._last_logged_cap: dict[int, CapReport] = {}
+
+    def close(self) -> None:
+        with self._lock:
+            if self._log_file is not None:
+                self._log_file.close()
+                self._log_file = None
+
+    def _ensure_log_file(self) -> TextIO | None:
+        if self._log_path is None:
+            return None
+        if self._log_file is None:
+            self._log_path.parent.mkdir(parents=True, exist_ok=True)
+            self._log_file = self._log_path.open("a", encoding="utf-8")
+        return self._log_file
 
     def _append_log(self, row: dict[str, Any]) -> None:
-        if self._log_path is None:
+        file = self._ensure_log_file()
+        if file is None:
             return
         row = {**row, "signaling_level": self._signaling_level}
         line = json.dumps(row, allow_nan=False) + "\n"
-        self._log_path.parent.mkdir(parents=True, exist_ok=True)
-        with self._log_path.open("a", encoding="utf-8") as file:
-            file.write(line)
+        file.write(line)
+        file.flush()
+
+    @staticmethod
+    def _csp_log_key(fields: CspFields, extensions: dict[str, Any] | None) -> tuple[Any, ...]:
+        ext_key = json.dumps(extensions, sort_keys=True, allow_nan=False) if extensions else None
+        return (asdict(fields), ext_key)
 
     def read_csp_fields(self, ue_id: int) -> CspFields | None:
         with self._lock:
@@ -102,8 +114,13 @@ class InMemorySharedStateTable:
     def write_csp_fields(
         self, ue_id: int, fields: CspFields, *, extensions: dict[str, Any] | None = None
     ) -> None:
+        log_key = self._csp_log_key(fields, extensions)
         with self._lock:
+            if self._last_logged_csp.get(ue_id) == log_key:
+                self._csp[ue_id] = fields
+                return
             self._csp[ue_id] = fields
+            self._last_logged_csp[ue_id] = log_key
         payload = {"csp_fields": asdict(fields)}
         if extensions:
             payload["extensions"] = extensions
@@ -139,7 +156,11 @@ class InMemorySharedStateTable:
 
     def write_cap_report(self, ue_id: int, report: CapReport) -> None:
         with self._lock:
+            if self._last_logged_cap.get(ue_id) == report:
+                self._cap[ue_id] = report
+                return
             self._cap[ue_id] = report
+            self._last_logged_cap[ue_id] = report
         self._append_log(
             {
                 "record_type": "write",

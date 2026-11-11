@@ -4,13 +4,15 @@
 
 **Proposed merge:** `feature/shared-state-table-v1` → `master` on [VQEG/cap-csp-collaboration-test-pilot](https://github.com/VQEG/cap-csp-collaboration-test-pilot).
 
+**Blocked on:** merge [micseu/SFV-Reference-Implementation](https://github.com/micseu/SFV-Reference-Implementation) `feature/vqeg-collaboration-hooks` first (engine hooks required even at L0).
+
 ---
 
 ## Summary
 
 This pull request adds the **VQEG collaboration bus** to the pilot harness: CSP telemetry and CAP reports go through one **in-process shared state table** (`capcsp/shared_state`), with an append-only **`shared-state.jsonl`** audit on every run. On each simulation step, Python maps backend telemetry into the table, attaches a signaling-filtered **`collaboration`** object to the player IPC `network_step`, collects **`cap_reports`** from Node, and—at L3+ with `csp_controller: "dummy"`—logs control proposals to **`csp-control.jsonl`** without calling `set_ue_control`.
 
-The change also bumps the **`5g-network-emulator`** submodule to the current **`origin/dev`** (`13f9b83`, including deterministic request event ordering from [nokia/5g-network-emulator#11](https://github.com/nokia/5g-network-emulator/pull/11)). The harness no longer re-sorts request keys locally.
+**FikoRE submodule:** `master` already tracks `5g-network-emulator` `origin/dev` at `13f9b83` (via `97098fa`); this PR does not introduce a new emulator bump beyond collaboration wiring.
 
 **B1/B2 scoring and SFV policy are unchanged.** Rules do not consume `getCspFields()` yet.
 
@@ -99,7 +101,7 @@ Further work: [`implementation-plan.md`](implementation-plan.md), [`decision-sta
 
 Verified on `feature/shared-state-table-v1` before opening the PR (Node.js required for integration tests).
 
-- [x] `uv run pytest -q` — **62 passed** (~13 s)
+- [x] `uv run pytest -q` — **66 passed** (~12 s)
 - [x] Collaboration wiring: `tests/test_collaboration.py`, `tests/test_shared_state.py`; E2E in `tests/test_runs.py` (`test_mock` collaboration IPC, `test_l3_dummy_writes_csp_control`, `test_l0_determinism_hash_stable`, `test_run_writes_p1203_scores` → `shared-state.jsonl`)
 - [x] L3 smoke: `uv run capcsp run configs/experiments/collaboration/l3-dummy-mock.json /tmp/capcsp-l3-smoke` — run **completed**; `shared-state.jsonl` and `csp-control.jsonl` present; manifest `csp_control_log` / `shared_state_log` set
 - [x] L0 hash stability: `test_l0_determinism_hash_stable` (mock B1/B2, separate processes / `PYTHONHASHSEED`); FikoRE when built — `test_fikore_run_repeats_with_a_different_python_hash_seed` (skips if `TransportFikoreConfig().fikore_binary` missing)

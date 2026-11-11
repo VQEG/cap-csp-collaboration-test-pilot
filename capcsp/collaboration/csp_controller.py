@@ -6,10 +6,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol, TextIO
 
 from capcsp.collaboration.types import ControlDecision, CspControlIntent
-from capcsp.shared_state.table import SharedStateTable, _parse_signaling_level
+from capcsp.shared_state.signaling import parse_signaling_level
+from capcsp.shared_state.table import SharedStateTable
 
 
 class BackendControlAdapter(Protocol):
@@ -42,6 +43,13 @@ class DummyCSPController:
         self._signaling_level = signaling_level.strip().upper()
         self._log_path = log_path
         self._stall_priority_multiplier = stall_priority_multiplier
+        self._log_file: TextIO | None = None
+        self._last_logged: dict[int, tuple[Any, ...]] = {}
+
+    def close(self) -> None:
+        if self._log_file is not None:
+            self._log_file.close()
+            self._log_file = None
 
     def on_collaboration_tick(
         self,
@@ -51,7 +59,7 @@ class DummyCSPController:
         table: SharedStateTable,
         control: BackendControlAdapter,
     ) -> list[ControlDecision]:
-        if _parse_signaling_level(self._signaling_level) < 3:
+        if parse_signaling_level(self._signaling_level) < 3:
             return []
         decisions: list[ControlDecision] = []
         for ue_id in sorted(ue_ids):
@@ -83,7 +91,18 @@ class DummyCSPController:
     def _append_log(self, decision: ControlDecision) -> None:
         if self._log_path is None:
             return
-        self._log_path.parent.mkdir(parents=True, exist_ok=True)
-        line = json.dumps(decision.to_log_row(), allow_nan=False) + "\n"
-        with self._log_path.open("a", encoding="utf-8") as file:
-            file.write(line)
+        row = decision.to_log_row()
+        key = (
+            row.get("reason"),
+            row.get("proposed"),
+            row.get("baseline"),
+        )
+        if self._last_logged.get(decision.ue_id) == key:
+            return
+        self._last_logged[decision.ue_id] = key
+        if self._log_file is None:
+            self._log_path.parent.mkdir(parents=True, exist_ok=True)
+            self._log_file = self._log_path.open("a", encoding="utf-8")
+        line = json.dumps(row, allow_nan=False) + "\n"
+        self._log_file.write(line)
+        self._log_file.flush()

@@ -14,7 +14,8 @@ from capcsp.collaboration.cap_reporter import SfVCapReporter
 from capcsp.collaboration.csp_controller import CSPController, DummyCSPController
 from capcsp.collaboration.telemetry import StepEventCspTelemetrySource
 from capcsp.network.api import NetworkBackend
-from capcsp.shared_state.table import SharedStateTable, _parse_signaling_level
+from capcsp.shared_state.signaling import parse_signaling_level
+from capcsp.shared_state.table import SharedStateTable
 
 
 @dataclass
@@ -51,7 +52,7 @@ def build_collaboration_stack(
 
     csp_controller: CSPController | None = None
     controller_name = config.get("csp_controller")
-    if controller_name == "dummy" and _parse_signaling_level(signaling_level) >= 3:
+    if controller_name == "dummy" and parse_signaling_level(signaling_level) >= 3:
         csp_controller = DummyCSPController(
             signaling_level=signaling_level,
             log_path=csp_control_log_path,

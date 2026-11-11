@@ -86,6 +86,58 @@ def test_in_memory_table_l2_exposes_csp(tmp_path: Path) -> None:
     assert read == fields
 
 
+def test_write_csp_fields_skips_duplicate_audit_rows(tmp_path: Path) -> None:
+    log = tmp_path / "shared-state.jsonl"
+    table = InMemorySharedStateTable(signaling_level="L2", log_path=log)
+    fields = CspFields(
+        updated_at_s=1.0,
+        plan_downlink_mbps=None,
+        achieved_throughput_mbps=1.0,
+        rtt_ms=10.0,
+        loss_rate=0.0,
+        congestion_rate=None,
+    )
+    table.write_csp_fields(0, fields)
+    table.write_csp_fields(0, fields)
+    table.close()
+    assert len(log.read_text(encoding="utf-8").strip().splitlines()) == 1
+
+
+def test_write_cap_report_skips_duplicate_audit_rows(tmp_path: Path) -> None:
+    log = tmp_path / "shared-state.jsonl"
+    table = InMemorySharedStateTable(signaling_level="L3", log_path=log)
+    report = CapReport(
+        time_s=1.0,
+        is_stalled=False,
+        playable_buffer_s=2.0,
+        current_video_id="v1",
+        swipe_rate_per_s=0.0,
+    )
+    table.write_cap_report(0, report)
+    table.write_cap_report(0, report)
+    table.close()
+    assert len(log.read_text(encoding="utf-8").strip().splitlines()) == 1
+
+
+def test_l1_plan_visible_before_telemetry(tmp_path: Path) -> None:
+    table = InMemorySharedStateTable(signaling_level="L1", log_path=None)
+    table.write_csp_fields(
+        0,
+        CspFields(
+            updated_at_s=0.0,
+            plan_downlink_mbps=42.0,
+            achieved_throughput_mbps=None,
+            rtt_ms=None,
+            loss_rate=None,
+            congestion_rate=None,
+        ),
+    )
+    read = table.read_csp_fields(0)
+    assert read is not None
+    assert read.plan_downlink_mbps == 42.0
+    assert read.achieved_throughput_mbps is None
+
+
 def test_cap_write_logged_at_l2_but_read_blocked_until_l3(tmp_path: Path) -> None:
     log = tmp_path / "shared-state.jsonl"
     table = InMemorySharedStateTable(signaling_level="L2", log_path=log)

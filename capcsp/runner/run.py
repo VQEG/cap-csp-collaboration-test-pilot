@@ -25,7 +25,9 @@ from capcsp.network.transport_fikore import TransportFikoreBackend, TransportFik
 from capcsp.collaboration.factory import build_collaboration_stack
 from capcsp.player.bridge import NodePlayerBridge, run_sessions
 from capcsp.scoring.session_scoring import ScoringSettings, score_run
-from capcsp.shared_state.table import InMemorySharedStateTable, _parse_signaling_level
+from capcsp.shared_state.signaling import parse_signaling_level
+from capcsp.shared_state.table import InMemorySharedStateTable
+from capcsp.shared_state.types import CspFields
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONTENT = REPO_ROOT / "sfv-reference-implementation" / "fixtures" / "content" / "content.json"
@@ -60,7 +62,7 @@ def load_config(path: Path) -> dict[str, Any]:
     config.setdefault("run_id", path.stem)
     config.setdefault("signaling_level", "L0")
     config.setdefault("clock_mode", "simulation")
-    _parse_signaling_level(config["signaling_level"])
+    parse_signaling_level(config["signaling_level"])
     controller = config.get("csp_controller")
     if controller is not None and controller != "dummy":
         raise ValueError('csp_controller must be null or "dummy"')
@@ -119,7 +121,7 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
     )
     csp_control_log_name: str | None = None
     csp_control_path: Path | None = None
-    if config.get("csp_controller") == "dummy" and _parse_signaling_level(config["signaling_level"]) >= 3:
+    if config.get("csp_controller") == "dummy" and parse_signaling_level(config["signaling_level"]) >= 3:
         csp_control_log_name = "csp-control.jsonl"
         csp_control_path = output_dir / csp_control_log_name
 
@@ -146,12 +148,28 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
     telemetry: list[dict[str, Any]] = []
     wall_start = time.perf_counter()
     backend = create_backend(config, output_dir)
+    collaboration = None
     try:
         plan_downlink = config.get("plan_downlink_mbps_by_ue")
         if plan_downlink is not None:
             if not isinstance(plan_downlink, dict):
                 raise ValueError("plan_downlink_mbps_by_ue must be a dict when set")
             plan_downlink = {int(k): float(v) for k, v in plan_downlink.items()}
+        if plan_downlink and parse_signaling_level(config["signaling_level"]) >= 1:
+            for ue_id, plan_mbps in plan_downlink.items():
+                if ue_id not in ue_ids:
+                    continue
+                shared_table.write_csp_fields(
+                    ue_id,
+                    CspFields(
+                        updated_at_s=0.0,
+                        plan_downlink_mbps=plan_mbps,
+                        achieved_throughput_mbps=None,
+                        rtt_ms=None,
+                        loss_rate=None,
+                        congestion_rate=None,
+                    ),
+                )
         with NodePlayerBridge(player_config, log_path=output_dir / "player.log") as bridge:
             collaboration = build_collaboration_stack(
                 config,
@@ -171,6 +189,11 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
             )
         manifest["status"] = "completed"
     finally:
+        shared_table.close()
+        if collaboration is not None and collaboration.csp_controller is not None:
+            close = getattr(collaboration.csp_controller, "close", None)
+            if callable(close):
+                close()
         backend.close()
         manifest["wall_s"] = round(time.perf_counter() - wall_start, 3)
         manifest["network_steps"] = len(transcript)
