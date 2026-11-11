@@ -112,6 +112,27 @@ def test_l3_dummy_writes_csp_control(tmp_path: Path) -> None:
     assert (output / "csp-control.jsonl").is_file()
 
 
+def test_cap_reports_are_event_driven_not_per_step(tmp_path: Path) -> None:
+    duration_s = 2.0
+    output = run(tmp_path, "b1-b2-two-ue-mock", duration_s=duration_s)
+    steps = len((output / "network-steps.jsonl").read_text().splitlines())
+    rows = [
+        json.loads(line)
+        for line in (output / "shared-state.jsonl").read_text().splitlines()
+    ]
+    cap_times: dict[int, list[float]] = {}
+    for row in rows:
+        if row.get("direction") == "cap_to_csp":
+            cap_times.setdefault(row["ue_id"], []).append(row["time_s"])
+    assert set(cap_times) == {0, 1}
+    for times in cap_times.values():
+        assert len(times) < steps
+        # Initial report, at most one per second, plus the final flush past the rate limit.
+        assert len(times) <= duration_s + 2
+        for previous, current in zip(times, times[1:-1]):
+            assert current - previous >= 1.0 - 1e-8
+
+
 def test_l0_determinism_hash_stable(tmp_path: Path) -> None:
     """Session/KPI determinism for default L0 mock (hash file set excludes L3-only artifacts)."""
     config = CONFIGS / "b1-b2-two-ue-mock.json"

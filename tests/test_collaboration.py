@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from capcsp.collaboration.adapters.noop_control import NoOpControlAdapter
+from capcsp.collaboration.cap_reporter import SfVCapReporter
 from capcsp.collaboration.csp_controller import DummyCSPController
 from capcsp.collaboration.runtime import player_facing_network_step
 from capcsp.collaboration.snapshot import build_collaboration_payload
@@ -142,6 +143,17 @@ def test_dummy_csp_controller_does_not_call_apply() -> None:
         control=control,
     )
     control.apply.assert_not_called()
+
+
+def test_sfv_cap_reporter_empty_drain_writes_nothing(tmp_path: Path) -> None:
+    log = tmp_path / "s.jsonl"
+    table = InMemorySharedStateTable(signaling_level="L3", log_path=log)
+    bridge = MagicMock()
+    bridge.exchange.return_value = {"type": "cap_reports", "reports": {}}
+    SfVCapReporter(bridge).fetch_and_write(table, {0, 1})
+    table.close()
+    assert table.read_cap_report(0) is None
+    assert not log.exists() or "cap_to_csp" not in log.read_text(encoding="utf-8")
 
 
 def test_fikore_control_adapter_calls_set_ue_control() -> None:

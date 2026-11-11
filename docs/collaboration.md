@@ -14,7 +14,7 @@ B1/B2 rules do not yet consume `collaboration`; effective scheduler control uses
 |-----------|-----------|---------------------------|
 | CSP → shared bus | `NetworkTelemetryReceived` → `write_csp_fields` | No (audited + optional filtered view to CAP) |
 | Bus → CAP | `step.collaboration` on `network_step` IPC | Stored via `applyCspUpdate`; B1/B2 decisions unchanged (`triggerDecision: false`) |
-| CAP → shared bus | `cap_reports` IPC → `write_cap_report` | No (audited; readable at L3+ by controller) |
+| CAP → shared bus | `cap_reports` IPC (pending reports only) → `write_cap_report` | No (audited; readable at L3+ by controller) |
 | Bus → CSP control | `CSPController` → `BackendControlAdapter` | Only with a non-dummy controller that calls `apply` |
 
 At **L0** (default configs), collaboration still **writes** the shared table for audit, but **read filters** hide CSP fields from the CAP and hide CAP reports from a controller. Scoring and session records stay the same as before this wiring.
@@ -46,14 +46,14 @@ Read filtering is implemented in `InMemorySharedStateTable.read_*` ([`capcsp/sha
 | `FikoreControlAdapter` | `capcsp/collaboration/adapters/fikore_control.py` | Maps `CspControlIntent` → `set_ue_control` (for future real controllers) |
 | `NoOpControlAdapter` | `capcsp/collaboration/adapters/noop_control.py` | Baseline only on `mock` |
 
-FikoRE-specific telemetry mapping: `capcsp/collaboration/adapters/fikore_mapper.py` (wraps `capcsp.shared_state.mapping`). The `sfv-reference-implementation` submodule exposes collaboration IPC hooks (`applyCspUpdate`, `buildCapReport`); B1/B2 policy use is still future work. No changes inside `5g-network-emulator` for this wiring.
+FikoRE-specific telemetry mapping: `capcsp/collaboration/adapters/fikore_mapper.py` (wraps `capcsp.shared_state.mapping`). The `sfv-reference-implementation` submodule exposes collaboration IPC hooks (`applyCspUpdate`, `drainCapReports`); B1/B2 policy use is still future work. No changes inside `5g-network-emulator` for this wiring.
 
 ## Components (CAP / Node.js)
 
 | Component | File | Role |
 |-----------|------|------|
-| `NetworkStepHarness` | `capcsp/player/js/network_step_harness.js` | Multi-UE steps, `applyCspUpdate` per step, `getCapReports` delegates to SFV |
-| SFV engine | submodule | `applyCspUpdate`, `buildCapReport`; `getCspFields()` on rules context; B1/B2 ignore CSP for now |
+| `NetworkStepHarness` | `capcsp/player/js/network_step_harness.js` | Multi-UE steps, `applyCspUpdate` when a UE's CSP snapshot changes, `getCapReports` drains pending SFV reports |
+| SFV engine | submodule | `applyCspUpdate`, `drainCapReports` (event-driven, ≤1 report/s per UE); `getCspFields()` on rules context; B1/B2 ignore CSP for now |
 
 The Node process does **not** read or write the shared table. It only consumes `step.collaboration` and returns `cap_reports`; Python owns the table.
 
@@ -103,8 +103,8 @@ One tick per `backend.advance()` ([`capcsp/collaboration/runtime.py`](../capcsp/
 1. Serialize the step (`step_dict`) and validate download events.
 2. For each `NetworkTelemetryReceived`: append **`telemetry.jsonl`**; `CspTelemetrySource.ingest_step_events` → **`shared-state.jsonl`** (CSP→CAP writes).
 3. Build `collaboration` from `read_csp_fields` per UE (signaling filter).
-4. Send `network_step` to Node including `collaboration` (also logged in **`network-steps.jsonl`**). Harness calls `SFVSimulationController.applyCspUpdate` per UE; B1/B2 policy consumption is future work.
-5. `SfVCapReporter.fetch_and_write` (separate `cap_reports` IPC) → CAP→CSP rows in the table.
+4. Send `network_step` to Node including `collaboration` (also logged in **`network-steps.jsonl`**). The harness calls `SFVSimulationController.applyCspUpdate` for each UE whose CSP snapshot changed; B1/B2 policy consumption is future work.
+5. `SfVCapReporter.fetch_and_write` (separate `cap_reports` IPC) writes CAP→CSP rows **only for pending reports** drained from SFV (stall edges, video switches, buffer changes of 1.0 s or more, at most one per second per UE). The reply is often empty; after the final step the drain ignores the rate limit so terminal state is recorded.
 6. If L3+ and `csp_controller: "dummy"`: `DummyCSPController.on_collaboration_tick` → **`csp-control.jsonl`** (`applied: false`).
 7. If not final: apply player submit/cancel actions to **`NetworkBackend`** (byte path, unchanged).
 

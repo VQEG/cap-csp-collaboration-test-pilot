@@ -15,7 +15,11 @@ class CapReporter(Protocol):
 
 
 class SfVCapReporter:
-    """SFV harness: ``cap_reports`` IPC on the Node player bridge."""
+    """SFV harness: ``cap_reports`` IPC on the Node player bridge.
+
+    The reply holds only reports SFV drained since the previous step (stall edges, video
+    switches, buffer threshold crossings, at most one per second per UE); it is often ``{}``.
+    """
 
     def __init__(self, bridge: Any) -> None:
         self._bridge = bridge

@@ -44,7 +44,8 @@ export class NetworkStepHarness {
         rule: structuredClone(session.rule_config ?? session.abr?.config ?? session.config?.rule ?? {}) };
       const controller = new SFVSimulationController({dataset, rule: new Rule(), config, transport,
         requestIdPrefix: `ue${ue_id}-r`});
-      this.states.set(ue_id, {controller, transport, started: false, done: false, result: null});
+      this.states.set(ue_id, {controller, transport, started: false, done: false, result: null,
+        lastCspKey: undefined});
     }
   }
 
@@ -124,21 +125,27 @@ export class NetworkStepHarness {
     if (byUe == null || typeof byUe !== 'object') return;
     for (const [ue_id, state] of this.states) {
       if (state.done) continue;
-      state.controller.applyCspUpdate(byUe[String(ue_id)] ?? null, this.time);
+      const fields = byUe[String(ue_id)] ?? null;
+      const key = JSON.stringify(fields);
+      if (key === state.lastCspKey) continue;
+      state.lastCspKey = key;
+      state.controller.applyCspUpdate(fields, this.time);
     }
   }
 
+  /** Pending CAP reports per UE (event-driven, ≤1/s); ``{}`` when nothing changed.
+   * After the final step the drain bypasses the rate limit so terminal state is reported. */
   getCapReports() {
-    return Object.fromEntries(
-      [...this.states]
-        .filter(([, state]) => state.started)
-        .map(([ue_id, state]) => {
-          const build = state.controller.buildCapReport;
-          if (typeof build !== 'function') {
-            throw new Error('SFV engine missing buildCapReport; bump sfv-reference-implementation submodule');
-          }
-          return [String(ue_id), build.call(state.controller, this.time)];
-        }),
-    );
+    const reports = {};
+    for (const [ue_id, state] of this.states) {
+      if (!state.started) continue;
+      const drain = state.controller.drainCapReports;
+      if (typeof drain !== 'function') {
+        throw new Error('SFV engine missing drainCapReports; bump sfv-reference-implementation submodule');
+      }
+      const drained = drain.call(state.controller, this.time, { final: this.ended });
+      if (drained.length) reports[String(ue_id)] = drained.at(-1);
+    }
+    return reports;
   }
 }

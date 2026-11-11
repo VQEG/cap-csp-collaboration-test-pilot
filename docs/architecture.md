@@ -209,7 +209,7 @@ classDiagram
     namespace capcsp_player_js {
         class NetworkStepHarness {
             onStep(step) actions or result
-            getCapReports()
+            getCapReports() pending only
         }
         class SFVExternalTransport {
             start(request)

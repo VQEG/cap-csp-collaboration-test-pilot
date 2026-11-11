@@ -57,6 +57,8 @@ class CapReport:
 
 The player engine generates CAP reports on state transitions: stall state changes, video switches, or buffer occupancy changes exceeding a configured threshold. Reports are rate-limited to at most one per second per UE by default.
 
+In the pilot, the SFV engine uses a default buffer threshold of 1.0 s: a report is due when `playable_buffer_s` differs by at least 1.0 s from the last emitted report. The rate limit runs on the session clock. A transition that falls inside the rate-limit window is reported, with the state current at that time, once the window has passed. The report at the end of the run is exempt from the rate limit.
+
 CAP reports represent application telemetry and are managed separately from policy `Action` returns.
 
 ## Shared State Interface
@@ -92,7 +94,7 @@ The pilot implements this interface in `capcsp/shared_state/`. `InMemorySharedSt
 - `ue_id`, `time_s`, `signaling_level`
 - `payload`: `csp_fields` with optional `extensions` (extra telemetry keys for audit), or `cap_report` for CAP→CSP rows
 
-The harness feeds the table from `NetworkTelemetryReceived` events (mapped to `CspFields`) and from **`cap_reports`** IPC messages after each `NetworkStep`. The step-synchronized collaboration runtime lives in `capcsp/collaboration/`; see **[Collaboration runtime](collaboration.md)** for the full tick order, IPC `collaboration` field, and artifacts. Optional experiment key **`plan_downlink_mbps_by_ue`** (`dict`, UE id → Mbps) sets `plan_downlink_mbps` on `CspFields` for L1 experiments.
+The harness feeds the table from `NetworkTelemetryReceived` events (mapped to `CspFields`) and from the CAP reports returned by the **`cap_reports`** IPC message after each `NetworkStep` (an empty map when no report is due). The step-synchronized collaboration runtime lives in `capcsp/collaboration/`; see **[Collaboration runtime](collaboration.md)** for the full tick order, IPC `collaboration` field, and artifacts. Optional experiment key **`plan_downlink_mbps_by_ue`** (`dict`, UE id → Mbps) sets `plan_downlink_mbps` on `CspFields` for L1 experiments.
 
 ## CSPController (harness)
 

@@ -165,6 +165,8 @@ Michi's group owns the exact B1 and B2 rules and their parameters (MPS, PSPV, st
 
 Signaling levels provide additional telemetry fields to policies via the shared table snapshot on each step. A policy that ignores `csp_fields` operates as an L0 baseline under all configurations. See [Collaboration runtime](collaboration.md) and [Signaling](signaling.md).
 
+CAP reports are event-driven rather than one snapshot per step. After each `network_step`, the harness sends a `cap_reports` message, and the Node harness answers with the result of SFV `drainCapReports` for each UE. A UE appears in the reply only when a report is due: a stall starts or ends, the current video changes, or `playable_buffer_s` has moved by at least 1.0 s since the last report. Each UE gets at most one report per second of session time. The reply is `{}` when no report is due. After the final step, the drain is exempt from the rate limit, so the terminal state is always reported.
+
 ## Multi-Video dash.js Integration
 
 The player is Michi's [SFV reference implementation](https://github.com/micseu/SFV-Reference-Implementation): a patched dash.js that lets a centralized short-form controller own all manifest and segment requests, the B1/B2 policies, and a Node.js engine that shares the same policy code. The controller is responsible for feed queues, user swipes, cross-video prefetching, and cancellation.
