@@ -1,5 +1,4 @@
 output/*
 .venv/
 __pycache__/
-docs/pr-body-draft-*.md
-docs/commit-message-draft-*.txt
+local/
