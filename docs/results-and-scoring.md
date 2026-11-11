@@ -55,6 +55,10 @@ This excerpt comes from UE 0 of the example run. It shows one of the three video
           "video_id": "v2",
           "representation_id": "2",
           "bitrate_kbps": 650,
+          "width": 360,
+          "height": 640,
+          "codec": "avc1",
+          "frame_rate_fps": 30,
           "segment_index": 0,
           "segment_index_end": 2,
           "start_at_s": 0.43,
@@ -232,7 +236,7 @@ P.1203 is only valid for media of 1 minute or longer. Shorter videos are scored 
 Two inputs are assumptions and not measured, and must be addressed for future encodings:
 
 - Audio is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
-- The frame rate is assumed to be the same for all representations, because the content file has no frame rate. Future content files need the frame rate per representation.
+- The frame rate is assumed to be the same for all representations. The content file and the representation intervals now carry `frame_rate_fps` per representation (30 fps in the fixture), but the scoring does not read it yet.
 
 Reports must state model versions. Short-Video Streaming Challenge metrics may be reported as supplementary comparative benchmarks.
 

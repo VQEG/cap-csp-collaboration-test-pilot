@@ -17,7 +17,7 @@ uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json output/vqeg/c1
 - `report.md`: readable summary of the KPIs
 - `fikore-effective.ini`: FikoRE scenario used in the run
 - `network-steps-first-second.jsonl`: network steps with the player's response, first second only
-- `telemetry-first-second.jsonl`: network telemetry per UE, every 10 ms, first second only
+- `telemetry-first-second.jsonl`: CSP telemetry per UE, one sample per second (`csp_telemetry_interval_s`), first second only
 
 ## Input for the QoE Model
 
@@ -33,19 +33,17 @@ Start from `sessionRecord` in `sessions/ue-<id>.json`:
 
 The first three fields are the inputs of a swipe delay model such as that of [Nguyen and Tran](https://arxiv.org/abs/2603.18575). The other fields are inputs of models that use video quality and stalls, such as P.1203.
 
-Intervals give only `representation_id` and `bitrate_kbps`. Get the resolution and codec from `sfv-reference-implementation/fixtures/content/content.json`, using `video_id` and `representation_id`:
+Each interval gives the `representation_id` and its `bitrate_kbps`, `width`, `height`, `codec` and `frame_rate_fps`, taken from `sfv-reference-implementation/fixtures/content/content.json`. For `v2`, the video that plays to the end in this run:
 
-| Representation | Bitrate (kbit/s) | Width | Height | Codec |
-|---|---|---|---|---|
-| 0 | 180 | 180 | 320 | `avc1` |
-| 1 | 350 | 270 | 480 | `avc1` |
-| 2 | 650 | 360 | 640 | `avc1` |
-
-The table lists the representations of `v2`, the video that plays to the end in this run.
+| Representation | Bitrate (kbit/s) | Width | Height | Codec | Frame rate (fps) |
+|---|---|---|---|---|---|
+| 0 | 180 | 180 | 320 | `avc1` | 30 |
+| 1 | 350 | 270 | 480 | `avc1` | 30 |
+| 2 | 650 | 360 | 640 | `avc1` | 30 |
 
 ## Differences From a Normal Output Folder
 
-- The two `.jsonl` files stop after 1 s of the 120 s run. They show the format only. The QoE input does not need them, and the full files are about 15 MB.
+- The two `.jsonl` files stop after 1 s of the 120 s run. They show the format only. The QoE input does not need them, and the full files are about 2.6 MB.
 - `run-manifest.json` and `kpis.csv` still describe the full run. The manifest's `config_path` and `content_path` are relative to the repository root.
 - `fikore.log` and the empty `player.log` are left out.
 
@@ -54,5 +52,5 @@ The table lists the representations of `v2`, the video that plays to the end in 
 - Each session has only one swipe, after about 0.1 s, so the swipe delays are short (0.33 s and 0.03 s) and the viewing time before the swipe is close to 0. See the [swipe example](../swipe-during-dropout-b1-b2-run/README.md) for several swipes and longer delays.
 - `stall_events` is empty for both UEs. None of the nine VQEG conditions currently produces a stall. See the [stall example](../stall-example-b1-b2-run/README.md) for filled stall events.
 - The fixture has three videos of 6 s with 2 s segments, and sessions swipe once, after about 0.1 s. Only `v2` plays for longer than a moment. In this run, UE 0 plays it at representation 2 throughout, and UE 1 plays 4 s at representation 0 and then 2 s at representation 2. Most other conditions play it like UE 1, and in C4 no video starts.
-- The content has no frame rate. It lists one audio representation per video, but the player does not request audio, so the record has no audio data. A QoE model that needs these inputs has to assume them for now.
+- The content lists one audio representation per video, but the player does not request audio, so the record has no audio data. A QoE model that needs audio has to assume it for now.
 - The record includes the fields `p1204_1_segment_scores` and `p1203_output`. Only 6 s of media play, far less than the 1 to 5 minutes for which P.1203 is specified, so the scores show the format only. See [Results and Scoring](../../results-and-scoring.md#session-record-format).

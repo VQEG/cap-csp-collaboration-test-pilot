@@ -2,16 +2,16 @@
 
 ## Runs
 
-- `swipe-during-dropout-b1-b2`: backend `transport_fikore`, 20 s simulated in 1.281 s, 2 UEs, status completed, bytes conserved
+- `swipe-during-dropout-b1-b2`: backend `transport_fikore`, 20 s simulated in 3.241 s, 2 UEs, status completed, bytes conserved
 
 ## KPIs per UE
 
 | Run | UE | Player | Initial delay (s) | Swipe delay (s) | Stalls | Stall time (s) | Switches | Delivered (kB) | Wasted | O46 | O35 | O23 | Goodput (Mbit/s) | Throughput (Mbit/s) | RTT (ms) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| swipe-during-dropout-b1-b2 | 0 | simple | 0.310 | 3.070 | 0 | 0.000 | 1 | 1010 | 31.2% | 3.37 | 4.19 | 3.79 | 1.01 | 1.17 | 87.5 |
-| swipe-during-dropout-b1-b2 | 1 | preload | 0.300 | 0.020 | 1 | 0.930 | 3 | 641 | 18.3% | 3.21 | 3.69 | 4.11 | 0.72 | 0.78 | 281.8 |
+| swipe-during-dropout-b1-b2 | 0 | simple | 0.310 | 3.070 | 0 | 0.000 | 1 | 1010 | 31.2% | 3.37 | 4.19 | 3.79 | 1.01 | 0.85 | 65.5 |
+| swipe-during-dropout-b1-b2 | 1 | preload | 0.300 | 0.020 | 1 | 0.930 | 3 | 641 | 18.3% | 3.21 | 3.69 | 4.11 | 0.72 | 0.69 | 277.1 |
 
-Swipe delay is the mean time from a swipe to playback of the next video. Wasted is the share of delivered bytes that were never played. Goodput is the bytes delivered to the player divided by the time with at least one download open. Throughput (network-layer, including retransmissions) and RTT are means over the backend's telemetry samples taken while a download was open. O46, O35 and O23 are the means of the P.1203 scores per video, weighted by played duration.
+Swipe delay is the mean time from a swipe to playback of the next video. Wasted is the share of delivered bytes that were never played. Goodput is the bytes delivered to the player divided by the time with at least one download open. Throughput (network-layer, including retransmissions) and RTT are network-side diagnostics: means over the CSP telemetry samples (1 s each by default) that overlap a time with a download open, so idle time inside a sample lowers the throughput. O46, O35 and O23 are the means of the P.1203 scores per video, weighted by played duration.
 
 ## P.1203 Scores per Video
 

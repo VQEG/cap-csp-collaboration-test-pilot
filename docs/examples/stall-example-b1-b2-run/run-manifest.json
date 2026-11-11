@@ -1,7 +1,7 @@
 {
   "run_id": "stall-example-b1-b2",
   "status": "completed",
-  "started_at": "2026-11-04T16:55:31+00:00",
+  "started_at": "2026-11-11T16:59:34+00:00",
   "config_path": "configs/experiments/stall-example/stall-example-b1-b2.json",
   "config": {
     "run_id": "stall-example-b1-b2",
@@ -77,7 +77,8 @@
           "preload_segments_per_video": 2
         }
       }
-    ]
+    ],
+    "clock_mode": "simulation"
   },
   "content_path": "sfv-reference-implementation/fixtures/content/content.json",
   "network_backend": "transport_fikore",
@@ -87,19 +88,23 @@
   ],
   "revisions": {
     "capcsp": {
-      "commit": "97098faf4b1a196a6054de9f9f46eef0cf6dae70",
+      "commit": "2b3bf02c51193a657f2199705863ad47c184131c",
       "dirty": false
     },
     "fikore": {
-      "commit": "13f9b835564921c4045fb0ca94e4b5b5910cc3d0",
+      "commit": "df3ca9ae6a2ff6ee5fcae326f5988eb76cca2817",
       "dirty": false
     },
     "sfv_reference_implementation": {
-      "commit": "07fab254952422d0092f80bf2490ea2a7fcfb9cb",
+      "commit": "aca0b9b14e7d013e017506dfc4e25b90498f5cc6",
       "dirty": false
     }
   },
-  "wall_s": 1.219,
+  "shared_state_log": "shared-state.jsonl",
+  "csp_control_log": null,
+  "clock_mode": "simulation",
+  "cap_application": "sfv",
+  "wall_s": 2.933,
   "network_steps": 2001,
   "byte_accounting": {
     "submitted_bytes": 976416,

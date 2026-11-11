@@ -29,4 +29,4 @@ Stall events are in `videos[].stall_events` and `playback_metrics.stall_events` 
 
 - The two representation intervals of `v2` add up to about 5.95 s of the 6 s watched. The missing 0.05 s, just after the stall, is reported as `unattributed_played_duration_s`.
 - Only 6 s of media play, far less than the 1 to 5 minutes for which P.1203 is specified, so the scores show the format only.
-- It has the same content limits as the C1 example: three 6 s videos, no frame rate and no audio data.
+- It has the same content limits as the C1 example: three 6 s videos and no audio data.

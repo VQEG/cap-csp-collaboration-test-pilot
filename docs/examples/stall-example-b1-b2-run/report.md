@@ -2,16 +2,16 @@
 
 ## Runs
 
-- `stall-example-b1-b2`: backend `transport_fikore`, 20 s simulated in 1.219 s, 2 UEs, status completed, bytes conserved
+- `stall-example-b1-b2`: backend `transport_fikore`, 20 s simulated in 2.933 s, 2 UEs, status completed, bytes conserved
 
 ## KPIs per UE
 
 | Run | UE | Player | Initial delay (s) | Swipe delay (s) | Stalls | Stall time (s) | Switches | Delivered (kB) | Wasted | O46 | O35 | O23 | Goodput (Mbit/s) | Throughput (Mbit/s) | RTT (ms) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| stall-example-b1-b2 | 0 | simple | – | 0.330 | 1 | 3.050 | 1 | 296 | 11.5% | 2.53 | 3.79 | 2.73 | 0.43 | 0.62 | 90.6 |
-| stall-example-b1-b2 | 1 | preload | – | 0.250 | 1 | 3.240 | 1 | 404 | 8.8% | 2.52 | 3.79 | 2.69 | 0.56 | 0.72 | 82.9 |
+| stall-example-b1-b2 | 0 | simple | – | 0.330 | 1 | 3.050 | 1 | 296 | 11.5% | 2.53 | 3.79 | 2.73 | 0.43 | 0.48 | 68.5 |
+| stall-example-b1-b2 | 1 | preload | – | 0.250 | 1 | 3.240 | 1 | 404 | 8.8% | 2.52 | 3.79 | 2.69 | 0.56 | 0.60 | 78.8 |
 
-Swipe delay is the mean time from a swipe to playback of the next video. Wasted is the share of delivered bytes that were never played. Goodput is the bytes delivered to the player divided by the time with at least one download open. Throughput (network-layer, including retransmissions) and RTT are means over the backend's telemetry samples taken while a download was open. O46, O35 and O23 are the means of the P.1203 scores per video, weighted by played duration.
+Swipe delay is the mean time from a swipe to playback of the next video. Wasted is the share of delivered bytes that were never played. Goodput is the bytes delivered to the player divided by the time with at least one download open. Throughput (network-layer, including retransmissions) and RTT are network-side diagnostics: means over the CSP telemetry samples (1 s each by default) that overlap a time with a download open, so idle time inside a sample lowers the throughput. O46, O35 and O23 are the means of the P.1203 scores per video, weighted by played duration.
 
 ## P.1203 Scores per Video
 
