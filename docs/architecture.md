@@ -89,7 +89,7 @@ sequenceDiagram
 
 ### One Step
 
-Each tick has two parallel concerns. The **byte path** is unchanged: the player receives download events only (`NetworkStep` carries no telemetry) and returns opaque submit/cancel actions. The **collaboration path** updates the shared state table, sends a filtered CSP snapshot on the same IPC message, collects CAP reports, and may run a `CSPController` at L3+. B1/B2 rules do not read `collaboration` yet. The transcript `network-steps.jsonl` matches the IPC shape; backend telemetry stays in `telemetry.jsonl` and table writes in `shared-state.jsonl`. Signaling filters, artifacts, and component names are in [Collaboration runtime](collaboration.md).
+Each step has two paths. On the byte path, the player receives download events and returns opaque submit and cancel actions. On the collaboration path, the runner updates the shared state table, sends a filtered CSP snapshot with the step, collects CAP reports and, at L3 and above, may run a `CSPController`. The [Collaboration Runtime](collaboration.md) describes the collaboration path.
 
 For `transport_fikore`, `advance()` runs modelled TCP and FikoRE TTIs internally ([co-simulation](fikore-cosim.md)). For `mock`, `advance()` returns the next step directly.
 
@@ -143,7 +143,7 @@ sequenceDiagram
 
 The Python side lives in two packages: `capcsp` in this repository and `fikore_transport` in the FikoRE submodule. `capcsp` imports the Network Backend API types from `fikore_transport`.
 
-The VQEG **shared state table** (`capcsp/shared_state`) is the collaboration bus for CSP telemetry (`CspFields`) and CAP reports (`CapReport`). The **`capcsp/collaboration`** package runs a step-synchronized tick: telemetry and CAP reports into the table, filtered **`collaboration`** snapshots to the Node harness, and an optional **`CSPController`** at L3+. See [Collaboration runtime](collaboration.md). SFV B1/B2 rules are unchanged; the harness does not feed `collaboration` into the SFV engine.
+The shared state table (`capcsp/shared_state`) holds the CSP telemetry (`CspFields`) and the CAP reports (`CapReport`) of each UE. The `capcsp/collaboration` package runs the collaboration path of each step; see [Collaboration Runtime](collaboration.md).
 
 ```mermaid
 classDiagram

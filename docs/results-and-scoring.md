@@ -151,7 +151,7 @@ Network:
 - `throughput_mbps`: network-side diagnostic. Mean throughput of the CSP telemetry samples in `telemetry.jsonl` whose interval overlaps a time with a request open, including retransmissions
 - `rtt_mean_ms`: network-side diagnostic. Mean transport round-trip time of the same samples
 
-The two diagnostics describe the network as the CSP sees it, at the cadence of the CSP telemetry (`csp_telemetry_interval_s`, 1 s by default). They are not application measurements. A sample that covers both download and idle time counts in full, so for bursty sessions `throughput_mbps` is well below `goodput_mbps`. Use `goodput_mbps` for the throughput the player obtained. Before the CSP telemetry was moved out of `NetworkStep`, the samples came every 10 ms, so `throughput_mbps` from older runs is not comparable.
+`throughput_mbps` and `rtt_mean_ms` describe the network as the CSP sees it, at the cadence of the CSP telemetry (`csp_telemetry_interval_s`, 1 s by default). They are not application measurements. A sample that covers both download and idle time counts in full. For bursty sessions, `throughput_mbps` is therefore well below `goodput_mbps`. Use `goodput_mbps` for the throughput the player obtained.
 
 ## Byte Attribution and Waste Classification
 
@@ -236,7 +236,7 @@ P.1203 is only valid for media of 1 minute or longer. Shorter videos are scored 
 Two inputs are assumptions and not measured, and must be addressed for future encodings:
 
 - Audio is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
-- The frame rate is assumed to be the same for all representations. The content file and the representation intervals now carry `frame_rate_fps` per representation (30 fps in the fixture), but the scoring does not read it yet.
+- The frame rate is assumed to be the same for all representations. The content file and the representation intervals carry `frame_rate_fps` per representation (30 fps in the fixture), but the scoring does not read it yet.
 
 Reports must state model versions. Short-Video Streaming Challenge metrics may be reported as supplementary comparative benchmarks.
 
@@ -245,5 +245,5 @@ Reports must state model versions. Short-Video Streaming Challenge metrics may b
 Each experiment run writes these diagnostic logs:
 
 - **Network request log**: per-request state transitions and terminal events in `requests` and `events` of the session file, and cumulative delivery steps in `network-steps.jsonl`.
-- **Telemetry log**: network samples per UE in `telemetry.jsonl` (flat backend samples for KPI means; not the CAP–CSP collaboration bus).
-- **Collaboration audit**: `shared-state.jsonl` records every shared table write (CSP and CAP directions). At L3+ with `csp_controller: "dummy"`, `csp-control.jsonl` records control proposals. See [Collaboration runtime](collaboration.md).
+- **Telemetry log**: CSP telemetry samples per UE in `telemetry.jsonl`, used for the network KPIs.
+- **Collaboration logs**: `shared-state.jsonl` and, at L3 and above, `csp-control.jsonl`; see [Collaboration Runtime](collaboration.md#output-files).

@@ -66,7 +66,6 @@ Owner: Werner
 - [ ] Generate swipe times from the swipe profile and seed.
 - [x] Wire CAP reports, shared state table, collaboration snapshots, and dummy `CSPController` in the runner ([Collaboration](collaboration.md), [Signaling](signaling.md)).
 - [ ] Call effective `set_ue_control()` and feed CSP fields into SFV policies so that L1–L3 change player behaviour ([Signaling](signaling.md)).
-- [ ] Pass `NetworkTelemetryReceived` into the SFV engine for L2 policies. The runner logs telemetry, but the engine has no input for it yet.
 - [ ] Decide whether to unify the naming in `sessions/ue-<id>.json`: the SFV result object uses camelCase (`sessionRecord`, `terminationReason`), while the record inside it uses snake_case (`session_id`, `representation_intervals`).
 
 ## L3 Bidirectional Collaboration Controller

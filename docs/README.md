@@ -64,7 +64,7 @@ Specific API decisions:
 - [FikoRE Co-simulation](fikore-cosim.md): implemented transport/Link boundary, lockstep, delivery guarantees and remaining harness work.
 - [Co-simulation Messages](fikore-cosim-messages.md): JSON wire protocol schema and examples.
 - [Signaling and Shared State](signaling.md): signaling levels L0–L4, shared table fields, and read filters.
-- [Collaboration runtime](collaboration.md): harness wiring, step tick, artifacts, and extension points.
+- [Collaboration Runtime](collaboration.md): harness wiring, step tick, artifacts, and extension points.
 - [Experiments and Configuration](experiments.md): experiment matrices, reproducibility, network conditions, and media sets.
 - [Results and Scoring](results-and-scoring.md): event logging, byte attribution, KPIs, and composite scores.
 

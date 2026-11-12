@@ -1,20 +1,18 @@
 # Signaling and Shared State
 
-The signaling level governs what network information the CAP may receive on the collaboration IPC path and whether CAP reports are visible to a network-side `CSPController`. Signaling levels do not swap the underlying player engine or network backend.
-
-In the current harness, filtered CSP fields are **written** to the shared table from backend telemetry, **read** back in Python, and sent to the player as `network_step.collaboration`. The SFV B1/B2 rules do not yet consume that payload for adaptation; see [Collaboration runtime](collaboration.md) and the [implementation plan](implementation-plan.md) for wiring versus policy work.
+The signaling level sets what network information the CAP may receive and whether a network-side `CSPController` may read CAP reports. It does not change the player engine or the network backend. How the harness moves the data is in [Collaboration Runtime](collaboration.md).
 
 ## Signaling Levels
 
-Signaling levels define **what may be read** from the shared table (`read_csp_fields`, `read_cap_report`) and therefore what appears in `network_step.collaboration` or reaches a `CSPController`. The harness **always writes** CSP and CAP updates to the table and **`shared-state.jsonl`**; filtering applies on read.
+The harness writes all CSP fields and CAP reports to the shared table at every level. The level filters what can be read back:
 
-- **L0**: no CSP fields exposed to the CAP (`collaboration.csp_by_ue` is empty). The player policy is expected to rely on download history only once L2/L1 policies are implemented in the SFV engine.
-- **L1**: the CAP receives the provisioned subscriber downlink rate (`plan_downlink_mbps`) via `collaboration`.
-- **L2**: the CAP receives live `CspFields` from the network backend via `collaboration`.
-- **L3**: the CAP still receives CSP via `collaboration`; CAP reports are written to the table and may be read by a `CSPController`, which may act on the CSP through `BackendControlAdapter` (dummy controller today logs proposals only).
-- **L4**: the CAP receives a capacity oracle trace via `collaboration` (not implemented in the harness yet).
+- **L0**: the CAP receives no CSP fields. The policy relies on its download history.
+- **L1**: the CAP receives the provisioned downlink rate (`plan_downlink_mbps`).
+- **L2**: the CAP receives all `CspFields`.
+- **L3**: as L2. In addition, a `CSPController` may read CAP reports and act on the CSP.
+- **L4**: the CAP receives a capacity oracle trace. The harness does not implement L4 yet.
 
-Player policy consumption and effective FikoRE control are tracked in the [implementation plan](implementation-plan.md).
+The B1 and B2 policies do not use CSP fields yet, and no controller acts on the CSP yet. Both are tracked in the [implementation plan](implementation-plan.md).
 
 Unavailable measurements default to `None`. Backends must not fabricate synthetic values for missing metrics.
 
@@ -41,9 +39,9 @@ Field mappings from backend telemetry to `CspFields` are logged explicitly. For 
 
 Under FikoRE co-simulation, `rtt_ms` comes from the modelled transport's acknowledgement path. FikoRE's one-way PDCP latency remains a separate backend measurement and is not doubled to manufacture RTT.
 
-`rtt_ms` is, strictly, not a CSP measurement: a network operator does not see the end-to-end TCP round trip, the application's transport does. The pilot keeps it in `CspFields` for now because the existing consumers read it there. If it moves, it would become a CAP-side field (reported with `CapReport`, or measured by the player from its own requests) and `CspFields.rtt_ms` would be removed or restricted to a network-measured quantity such as RAN or core delay.
+`rtt_ms` is a transport measurement. A network operator does not see the end-to-end TCP round trip; the application's transport does. It is an open point whether `rtt_ms` should become a CAP field, with `CspFields` keeping only a network delay such as RAN or core delay.
 
-CSP telemetry is sampled once per `csp_telemetry_interval_s` of simulation time (1 s by default, the same cadence as the CAP report rate limit), not once per `NetworkStep`. Each sample covers the interval since the previous one; the last sample of a run covers the remainder.
+The backend samples CSP telemetry every `csp_telemetry_interval_s` of simulation time (1 s by default, the same as the CAP report rate limit). Each sample covers the time since the previous one. The last sample of a run covers the remainder.
 
 FikoRE additionally knows each UE's CQI, MCS, spectral efficiency and rank, which yield an achievable rate for that UE's current channel. That is neither measured throughput nor an oracle, and it is closer to what a real CSP could publish than either. It is a candidate additional L2 field, kept out of `CspFields` until an experiment needs it.
 
@@ -59,11 +57,9 @@ class CapReport:
     swipe_rate_per_s: float
 ```
 
-The player engine generates CAP reports on state transitions: stall state changes, video switches, or buffer occupancy changes exceeding a configured threshold. Reports are rate-limited to at most one per second per UE by default.
+The SFV engine emits a CAP report when a stall starts or ends, when the current video changes, or when `playable_buffer_s` has moved by at least 1.0 s since the last report. Each UE sends at most one report per second of session time. A change inside that second is reported, with the state current at that time, once the second has passed. The report at the end of the run is exempt from the limit.
 
-In the pilot, the SFV engine uses a default buffer threshold of 1.0 s: a report is due when `playable_buffer_s` differs by at least 1.0 s from the last emitted report. The rate limit runs on the session clock. A transition that falls inside the rate-limit window is reported, with the state current at that time, once the window has passed. The report at the end of the run is exempt from the rate limit.
-
-CAP reports represent application telemetry and are managed separately from policy `Action` returns.
+CAP reports are application telemetry. They are separate from the policy's `Action` returns.
 
 ## Shared State Interface
 
@@ -83,37 +79,27 @@ class SharedStateTable(Protocol):
     def write_cap_report(self, ue_id: int, report: CapReport) -> None: ...
 ```
 
-The baseline implementation is an in-process Python data structure. It maintains current per-UE state and records all reads and updates to an append-only JSONL log (timestamp, UE ID, direction, field, and value).
+Writes store the full payload. Optional `extensions`, such as radio hints from FikoRE, go to the log but not into `CspFields`. Reads return only the fields the signaling level permits. Only the Python harness uses the table; the CAP process does not read it.
 
-**Writes** store the full measurement set; optional `extensions` (for example radio hints from FikoRE) appear in `shared-state.jsonl` but not in the narrow `CspFields` schema.
+## Reference Implementation
 
-**Reads** apply signaling-level filters: only permitted fields are returned to callers. The harness uses `read_csp_fields` to build `collaboration.csp_by_ue` for the player process; at L3+, `read_cap_report` is used by `CSPController`. The CAP process does not read the table directly.
+`InMemorySharedStateTable` in `capcsp/shared_state/` holds the latest `CspFields` and `CapReport` per UE. It appends a row to `shared-state.jsonl` each time a UE's stored CSP fields or CAP report change. Each row is a JSON object with at least:
 
-## Reference implementation
-
-The pilot implements this interface in `capcsp/shared_state/`. `InMemorySharedStateTable` holds the latest `CspFields` and `CapReport` per UE and appends an audit row to **`shared-state.jsonl`** in the run output directory on each write. Each line is a JSON object with at least:
-
-- `record_type`: `"write"` (reads are optional via `log_reads`)
+- `record_type`: `"write"`, or `"read"` when `log_reads` is on
 - `direction`: `"csp_to_cap"` or `"cap_to_csp"`
 - `ue_id`, `time_s`, `signaling_level`
-- `payload`: `csp_fields` with optional `extensions` (extra telemetry keys for audit), or `cap_report` for CAP→CSP rows
-
-The harness feeds the table from the backend's CSP telemetry samples (`NetworkTelemetryReceived`, mapped to `CspFields`) and from the CAP reports returned by the **`cap_reports`** IPC message after each `NetworkStep` (an empty map when no report is due). The step-synchronized collaboration runtime lives in `capcsp/collaboration/`; see **[Collaboration runtime](collaboration.md)** for the full tick order, IPC `collaboration` field, and artifacts. Optional experiment key **`plan_downlink_mbps_by_ue`** (`dict`, UE id → Mbps) sets `plan_downlink_mbps` on `CspFields` for L1 experiments.
-
-## CSPController (harness)
-
-At signaling L3+, the harness may run a **`CSPController`** (experiment level L3, code name agnostic of backend). The pilot ships **`DummyCSPController`** with `csp_controller: "dummy"`: it reads `CapReport` from the shared table, logs a `CspControlIntent` proposal to **`csp-control.jsonl`**, and does not call `BackendControlAdapter.apply` (so FikoRE knobs stay unchanged). Real mapping from CAP telemetry to scheduler weights remains future work.
+- `payload`: `csp_fields` with optional `extensions`, or `cap_report`
 
 ## Data Sources Across Modes
 
-- **Offline co-simulation**: the backend's `csp_telemetry` source (FikoRE's `NetworkTelemetrySampler`) samples the link's cumulative per-UE counters (FikoreLink's compact `events` state, or the loopback queue) beside the byte path, adds RTT and retransmissions from the transport, and the common harness maps those fields into `CspFields`. `NetworkStep` carries download events only.
+- **Offline co-simulation**: the backend's CSP telemetry source samples the link beside the byte path, as described in the [Network Backend API](network-backend-api.md). The harness maps the samples to `CspFields`.
 - **Emulated live mode**: a telemetry collector translates live FikoRE metrics into `CspFields`. The HTTP client supplies application-layer observations (e.g., request latency and application throughput).
 
 All telemetry records use backend simulation or elapsed run time.
 
 ## L3 Network Controller Interface
 
-The architecture reserves a `UeControl` structure for dynamic scheduling adjustments (scheduler priority and rate caps). The harness applies control through **`FikoreControlAdapter`** (`CspControlIntent` → `UeControl` → `TransportBackend.set_ue_control`); see [Collaboration runtime](collaboration.md).
+At L3, a `CSPController` reads CAP reports from the table and may adjust scheduling per UE through a `UeControl` (scheduler priority and rate cap). `FikoreControlAdapter` maps a `CspControlIntent` to `TransportBackend.set_ue_control`. The pilot has only `DummyCSPController`, which logs its proposals to `csp-control.jsonl` and never applies them.
 
 The network-side mechanism is specified: both parameters are written per UE at runtime through the [control protocol](fikore-cosim-messages.md#set), applied at a stated TTI and acknowledged with the exact instant of application. SINR offset, mobility, background traffic rate and the delay budget are in the same knob catalogue, so the controller's action space is not limited by the interface.
 
@@ -125,7 +111,6 @@ The **collaboration algorithm** for L3 still requires:
 - Persistence duration of control policies
 - Compatibility guarantees between offline and emulated execution
 
-The pilot wires CAP reports, the shared table, and dummy `CSPController` output; the policy itself is not yet specified.
 
 ## L4 Capacity Oracle
 

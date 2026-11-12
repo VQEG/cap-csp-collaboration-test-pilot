@@ -91,22 +91,20 @@ class ControllableNetworkBackend(NetworkBackend, Protocol):
     def set_ue_control(self, ue_id: int, control: UeControl) -> None: ...
 ```
 
-The common harness does not call `set_ue_control` from the player process. At signaling L3+, the default **`DummyCSPController`** logs proposals to `csp-control.jsonl` only; a future controller plugin may use **`FikoreControlAdapter.apply`** to call `set_ue_control`. See [Collaboration runtime](collaboration.md).
+The player process never calls `set_ue_control`. At L3 and above, a `CSPController` in the harness may call it through `FikoreControlAdapter`; see [Collaboration Runtime](collaboration.md).
 
 `NetworkEvent` is an internal Python union. Each backend creates these events from its native feedback: `TransportBackend` builds them from `FikoreLink` arrivals, HTTP workers wrap measured socket reads, and synthetic backends compute numerical progress.
 
-`NetworkTelemetryReceived` stays in the union only for FikoRE's deprecated in-step telemetry (`BackendConfig.telemetry_every_windows`); the harness rejects it inside a `NetworkStep`. Network telemetry is instead exposed beside the byte path, as an optional `csp_telemetry` attribute of the backend:
+`NetworkTelemetryReceived` is the sample type of a backend's CSP telemetry. It never appears in a `NetworkStep`; the harness rejects a step that contains one. A backend exposes its telemetry beside the byte path, as an optional `csp_telemetry` attribute:
 
 ```python
 class CspTelemetrySource(Protocol):
     def poll(self, *, force: bool = False) -> list[NetworkTelemetryReceived]: ...
 ```
 
-The harness calls `poll()` after every `advance()` and `poll(force=True)` after the final one. The source returns the samples due at the current backend time and nothing otherwise. `TransportFikoreBackend` uses FikoRE's `NetworkTelemetrySampler`, which reads cumulative per-UE counters from the link (`FikoreLink` state snapshots or the loopback queue) every `csp_telemetry_interval_s` (1 s by default; `telemetry_interval_ms` is a deprecated alias) and takes RTT and retransmitted bytes from the transport. A backend without a source, such as `mock`, writes no CSP telemetry.
+The harness calls `poll()` after every `advance()` and `poll(force=True)` after the final one. The source returns the samples due at the current backend time and nothing otherwise. `TransportFikoreBackend` uses FikoRE's `NetworkTelemetrySampler`, which reads cumulative per-UE counters from the link (`FikoreLink` state snapshots or the loopback queue) every `csp_telemetry_interval_s` (1 s by default) and takes RTT and retransmitted bytes from the transport. A backend without a source, such as `mock`, writes no CSP telemetry.
 
 `ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
-
-Under FikoRE co-simulation, `rtt_ms` is measured by the modelled transport's acknowledgement path. It is not obtained by doubling FikoRE's one-way `pdcp_latency_ms`; both measurements remain separate. It is a transport measurement carried with the CSP fields for now; see [Signaling](signaling.md).
 
 ## Common Semantics
 

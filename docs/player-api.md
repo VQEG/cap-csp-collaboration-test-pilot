@@ -163,9 +163,7 @@ For example, `MPS = 6` with `PSPV = 3` preloads three segments each for the next
 
 Michi's group owns the exact B1 and B2 rules and their parameters (MPS, PSPV, start and re-evaluation of preloading, bandwidth estimation, quality choice). The [open points](decision-status-and-todos.md#player-and-video-definitions) are tracked separately.
 
-Signaling levels provide additional telemetry fields to policies via the shared table snapshot on each step. A policy that ignores `csp_fields` operates as an L0 baseline under all configurations. See [Collaboration runtime](collaboration.md) and [Signaling](signaling.md).
-
-CAP reports are event-driven rather than one snapshot per step. After each `network_step`, the harness sends a `cap_reports` message, and the Node harness answers with the result of SFV `drainCapReports` for each UE. A UE appears in the reply only when a report is due: a stall starts or ends, the current video changes, or `playable_buffer_s` has moved by at least 1.0 s since the last report. Each UE gets at most one report per second of session time. The reply is `{}` when no report is due. After the final step, the drain is exempt from the rate limit, so the terminal state is always reported.
+Above L0, policies receive CSP fields from the shared table with each step. A policy that ignores `csp_fields` is an L0 baseline at every signaling level. The player also sends CAP reports, as described in [Signaling and Shared State](signaling.md#cap-telemetry-reports).
 
 ## Multi-Video dash.js Integration
 
