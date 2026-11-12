@@ -12,7 +12,6 @@ import json
 import math
 import shutil
 import tempfile
-import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -210,8 +209,6 @@ class TransportFikoreConfig:
     """Duration of one NetworkStep towards the player in milliseconds"""
     csp_telemetry_interval_s: float = 1.0
     """Interval of CSP telemetry samples written to the shared state table and telemetry.jsonl"""
-    telemetry_interval_ms: int | None = None
-    """Deprecated alias of csp_telemetry_interval_s, in milliseconds"""
     fikore_binary: str = str(FIKORE_ROOT / "bin" / "fikore")
     fikore_base_ini: str = str(FIKORE_ROOT / "config" / "control_demo.ini")
     study_ues: list[str] | None = None
@@ -239,24 +236,6 @@ class TransportFikoreConfig:
             values["fikore_base_ini"] = _resolve_repo_path(
                 values["fikore_base_ini"]
             )
-        legacy_interval = values.pop("telemetry_interval_ms", None)
-        if legacy_interval is not None:
-            if "csp_telemetry_interval_s" in values:
-                raise ValueError(
-                    "set csp_telemetry_interval_s or telemetry_interval_ms, not both"
-                )
-            warnings.warn(
-                "telemetry_interval_ms is deprecated; use csp_telemetry_interval_s",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if (
-                isinstance(legacy_interval, bool)
-                or not isinstance(legacy_interval, int)
-                or legacy_interval <= 0
-            ):
-                raise ValueError("telemetry_interval_ms must be a positive integer")
-            values["csp_telemetry_interval_s"] = legacy_interval / 1000.0
         config = cls(**values)
         if config.link not in ("fikore", "loopback"):
             raise ValueError(f"Unknown link {config.link!r}")
@@ -436,12 +415,9 @@ class TransportFikoreBackend(TransportBackend):
                 ack_over_link=config.ack_over_link,
             ),
         )
-        interval_s = (
-            config.telemetry_interval_ms / 1000.0
-            if config.telemetry_interval_ms is not None
-            else config.csp_telemetry_interval_s
+        self.csp_telemetry = self.telemetry_sampler(
+            ue_ids, interval_s=config.csp_telemetry_interval_s
         )
-        self.csp_telemetry = self.telemetry_sampler(ue_ids, interval_s=interval_s)
 
     def accounting(self) -> dict[str, Any] | None:
         """Byte conservation counters of the link, or None for the loopback link."""

@@ -210,14 +210,6 @@ def test_csp_telemetry_interval_is_configurable(tmp_path: Path) -> None:
     assert sorted({row["time_s"] for row in rows}) == [0.5, 1.0]
 
 
-def test_telemetry_interval_ms_is_a_deprecated_alias() -> None:
-    with pytest.warns(DeprecationWarning, match="csp_telemetry_interval_s"):
-        config = TransportFikoreConfig.from_dict({"telemetry_interval_ms": 250})
-    assert config.csp_telemetry_interval_s == 0.25
-    with pytest.raises(ValueError, match="not both"):
-        TransportFikoreConfig.from_dict({"telemetry_interval_ms": 250, "csp_telemetry_interval_s": 1.0})
-
-
 @pytest.mark.skipif(
     not Path(TransportFikoreConfig().fikore_binary).exists(), reason="FikoRE binary is not built (Linux only)"
 )
