@@ -63,15 +63,15 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
       ))}
 
       {/* Player process */}
-      <DiagramNode {...nodeProps("networkStepHarness")} repository="harness" title={<T id="NetworkStepHarness" />} codePath="capcsp/player/js/network_step_harness.js">
+      <DiagramNode {...nodeProps("networkStepHarness")} repository="sfv" title={<T id="NetworkStepHarness" />} codePath="sfv-reference-implementation/src/cosim/">
         <NodeDetailList
           items={[
-            <>One process for all UEs; applies each <T id="network_step" asCode /> and replies <T id="player_actions" asCode /></>,
-            state === "pr8" && (
-              <>Passes <T id="collaboration" asCode /> to <T id="applyCspUpdate" asCode>applyCspUpdate</T> and answers <T id="cap_reports" asCode /></>
+            <>One worker process for all UEs; applies each <T id="network_step" asCode /> and replies <T id="player_actions" asCode /></>,
+            state === "master" ? (
+              <>Passes changed <T id="collaboration" asCode /> fields to <T id="applyCspUpdate" asCode>applyCspUpdate</T> and answers <T id="cap_reports" asCode /></>
+            ) : (
+              <>Forwards CSP fields to the engine (L1+) and returns <T id="CapReport" asCode /> (L3+)</>
             ),
-            state === "master" && fikore && <>Stores <T id="NetworkTelemetryReceived" asCode /> per UE, but nothing reads it</>,
-            state === "design" && <>Forwards CSP fields to the engine (L1+) and returns <T id="CapReport" asCode /> (L3+)</>,
           ]}
         />
       </DiagramNode>
@@ -85,10 +85,8 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         <NodeDetailList
           items={[
             <>One per UE: playback clock, buffer, swipes, up to {isB1 ? 2 : 3} concurrent requests</>,
-            state === "pr8" ? (
-              <>Holds the latest <T id="CspFields" asCode />; <T id="buildCapReport" asCode>buildCapReport</T> (SFV PR #2)</>
-            ) : state === "master" ? (
-              <>SFV v0.7.0: no input for network telemetry</>
+            state === "master" ? (
+              <>Holds the latest <T id="CspFields" asCode />; <T id="drainCapReports" asCode>drainCapReports</T> returns a report when one is due</>
             ) : (
               <>Same engine and policy code also runs in dash.js</>
             ),
@@ -118,7 +116,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
             <>Owns the simulation clock and the step loop</>,
             <>JSON lines to Node over the process pipes</>,
             <>Runs the <T id="byteConservation">byte conservation check</T></>,
-            state === "pr8" && <>Collaboration tick: telemetry → table → <T id="collaboration" asCode />; CAP reports → table; controller</>,
+            state === "master" && <>Collaboration tick: telemetry sample → table → <T id="collaboration" asCode />; CAP reports → table; controller</>,
             <>Applies player actions before the next <C>advance()</C></>,
           ]}
         />
@@ -128,7 +126,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         <ul className="space-y-[3px] font-mono text-[10.5px]">
           {listRunOutputFiles(settings, topology).map((file) => (
             <li key={file.fileName}>
-              <T id={file.fileName} className={cn("no-underline", file.addedByPr8 && "font-semibold text-repo-harness")}>
+              <T id={file.fileName} className={cn("no-underline", file.collaborationLog && "font-semibold text-repo-harness")}>
                 {file.fileName}
               </T>
             </li>
@@ -143,7 +141,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
             <NodeDetailList
               items={[
                 <>TCP CUBIC per UE · <T id="tcpConnectionMode">{settings.tcpConnectionMode}</T> connections · 1 MiB window</>,
-                <>Emits download events and one <T id="NetworkTelemetryReceived" asCode /> per UE and step</>,
+                <>Emits download events; its <T id="NetworkTelemetrySampler">telemetry sampler</T> gives one sample per UE every 1 s</>,
                 <>Accepts <T id="set_ue_control" asCode>set_ue_control</T> with <T id="UeControl" asCode /></>,
                 <>ACKs {settings.acksOverFikoreUplink ? "over the FikoRE uplink" : "after a fixed 1 ms"} (<T id="acksOverUplink" asCode>ack_over_link</T>)</>,
               ]}
@@ -165,7 +163,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         </>
       ) : (
         <DiagramNode {...nodeProps("mockBackend")} repository="harness" title={<T id="MockNetworkBackend" />} codePath="capcsp/network/mock.py">
-          <NodeDetailList items={[<>80 kB per 10 ms step (64 Mbps), shared by all requests</>, <>No radio, no TCP, no delay</>, <>Emits no telemetry events</>, <>Condition: example-only</>]} />
+          <NodeDetailList items={[<>80 kB per 10 ms step (64 Mbps), shared by all requests</>, <>No radio, no TCP, no delay</>, <>No telemetry source</>, <>Condition: example-only</>]} />
         </DiagramNode>
       )}
 
@@ -182,14 +180,14 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         {...nodeProps("sharedStateTable")}
         repository="harness"
         title={<T id="SharedStateTable">Shared state table</T>}
-        codePath={state === "master" ? "not on master" : "capcsp/shared_state/table.py"}
+        codePath="capcsp/shared_state/table.py"
       >
         <NodeDetailList
           items={[
             <>Per UE: latest <T id="CspFields" asCode /> (CSP → CAP) and <T id="CapReport" asCode /> (CAP → CSP)</>,
             <>Writes are always stored; changes go to <T id="shared-state.jsonl" asCode /></>,
             <><T id="signalingLevelFilter">Filter on read</T> at {settings.signalingLevel}: player gets {visibleCspFieldsText}; controller {level >= 3 ? "can" : "cannot"} read CAP reports</>,
-            state === "pr8" && fikore && level === 0 && <>Telemetry still written at L0, for audit</>,
+            state === "master" && fikore && level === 0 && <>Telemetry still written at L0, for audit</>,
           ]}
         />
       </DiagramNode>
@@ -197,15 +195,15 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
       <DiagramNode
         {...nodeProps("cspController")}
         repository="harness"
-        title={state === "pr8" ? <T id="DummyCSPController" /> : <T id="CSPController" />}
-        codePath={state === "pr8" ? "capcsp/collaboration/csp_controller.py" : undefined}
+        title={state === "master" ? <T id="DummyCSPController" /> : <T id="CSPController" />}
+        codePath={state === "master" ? "capcsp/collaboration/csp_controller.py" : undefined}
       >
         <NodeDetailList
           items={
-            state === "pr8"
+            state === "master"
               ? [
                   <>Enabled by <T id="csp_controller" asCode>csp_controller: "dummy"</T> at L3+</>,
-                  <>Reads each UE's <T id="CapReport" asCode /> every step</>,
+                  <>Reads each UE's latest <T id="CapReport" asCode /> every step</>,
                   <>On a stall: proposes priority × 2 as a <T id="CspControlIntent" asCode /></>,
                   <>Logs to <T id="csp-control.jsonl" asCode />, <C>applied: false</C></>,
                 ]

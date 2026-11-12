@@ -152,7 +152,7 @@ export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
           <Checkbox
             id="dummy-controller"
             checked={settings.dummyCspControllerEnabled}
-            disabled={settings.implementationState !== "pr8"}
+            disabled={settings.implementationState !== "master"}
             onCheckedChange={(checked) => updateSetting("dummyCspControllerEnabled", checked === true)}
           />
           <Label htmlFor="dummy-controller" className="text-sm font-normal">

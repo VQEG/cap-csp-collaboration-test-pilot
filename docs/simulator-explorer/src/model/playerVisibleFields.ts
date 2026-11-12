@@ -25,25 +25,25 @@ export function computePlayerVisibleFields(settings: ExplorerSettings): PlayerVi
 
   const rows: Omit<PlayerVisibleFieldRow, "visibility">[] = [
     { field: "plan_downlink_mbps", source: "config: plan_downlink_mbps_by_ue", minimumLevel: 1, exampleValue: planValue },
-    { field: "achieved_throughput_mbps", source: "NetworkTelemetry.throughput_mbps", minimumLevel: 2, exampleValue: fikore ? throughputShare : null },
+    { field: "achieved_throughput_mbps", source: "telemetry sample: throughput_mbps (1 s mean)", minimumLevel: 2, exampleValue: fikore ? throughputShare : null },
     {
       field: "rtt_ms",
-      source: "NetworkTelemetry.rtt_ms (TCP ACK path)",
+      source: "telemetry sample: rtt_ms (TCP ACK path)",
       minimumLevel: 2,
       exampleValue: fikore ? (settings.acksOverFikoreUplink ? rttMidpoint : Math.max(5, Math.round(rttMidpoint / 2))) : null,
     },
     {
       field: "loss_rate",
-      source: "NetworkTelemetry.drop_rate",
+      source: "telemetry sample: drop_rate",
       minimumLevel: 2,
       exampleValue: fikore ? Math.round((bandMidpoint(condition.lossPercentBand) / 100) * 10000) / 10000 : null,
     },
-    { field: "congestion_rate", source: "NetworkTelemetry.ce_rate (ECN; L4S is off)", minimumLevel: 2, exampleValue: null },
+    { field: "congestion_rate", source: "telemetry sample: ce_rate (ECN; L4S is off)", minimumLevel: 2, exampleValue: null },
   ];
 
   return rows.map((row) => {
     let visibility: FieldVisibility;
-    if (settings.implementationState === "master" || level < row.minimumLevel) visibility = "filtered";
+    if (level < row.minimumLevel) visibility = "filtered";
     else visibility = row.exampleValue === null ? "null" : "visible";
     return { ...row, visibility };
   });

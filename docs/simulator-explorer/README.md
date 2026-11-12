@@ -1,10 +1,10 @@
 # CAP–CSP simulator explorer
 
-An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend, FikoRE condition, player behavior and transport. It compares three implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, the code on master, and PR #8 (shared state table, needs SFV PR #2).
+An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend, FikoRE condition, player behavior and transport. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
 
 Diagram boxes are colored by the repository that holds the code. Every dotted-underlined term, and every arrow label, shows an explanation on hover.
 
-The page is hand-maintained. Nothing is generated from the code, so it goes stale when the code changes. Update it together with the PRs listed below.
+The page is hand-maintained. Nothing is generated from the code, so it goes stale when the code changes. Update it together with the changes listed below.
 
 ## Running it
 
@@ -51,10 +51,7 @@ Colors are CSS variables in `src/index.css`: `--flow-*` for arrow colors (direct
 
 ## Updating it
 
-When PR #8 is merged (and SFV PR #2 with it):
-
-- "master" now has the shared state table. Either remove `pr8` from `implementationStates.ts` and move its branches in `componentTopology.ts`, `implementationStatus.ts`, `networkStepWalkthrough.tsx`, `experimentConfig.ts`, `runOutputFiles.ts` and the diagram boxes to `master`, or rename `pr8` to `master` and drop the old master branches.
-- Update the master texts in `ArchitectureDiagram.tsx` ("SFV v0.7.0: no input for network telemetry") and the `availability` fields in `glossary.ts`.
+To show an open PR next to master, add a state to `implementationStates.ts`, branch on it in the files under `src/model/` and the diagram boxes, and set `availability` on the glossary terms that only exist on that branch.
 
 When a real L3 controller lands:
 
@@ -72,7 +69,7 @@ When conditions are recalibrated or added:
 
 - Update `networkConditions.ts` from `configs/fikore/README.md`. New conditions appear in the selector automatically.
 
-When the config schema, output files, `CspFields`, `CapReport` or the telemetry mapping change:
+When the config schema, output files, `CspFields`, `CapReport`, the telemetry mapping or the telemetry interval change:
 
 - Update `experimentConfig.ts`, `runOutputFiles.ts`, `playerVisibleFields.ts` and the matching entries in `glossary.ts`.
 

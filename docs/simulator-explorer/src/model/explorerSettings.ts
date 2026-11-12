@@ -1,7 +1,7 @@
 // Settings chosen in the control panel. They are mirrored in the URL hash,
 // so a link reproduces a view.
 
-export type ImplementationState = "design" | "master" | "pr8";
+export type ImplementationState = "design" | "master";
 export type SignalingLevel = "L0" | "L1" | "L2" | "L3" | "L4";
 export type NetworkBackendKind = "transport_fikore" | "mock";
 export type PlayerBehavior = "simple" | "preload";
@@ -23,7 +23,7 @@ export interface ExplorerSettings {
 }
 
 export const DEFAULT_EXPLORER_SETTINGS: ExplorerSettings = {
-  implementationState: "pr8",
+  implementationState: "master",
   signalingLevel: "L2",
   networkBackend: "transport_fikore",
   conditionId: "C2",

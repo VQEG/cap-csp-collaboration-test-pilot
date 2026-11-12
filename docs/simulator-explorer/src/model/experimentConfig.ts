@@ -33,13 +33,11 @@ export function buildExperimentConfig(settings: ExplorerSettings): Record<string
     signaling_level: settings.signalingLevel,
   };
 
-  if (settings.implementationState === "pr8") {
-    config.clock_mode = "simulation";
-    if (level >= 1 && settings.planDownlinkMbps !== "") {
-      config.plan_downlink_mbps_by_ue = Object.fromEntries(ueIds.map((ueId) => [String(ueId), Number(settings.planDownlinkMbps)]));
-    }
-    if (level >= 3) config.csp_controller = settings.dummyCspControllerEnabled ? "dummy" : null;
+  config.clock_mode = "simulation";
+  if (level >= 1 && settings.planDownlinkMbps !== "") {
+    config.plan_downlink_mbps_by_ue = Object.fromEntries(ueIds.map((ueId) => [String(ueId), Number(settings.planDownlinkMbps)]));
   }
+  if (level >= 3) config.csp_controller = settings.dummyCspControllerEnabled ? "dummy" : null;
 
   config.duration_s = fikore ? condition.durationSeconds : 0.2;
   config.timingDefaults = {

@@ -48,19 +48,19 @@ export function computeComponentTopology(settings: ExplorerSettings): ComponentT
   const level = signalingLevelNumber(settings.signalingLevel);
   const fikore = usesFikoreBackend(settings);
   const state = settings.implementationState;
-  const hasSharedStateTable = state !== "master";
-  const backendEmitsTelemetry = fikore; // the mock backend emits no NetworkTelemetryReceived
+  const hasSharedStateTable = true;
+  const backendEmitsTelemetry = fikore; // the mock backend has no CSP telemetry source
   const planRateConfigured = settings.planDownlinkMbps !== "";
-  const dummyControllerRuns = state === "pr8" && level >= 3 && settings.dummyCspControllerEnabled;
+  const dummyControllerRuns = state === "master" && level >= 3 && settings.dummyCspControllerEnabled;
 
-  // PR #8 writes telemetry at every level (audit) and seeds the plan rate at
-  // run start from L1. The design only writes what a level exposes.
+  // master writes telemetry at every level (audit) and the plan rate at run
+  // start from L1. The design only writes what a level exposes.
   const writeCspFields =
-    state === "pr8"
+    state === "master"
       ? backendEmitsTelemetry || (level >= 1 && planRateConfigured)
-      : state === "design" && level >= 1 && (backendEmitsTelemetry || planRateConfigured);
-  // PR #8 collects CAP reports at every level (audit); the design from L3.
-  const capReportsCollected = state === "pr8" || (state === "design" && level >= 3);
+      : level >= 1 && (backendEmitsTelemetry || planRateConfigured);
+  // master collects CAP reports at every level (audit); the design from L3.
+  const capReportsCollected = state === "master" || level >= 3;
   const controllerReads = level >= 3 && (state === "design" || dummyControllerRuns);
 
   const activeEdges: Record<DiagramEdgeId, boolean> = {

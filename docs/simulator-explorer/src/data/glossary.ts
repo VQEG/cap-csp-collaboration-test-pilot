@@ -2,7 +2,7 @@ import type { RepositoryId } from "@/data/repositories";
 
 // Hover texts for every term marked with <GlossaryTerm id="…"> in the page.
 // Text in `backticks` is rendered as code. Sources: docs/signaling.md,
-// docs/network-backend-api.md, docs/collaboration.md (PR #8) and the code.
+// docs/network-backend-api.md, docs/collaboration.md and the code.
 
 export type GlossaryKind =
   | "component"
@@ -26,7 +26,7 @@ export interface GlossaryEntry {
   kind: GlossaryKind;
   repository?: RepositoryId;
   definedIn?: string;
-  /** For example "PR #8" when the term only exists on that branch. */
+  /** Set when the term only exists on a branch, for example "PR #12". */
   availability?: string;
   summary: string;
   fields?: GlossaryField[];
@@ -52,12 +52,12 @@ const CAP_REPORT_FIELD_LIST: GlossaryField[] = [
 export const GLOSSARY = {
   // Components
   NetworkStepHarness: {
-    name: "NetworkStepHarness",
+    name: "SFVNetworkStepHarness",
     kind: "component",
-    repository: "harness",
-    definedIn: "capcsp/player/js/network_step_harness.js",
+    repository: "sfv",
+    definedIn: "sfv-reference-implementation/src/cosim/, run by scripts/cosim-network-step-worker.mjs",
     summary:
-      "Node.js side of the player bridge. Holds one `SFVSimulationController` per UE, applies each `network_step` to them and answers with `player_actions`. On PR #8 it also passes `collaboration.csp_by_ue` to `applyCspUpdate` and answers `cap_reports`.",
+      "Node.js side of the player bridge, in the SFV repository. Holds one `SFVSimulationController` per UE, applies each `network_step` to them and answers with `player_actions`. It passes changed `collaboration.csp_by_ue` fields to `applyCspUpdate` and answers `cap_reports` with `drainCapReports`.",
   },
   SFVSimulationController: {
     name: "SFVSimulationController",
@@ -89,7 +89,7 @@ export const GLOSSARY = {
     repository: "harness",
     definedIn: "capcsp/runner/run.py, capcsp/player/bridge.py",
     summary:
-      "Python process that owns the simulation clock. It loads the experiment config, starts the backend and the Node player, runs the step loop, checks byte conservation and writes all run outputs. On PR #8 it also owns the shared state table and the collaboration tick.",
+      "Python process that owns the simulation clock. It loads the experiment config, starts the backend and the Node player, runs the step loop, checks byte conservation and writes all run outputs. It also owns the shared state table and the collaboration tick.",
   },
   TransportBackend: {
     name: "TransportBackend",
@@ -97,7 +97,7 @@ export const GLOSSARY = {
     repository: "fikore",
     definedIn: "5g-network-emulator/transport/fikore_transport/backend.py",
     summary:
-      "Implements the `NetworkBackend` API on top of a modelled TCP stack (CUBIC or Reno) per UE. Turns byte requests into TCP segments, sends them over `FikoreLink` and reports delivery, cancellations and per-UE `NetworkTelemetry`. Wrapped by `capcsp/network/transport_fikore.py` in the harness.",
+      "Implements the `NetworkBackend` API on top of a modelled TCP stack (CUBIC or Reno) per UE. Turns byte requests into TCP segments, sends them over `FikoreLink` and reports delivery and cancellations. Its `NetworkTelemetrySampler` is the backend's CSP telemetry source. Wrapped by `capcsp/network/transport_fikore.py` in the harness.",
   },
   FikoreLink: {
     name: "FikoreLink",
@@ -121,14 +121,13 @@ export const GLOSSARY = {
     repository: "harness",
     definedIn: "capcsp/network/mock.py",
     summary:
-      "Deterministic test backend. Shares a fixed budget of 80,000 bytes per 10 ms step (64 Mbps) across all active requests. No radio, no TCP, no delay and no telemetry events.",
+      "Deterministic test backend. Shares a fixed budget of 80,000 bytes per 10 ms step (64 Mbps) across all active requests. No radio, no TCP, no delay and no telemetry source.",
   },
   SharedStateTable: {
     name: "SharedStateTable",
     kind: "component",
     repository: "harness",
     definedIn: "capcsp/shared_state/table.py",
-    availability: "PR #8",
     summary:
       "Per-UE store of the latest `CspFields` and `CapReport`. Writes always store the full values; reads apply the signaling-level filter. Every change is appended to `shared-state.jsonl`. The Node player never touches it directly.",
   },
@@ -137,9 +136,8 @@ export const GLOSSARY = {
     kind: "component",
     repository: "harness",
     definedIn: "capcsp/collaboration/csp_controller.py",
-    availability: "PR #8",
     summary:
-      "Placeholder L3 controller, enabled with `csp_controller: \"dummy\"`. Each step it reads the `CapReport` of every UE; on a stall it proposes the baseline priority × 2 (baseline from `csp_baseline_control_by_ue`, default 1.0). Proposals go to `csp-control.jsonl` with `applied: false`; it never calls `set_ue_control`.",
+      "Placeholder L3 controller, enabled with `csp_controller: \"dummy\"`. Each step it reads the latest `CapReport` of every UE; on a stall it proposes the baseline priority × 2 (baseline from `csp_baseline_control_by_ue`, default 1.0). Changed proposals go to `csp-control.jsonl` with `applied: false`. It never calls `set_ue_control`.",
   },
   CSPController: {
     name: "CSP controller",
@@ -153,7 +151,6 @@ export const GLOSSARY = {
     kind: "component",
     repository: "harness",
     definedIn: "capcsp/collaboration/adapters/fikore_control.py",
-    availability: "PR #8",
     summary:
       "Maps a `CspControlIntent` (priority, max_downlink_mbps) to `UeControl` (priority, rmax_mbps) and calls `set_ue_control` on the backend. Ready for a real controller; the dummy controller does not call it.",
   },
@@ -186,7 +183,7 @@ export const GLOSSARY = {
     repository: "harness",
     definedIn: "capcsp/shared_state/types.py (spec: docs/signaling.md)",
     summary:
-      "What the player (CAP) tells the network. Built by SFV `buildCapReport`. The spec sends one on state changes (stall, video switch, large buffer change), at most one per second per UE; PR #8 asks for reports every step and logs only changes.",
+      "What the player (CAP) tells the network. SFV `drainCapReports` returns one on a stall edge, a video switch or a buffer change of 1 s or more, at most once per second of session time per UE. The terminal state is always reported after the final step.",
     fields: CAP_REPORT_FIELD_LIST,
   },
   UeControl: {
@@ -206,7 +203,6 @@ export const GLOSSARY = {
     kind: "data type",
     repository: "harness",
     definedIn: "capcsp/collaboration/types.py",
-    availability: "PR #8",
     summary: "Backend-neutral control proposal of a CSP controller. `FikoreControlAdapter` turns it into `UeControl`.",
     fields: [
       { name: "priority", type: "float | None", description: "Proposed scheduler weight." },
@@ -221,17 +217,17 @@ export const GLOSSARY = {
     summary: "Result of one `advance()`: everything that happened in the network during the last 10 ms.",
     fields: [
       { name: "time_s", type: "float", description: "Simulation time at the end of the step." },
-      { name: "events", type: "list[NetworkEvent]", description: "DownloadProgress, DownloadCompleted, DownloadCancelled and NetworkTelemetryReceived." },
+      { name: "events", type: "list[NetworkEvent]", description: "DownloadProgress, DownloadCompleted and DownloadCancelled. Telemetry is not part of the step." },
       { name: "is_final", type: "bool", description: "The run ends after this step." },
     ],
   },
-  NetworkTelemetryReceived: {
-    name: "NetworkTelemetryReceived",
-    kind: "event",
+  NetworkTelemetrySampler: {
+    name: "NetworkTelemetrySampler",
+    kind: "component",
     repository: "fikore",
-    definedIn: "fikore_transport/backend.py",
+    definedIn: "5g-network-emulator/transport/fikore_transport/telemetry.py",
     summary:
-      "One per UE and step from `TransportBackend`. Carries `NetworkTelemetry`. The mock backend emits none. Logged to `telemetry.jsonl`; on PR #8 also mapped to `CspFields` and removed from the step sent to the player.",
+      "CSP telemetry source of `TransportBackend`, exposed as `csp_telemetry`. The runner polls it after every step. Every `csp_telemetry_interval_s` (1 s), and once more on the final step, it returns one `NetworkTelemetry` sample per UE with rates over that interval. Each sample is mapped to `CspFields` and logged to `telemetry.jsonl`. The mock backend has no source.",
     fields: [
       { name: "throughput_mbps", type: "float | None", description: "→ achieved_throughput_mbps" },
       { name: "rtt_ms", type: "float | None", description: "→ rtt_ms (TCP ACK timing)" },
@@ -255,13 +251,13 @@ export const GLOSSARY = {
     name: "plan_downlink_mbps",
     kind: "field",
     summary:
-      "Provisioned subscriber downlink rate (tariff). Comes from `plan_downlink_mbps_by_ue` in the config, not from the network. On PR #8 it is seeded into the table at run start, so it also works on the mock backend.",
+      "Provisioned subscriber downlink rate (tariff). Comes from `plan_downlink_mbps_by_ue` in the config, not from the network. It is written to the table at run start from L1, so it also works on the mock backend.",
   },
   achieved_throughput_mbps: {
     name: "achieved_throughput_mbps",
     kind: "field",
     summary:
-      "Delivered downlink throughput over the preceding telemetry window. It is measured delivery, not spare capacity or the maximum channel rate. From `NetworkTelemetry.throughput_mbps`.",
+      "Delivered downlink throughput over the last telemetry interval (1 s). It is measured delivery, not spare capacity or the maximum channel rate. From the sample's `throughput_mbps`.",
   },
   rtt_ms: {
     name: "rtt_ms",
@@ -272,12 +268,12 @@ export const GLOSSARY = {
   loss_rate: {
     name: "loss_rate",
     kind: "field",
-    summary: "Share of bytes dropped in the transport window, from `NetworkTelemetry.drop_rate`.",
+    summary: "Share of bytes dropped in the last telemetry interval, from the sample's `drop_rate`.",
   },
   congestion_rate: {
     name: "congestion_rate",
     kind: "field",
-    summary: "ECN Congestion Experienced marking rate, from `NetworkTelemetry.ce_rate`. Null in the pilot because L4S/ECN marking is off.",
+    summary: "ECN Congestion Experienced marking rate, from the sample's `ce_rate`. Null in the pilot because L4S/ECN marking is off.",
   },
   updated_at_s: {
     name: "updated_at_s",
@@ -313,16 +309,14 @@ export const GLOSSARY = {
     kind: "method",
     repository: "harness",
     definedIn: "capcsp/shared_state/table.py",
-    availability: "PR #8",
     summary:
-      "Stores the latest network values for a UE. Called for every `NetworkTelemetryReceived` at every level (audit), and once at start for the plan rate (L1+). Extra telemetry goes to `extensions` and appears only in `shared-state.jsonl`.",
+      "Stores the latest network values for a UE. Called for every telemetry sample at every level (audit), and once at start for the plan rate (L1+). Extra telemetry goes to `extensions` and appears only in `shared-state.jsonl`.",
   },
   read_csp_fields: {
     name: "read_csp_fields(ue_id)",
     kind: "method",
     repository: "harness",
     definedIn: "capcsp/shared_state/table.py",
-    availability: "PR #8",
     summary:
       "Returns `CspFields` filtered by signaling level: nothing at L0, only the plan rate at L1, everything from L2. The runner uses it to build `collaboration.csp_by_ue`.",
   },
@@ -331,7 +325,6 @@ export const GLOSSARY = {
     kind: "method",
     repository: "harness",
     definedIn: "capcsp/shared_state/table.py",
-    availability: "PR #8",
     summary: "Stores the latest `CapReport` of a UE. Happens at every level for audit.",
   },
   read_cap_report: {
@@ -339,25 +332,23 @@ export const GLOSSARY = {
     kind: "method",
     repository: "harness",
     definedIn: "capcsp/shared_state/table.py",
-    availability: "PR #8",
     summary: "Returns the latest `CapReport` from L3 on, nothing below. Used by the CSP controller.",
   },
   applyCspUpdate: {
     name: "applyCspUpdate(fields, time)",
     kind: "method",
     repository: "sfv",
-    definedIn: "SFVSimulationController (SFV PR #2)",
-    availability: "PR #8 + SFV PR #2",
+    definedIn: "SFVSimulationController",
     summary:
       "Stores the CSP fields of one UE in the SFV engine, without triggering a new decision. Rules can read them with `getCspFields()`; B1 and B2 do not yet.",
   },
-  buildCapReport: {
-    name: "buildCapReport()",
+  drainCapReports: {
+    name: "drainCapReports(time, { final })",
     kind: "method",
     repository: "sfv",
-    definedIn: "SFVSimulationController (SFV PR #2)",
-    availability: "PR #8 + SFV PR #2",
-    summary: "Builds a `CapReport` from the current player state for the `cap_reports` reply.",
+    definedIn: "SFVSimulationController",
+    summary:
+      "Returns a `CapReport` for the `cap_reports` reply only when one is due: on a stall edge, a video switch or a buffer change of 1 s or more, at most once per second. With `final` the rate limit does not apply.",
   },
 
   // IPC messages between Python and Node
@@ -365,16 +356,15 @@ export const GLOSSARY = {
     name: "network_step",
     kind: "IPC message",
     repository: "harness",
-    definedIn: "capcsp/player/bridge.py → network_step_harness.js",
+    definedIn: "capcsp/player/bridge.py → cosim-network-step-worker.mjs",
     summary:
-      "JSON line from the runner to the Node player, once per step: `time_s`, `events`, `is_final`. On master it is the full `NetworkStep`, telemetry included. On PR #8 telemetry is removed and a `collaboration` object is added.",
+      "JSON line from the runner to the Node player, once per step: `time_s`, `events`, `is_final` and the `collaboration` snapshot.",
   },
   collaboration: {
     name: "collaboration",
     kind: "IPC message",
     repository: "harness",
     definedIn: "capcsp/collaboration/snapshot.py",
-    availability: "PR #8",
     summary:
       "Object added to `network_step`: `{ signaling_level, csp_by_ue: { \"0\": CspFields, … } }`, built with `read_csp_fields`. Empty `csp_by_ue` at L0.",
   },
@@ -390,9 +380,8 @@ export const GLOSSARY = {
     kind: "IPC message",
     repository: "harness",
     definedIn: "capcsp/collaboration/cap_reporter.py",
-    availability: "PR #8",
     summary:
-      "Second exchange after each step: the runner sends `{ type: \"cap_reports\" }`, Node answers `{ reports: { \"0\": CapReport, … } }`. Each report goes to `write_cap_report`.",
+      "Second exchange after each step: the runner sends `{ type: \"cap_reports\" }`, Node answers `{ reports: { \"0\": CapReport, … } }`. A UE appears only when `drainCapReports` has a report due, so the reply is often empty. Each report goes to `write_cap_report`.",
   },
   request_id: {
     name: "request_id",
@@ -440,21 +429,24 @@ export const GLOSSARY = {
   plan_downlink_mbps_by_ue: {
     name: "plan_downlink_mbps_by_ue",
     kind: "config key",
-    availability: "PR #8",
     summary: "Map from UE id to plan rate in Mbps. Source of `plan_downlink_mbps`.",
   },
   csp_controller: {
     name: "csp_controller",
     kind: "config key",
-    availability: "PR #8",
     summary: "`\"dummy\"` enables `DummyCSPController` at L3 and above. `null` runs without controller.",
+  },
+  csp_telemetry_interval_s: {
+    name: "csp_telemetry_interval_s",
+    kind: "config key",
+    summary: "Interval of the CSP telemetry samples in the `transport_fikore` network settings. Default 1 s.",
   },
 
   // Output files
   "run-manifest.json": { name: "run-manifest.json", kind: "output file", summary: "Configuration, code revisions, timing and byte accounting of the run." },
   "sessions/": { name: "sessions/ue-<id>.json", kind: "output file", summary: "Full player result per UE: events, requests, rule state, cache and the scored session record." },
-  "network-steps.jsonl": { name: "network-steps.jsonl", kind: "output file", summary: "Every step as sent to the player, with the player's response. On PR #8 without telemetry events but with `collaboration`." },
-  "telemetry.jsonl": { name: "telemetry.jsonl", kind: "output file", summary: "Flat log of all `NetworkTelemetryReceived` events. Empty on the mock backend." },
+  "network-steps.jsonl": { name: "network-steps.jsonl", kind: "output file", summary: "Every step as sent to the player, with the `collaboration` snapshot and the player's response." },
+  "telemetry.jsonl": { name: "telemetry.jsonl", kind: "output file", summary: "One row per UE and CSP telemetry sample, every `csp_telemetry_interval_s` (1 s). Empty on the mock backend." },
   "kpis.csv": { name: "kpis.csv", kind: "output file", summary: "One row of KPIs per UE, including P.1203 scores." },
   "report.md": { name: "report.md", kind: "output file", summary: "Readable run report: KPIs per UE, scores per video and model versions." },
   "player.log": { name: "player.log", kind: "output file", summary: "Log output (stderr) of the Node player process." },
@@ -463,13 +455,11 @@ export const GLOSSARY = {
   "shared-state.jsonl": {
     name: "shared-state.jsonl",
     kind: "output file",
-    availability: "PR #8",
     summary: "Audit log of the shared state table: one row per changed write (`direction` csp_to_cap or cap_to_csp, `ue_id`, `time_s`, `payload`). Written at every level.",
   },
   "csp-control.jsonl": {
     name: "csp-control.jsonl",
     kind: "output file",
-    availability: "PR #8",
     summary: "Controller proposals: `baseline`, `proposed`, `applied` (always false for the dummy) and `reason` (dummy_stall_boost or dummy_no_change). Only at L3+ with the dummy controller.",
   },
 } satisfies Record<string, GlossaryEntry>;

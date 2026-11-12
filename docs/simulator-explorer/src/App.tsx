@@ -31,7 +31,7 @@ export default function App() {
             <h1 className="text-2xl font-semibold tracking-tight">CAP–CSP simulator explorer</h1>
             <p className="mt-1 max-w-[900px] text-sm text-muted-foreground">
               Pick a signaling level, a backend and a network condition to see which components take part in a run, what flows between them in each 10 ms step,
-              and what the player can see. Switch between the design, the code on master and PR #8 to compare. Hover any dotted-underlined term for details.
+              and what the player can see. Switch between the design and the code on master to compare. Hover any dotted-underlined term for details.
             </p>
           </div>
           <ThemeToggleButton />

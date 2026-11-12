@@ -35,36 +35,26 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
     return { kind: "ok", title: "Specified", explanation: SIGNALING_LEVELS[settings.signalingLevel].description };
   }
 
-  if (settings.implementationState === "master") {
-    if (level === 0) return { kind: "ok", title: "Implemented", explanation: "L0 is what every run on master does." };
-    return {
-      kind: "none",
-      title: "Not connected",
-      explanation:
-        "On master, `signaling_level` is only a label in the outputs. Telemetry reaches the Node harness and is stored per UE, but the SFV engine has no input for it, so the run behaves exactly like L0.",
-    };
-  }
-
-  // PR #8
+  // master
   if (level === 0)
     return {
       kind: "ok",
       title: "Implemented",
       explanation:
-        "Telemetry and CAP reports are still written to the table and to `shared-state.jsonl` for audit, but reads return nothing: `collaboration.csp_by_ue` is empty.",
+        "CSP telemetry and CAP reports are still written to the table and to `shared-state.jsonl` for audit, but reads return nothing: `collaboration.csp_by_ue` is empty.",
     };
   if (level === 1) {
     if (!planRateConfigured)
       return {
         kind: "partial",
         title: "Implemented, needs a plan rate",
-        explanation: "Set `plan_downlink_mbps_by_ue` in the config, otherwise the plan rate is null.",
+        explanation: "Set `plan_downlink_mbps_by_ue` in the config. Otherwise the plan rate is null.",
       };
     return {
       kind: "ok",
       title: "Implemented",
       explanation:
-        "The plan rate is seeded into the table at run start (also on mock), and reads return only `plan_downlink_mbps`. The player stores it via `applyCspUpdate` (SFV PR #2); B1/B2 do not use it yet.",
+        "The plan rate is written to the table at run start, also on mock. Reads return only `plan_downlink_mbps`. The player stores it with `applyCspUpdate`. B1 and B2 do not use it yet.",
     };
   }
   if (level === 2) {
@@ -72,13 +62,13 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       return {
         kind: "partial",
         title: "Live fields empty on mock",
-        explanation: "The mock backend emits no telemetry, so only the plan rate (if set) reaches the player. The live fields stay null.",
+        explanation: "The mock backend has no telemetry source. Only the plan rate, if set, reaches the player. The live fields stay null.",
       };
     return {
       kind: "ok",
       title: "Implemented",
       explanation:
-        "Reads return all `CspFields` mapped from FikoRE telemetry. The SFV engine receives them via `applyCspUpdate`; the B1/B2 rules do not use them yet.",
+        "FikoRE's telemetry sampler gives one sample per UE every `csp_telemetry_interval_s` (1 s). Reads return all `CspFields` mapped from it. The player stores them with `applyCspUpdate`. B1 and B2 do not use them yet.",
     };
   }
   if (level === 3) {
@@ -86,18 +76,18 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       return {
         kind: "partial",
         title: "CAP reports only",
-        explanation: "CAP reports are written to the table, but without `csp_controller: \"dummy\"` nobody reads them.",
+        explanation: "The player sends CAP reports and they are written to the table. Without `csp_controller: \"dummy\"` nothing reads them.",
       };
     return {
       kind: "partial",
       title: "Implemented as a dry run",
       explanation:
-        "`DummyCSPController` reads CAP reports and, on a stall, proposes priority × 2. Proposals go to `csp-control.jsonl`; `set_ue_control` is never called, so the network does not change.",
+        "`DummyCSPController` reads CAP reports and, on a stall, proposes priority × 2. Proposals go to `csp-control.jsonl`. It never calls `set_ue_control`, so the network does not change.",
     };
   }
   return {
     kind: "none",
     title: "Not implemented",
-    explanation: "L4 is parsed and behaves like L3: all CSP fields, CAP reports readable by the controller. There is no oracle trace.",
+    explanation: "L4 is parsed and behaves like L3: all CSP fields, and CAP reports readable by the controller. There is no oracle trace.",
   };
 }

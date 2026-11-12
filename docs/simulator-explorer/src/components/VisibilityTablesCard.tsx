@@ -26,7 +26,7 @@ const VISIBILITY_BADGE: Record<FieldVisibility, ["visible" | "muted" | "warning"
 export function VisibilityTablesCard({ settings, topology }: { settings: ExplorerSettings; topology: ComponentTopology }) {
   const level = signalingLevelNumber(settings.signalingLevel);
   const fields = computePlayerVisibleFields(settings);
-  const capReportsSent = level >= 3 && settings.implementationState !== "master";
+  const capReportsReadable = level >= 3;
   return (
     <Card>
       <CardHeader>
@@ -80,11 +80,11 @@ export function VisibilityTablesCard({ settings, topology }: { settings: Explore
               <TableRow>
                 <TableCell><T id="CapReport" asCode /></TableCell>
                 <TableCell className="whitespace-normal">
-                  {capReportsSent ? (
+                  {capReportsReadable ? (
                     <>
                       <C>is_stalled, playable_buffer_s, current_video_id, swipe_rate_per_s</C> <StateBadge tone="cap">readable</StateBadge>
                     </>
-                  ) : settings.implementationState === "pr8" ? (
+                  ) : settings.implementationState === "master" ? (
                     <StateBadge tone="muted">written for audit, not readable</StateBadge>
                   ) : (
                     <StateBadge tone="muted">not sent</StateBadge>

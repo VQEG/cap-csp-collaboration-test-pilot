@@ -6,17 +6,17 @@ import type { ComponentTopology } from "@/model/componentTopology";
 
 export interface RunOutputFile {
   fileName: GlossaryTermId;
-  addedByPr8: boolean;
+  collaborationLog: boolean;
 }
 
 export function listRunOutputFiles(settings: ExplorerSettings, topology: ComponentTopology): RunOutputFile[] {
   const files: RunOutputFile[] = (
     ["run-manifest.json", "sessions/", "network-steps.jsonl", "telemetry.jsonl", "kpis.csv", "report.md", "player.log"] as const
-  ).map((fileName) => ({ fileName, addedByPr8: false }));
+  ).map((fileName) => ({ fileName, collaborationLog: false }));
   if (usesFikoreBackend(settings)) {
-    files.push({ fileName: "fikore-effective.ini", addedByPr8: false }, { fileName: "fikore.log", addedByPr8: false });
+    files.push({ fileName: "fikore-effective.ini", collaborationLog: false }, { fileName: "fikore.log", collaborationLog: false });
   }
-  if (settings.implementationState === "pr8") files.push({ fileName: "shared-state.jsonl", addedByPr8: true });
-  if (topology.activeEdges.controllerLogsProposal) files.push({ fileName: "csp-control.jsonl", addedByPr8: true });
+  files.push({ fileName: "shared-state.jsonl", collaborationLog: true });
+  if (topology.activeEdges.controllerLogsProposal) files.push({ fileName: "csp-control.jsonl", collaborationLog: true });
   return files;
 }

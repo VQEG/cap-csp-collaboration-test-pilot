@@ -3,9 +3,9 @@ import { GlossaryTerm as T, InlineCode as C } from "@/components/GlossaryTerm";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
 import { signalingLevelNumber, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
 
-// Ordered steps of one 10 ms NetworkStep. `highlightedEdges` and
-// `highlightedNodes` are emphasised in the diagram while the step is
-// selected; `active: false` greys out a step that does not happen.
+// Ordered steps of one 10 ms NetworkStep, in the order of docs/collaboration.md.
+// `highlightedEdges` and `highlightedNodes` are emphasised in the diagram while
+// the step is selected; `active: false` greys out a step that does not happen.
 
 export interface WalkthroughStep {
   actor: string;
@@ -59,15 +59,7 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
       actor: "Backend → Runner",
       description: (
         <>
-          Returns a <T id="NetworkStep" asCode /> with <T id="DownloadEvents">download events</T>
-          {fikore ? (
-            <>
-              {" "}
-              and one <T id="NetworkTelemetryReceived" asCode /> per UE.
-            </>
-          ) : (
-            "."
-          )}
+          Returns a <T id="NetworkStep" asCode /> with <T id="DownloadEvents">download events</T> only.
         </>
       ),
       highlightedEdges: ["networkStepToRunner"],
@@ -78,34 +70,34 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
       actor: "Runner",
       description: (
         <>
-          Runs the <T id="byteConservation">byte conservation check</T> and logs {fikore && <><T id="telemetry.jsonl" asCode /> and </>}
-          <T id="network-steps.jsonl" asCode />.
+          Runs the <T id="byteConservation">byte conservation check</T> on the download events.
         </>
       ),
-      highlightedEdges: ["runOutputs"],
-      highlightedNodes: ["runner", "runOutputs"],
+      highlightedEdges: [],
+      highlightedNodes: ["runner"],
       active: true,
     },
     {
-      actor: "Runner → Shared state table",
+      actor: "Backend telemetry → Shared state table",
       description: activeEdges.writeCspFields ? (
         fikore ? (
           <>
-            Maps telemetry to <T id="CspFields" asCode /> and calls <T id="write_csp_fields" asCode>write_csp_fields</T>
-            {state === "pr8" && level === 0 ? " (audit only at L0)" : ""}. Changes go to <T id="shared-state.jsonl" asCode />.
+            Polls the backend's <T id="NetworkTelemetrySampler">telemetry sampler</T>. Every <T id="csp_telemetry_interval_s" asCode>csp_telemetry_interval_s</T> (1 s), and
+            once more on the final step, it returns one sample per UE. The runner maps each sample to <T id="CspFields" asCode />, calls{" "}
+            <T id="write_csp_fields" asCode>write_csp_fields</T>
+            {state === "master" && level === 0 ? " (audit only at L0)" : ""} and logs it to <T id="telemetry.jsonl" asCode />. Changes go to{" "}
+            <T id="shared-state.jsonl" asCode />.
           </>
         ) : (
           <>
-            No telemetry on mock. Only the <T id="plan_downlink_mbps">plan rate</T> was written once, at run start.
+            The mock backend has no telemetry source. Only the <T id="plan_downlink_mbps">plan rate</T> was written, once, at run start.
           </>
         )
-      ) : state === "master" ? (
-        <>No shared state table on master.</>
       ) : (
         <>Nothing to write: no telemetry on mock and no plan rate at this level.</>
       ),
       highlightedEdges: ["writeCspFields"],
-      highlightedNodes: ["sharedStateTable"],
+      highlightedNodes: [backendNode, "runner", "sharedStateTable"],
       active: activeEdges.writeCspFields,
     },
     {
@@ -115,8 +107,6 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
           <T id="read_csp_fields" asCode>read_csp_fields</T> per UE through the <T id="signalingLevelFilter">level filter</T>
           {level === 1 ? ": plan rate only." : ": all CSP fields."}
         </>
-      ) : state === "master" ? (
-        <>No shared state table on master.</>
       ) : (
         <>At L0 the filter returns nothing.</>
       ),
@@ -126,18 +116,12 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
     },
     {
       actor: "Runner → Player",
-      description:
-        state === "master" ? (
-          <>
-            Sends the full <T id="network_step" asCode />
-            {fikore ? ", telemetry included. The harness stores it, the SFV engine ignores it." : "."}
-          </>
-        ) : (
-          <>
-            Sends <T id="network_step" asCode /> without telemetry, plus <T id="collaboration" asCode />
-            {level === 0 ? " (empty at L0)." : "."}
-          </>
-        ),
+      description: (
+        <>
+          Sends <T id="network_step" asCode /> with the download events and the <T id="collaboration" asCode /> snapshot
+          {level === 0 ? " (empty at L0)." : "."}
+        </>
+      ),
       highlightedEdges: ["networkStepToPlayer"],
       highlightedNodes: ["networkStepHarness"],
       active: true,
@@ -154,12 +138,12 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
       description: (
         <>
           Advances every UE to <C>time_s</C>
-          {state === "pr8" && level >= 1 && (
+          {level >= 1 && (
             <>
-              , stores CSP fields with <T id="applyCspUpdate" asCode>applyCspUpdate</T>
+              , passes changed CSP fields to <T id="applyCspUpdate" asCode>applyCspUpdate</T>
             </>
           )}
-          , applies download events and swipes; the {ruleTerm} picks the next requests.
+          , applies download events and swipes. The {ruleTerm} picks the next requests.
         </>
       ),
       highlightedEdges: [],
@@ -181,9 +165,9 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
       actor: "Player → Runner → Shared state table",
       description: (
         <>
-          Runner asks for <T id="cap_reports" asCode />; SFV <T id="buildCapReport" asCode>buildCapReport</T> answers; each report goes to{" "}
-          <T id="write_cap_report" asCode>write_cap_report</T>
-          {state === "pr8" && level < 3 ? " (audit only below L3)." : "."}
+          The runner sends <T id="cap_reports" asCode />. SFV <T id="drainCapReports" asCode>drainCapReports</T> returns a report for a UE only when one is due, so the
+          reply is often empty. Each report goes to <T id="write_cap_report" asCode>write_cap_report</T>
+          {state === "master" && level < 3 ? " (audit only below L3)." : "."}
         </>
       ),
       highlightedEdges: ["capReportsIpc", "writeCapReport"],
@@ -199,7 +183,7 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
           </>
         ) : (
           <>
-            <T id="DummyCSPController" asCode /> reads CAP reports with <T id="read_cap_report" asCode>read_cap_report</T> and logs a proposal to{" "}
+            <T id="DummyCSPController" asCode /> reads CAP reports with <T id="read_cap_report" asCode>read_cap_report</T> and logs changed proposals to{" "}
             <T id="csp-control.jsonl" asCode />. Nothing is applied.
           </>
         ),
@@ -211,11 +195,12 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
       actor: "Runner → Backend",
       description: (
         <>
-          Forwards each action as <T id="submit_request" asCode>submit_request</T> or <C>cancel_request</C>, before the next <C>advance()</C>.
+          Forwards each action as <T id="submit_request" asCode>submit_request</T> or <C>cancel_request</C>, before the next <C>advance()</C>. The step goes to{" "}
+          <T id="network-steps.jsonl" asCode />.
         </>
       ),
-      highlightedEdges: ["submitOrCancel"],
-      highlightedNodes: ["runner", backendNode],
+      highlightedEdges: ["submitOrCancel", "runOutputs"],
+      highlightedNodes: ["runner", backendNode, "runOutputs"],
       active: true,
     },
   ];

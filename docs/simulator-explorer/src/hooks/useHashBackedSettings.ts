@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import { DEFAULT_EXPLORER_SETTINGS, type ExplorerSettings } from "@/model/explorerSettings";
 
@@ -19,6 +20,7 @@ function readSettingsFromHash(): ExplorerSettings {
     else writable[key] = raw;
   }
   if (!NETWORK_CONDITIONS[settings.conditionId]) settings.conditionId = DEFAULT_EXPLORER_SETTINGS.conditionId;
+  if (!IMPLEMENTATION_STATES[settings.implementationState]) settings.implementationState = DEFAULT_EXPLORER_SETTINGS.implementationState;
   return settings;
 }
 
