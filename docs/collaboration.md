@@ -52,7 +52,7 @@ FikoRE-specific telemetry mapping: `capcsp/collaboration/adapters/fikore_mapper.
 
 | Component | File | Role |
 |-----------|------|------|
-| `NetworkStepHarness` | `capcsp/player/js/network_step_harness.js` | Multi-UE steps, `applyCspUpdate` when a UE's CSP snapshot changes, `getCapReports` drains pending SFV reports |
+| `SFVNetworkStepHarness` | `sfv-reference-implementation/src/cosim/SFVNetworkStepHarness.js` | Multi-UE steps, `applyCspUpdate` when a UE's CSP snapshot changes, `getCapReports` drains pending SFV reports |
 | SFV engine | submodule | `applyCspUpdate`, `drainCapReports` (event-driven, ≤1 report/s per UE); `getCspFields()` on rules context; B1/B2 ignore CSP for now |
 
 The Node process does **not** read or write the shared table. It only consumes `step.collaboration` and returns `cap_reports`; Python owns the table.
@@ -73,7 +73,7 @@ flowchart TB
     FCA[FikoreControlAdapter]
   end
   subgraph cap [Node CAP SFV]
-    NH[NetworkStepHarness]
+    NH[SFVNetworkStepHarness]
     Engine[SFV B1/B2]
   end
   subgraph csp [CSP NetworkBackend]

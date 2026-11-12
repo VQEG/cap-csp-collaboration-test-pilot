@@ -17,7 +17,6 @@ cap-csp-collaboration-test-pilot/
     data_models.py
     player/
       bridge.py                 # * Node.js player process behind the Network Backend API
-      js/                       # * NetworkStep harness around the SFV engine
     network/
       api.py                    # * Network Backend API types
       mock.py                   # * Backend `mock`

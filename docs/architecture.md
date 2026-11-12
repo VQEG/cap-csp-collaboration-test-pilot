@@ -81,7 +81,7 @@ sequenceDiagram
     L->>F: connect (retry until socket exists)
     F-->>L: hello fikore-control-1
     L->>F: fikore-control-1
-    R->>P: start worker.mjs
+    R->>P: start cosim-network-step-worker.mjs
     R->>P: initialize (sessions, content, duration, backend name)
     P->>P: one SFVSimulationController per UE
     P-->>R: initialized
@@ -203,12 +203,12 @@ classDiagram
     Runner --> NodePlayerBridge : JSON lines over stdin/stdout
 ```
 
-The Node.js side is a thin layer in `capcsp/player/js/` around the unchanged engine from the `sfv-reference-implementation` submodule.
+The Node.js side is the co-simulation adapter in `src/cosim/` of the `sfv-reference-implementation` submodule, started as `scripts/cosim-network-step-worker.mjs`. Its message format is described in the submodule's [co-simulation docs](../sfv-reference-implementation/docs/CO_SIMULATION.md).
 
 ```mermaid
 classDiagram
-    namespace capcsp_player_js {
-        class NetworkStepHarness {
+    namespace sfv_cosim {
+        class SFVNetworkStepHarness {
             onStep(step) actions or result
             getCapReports() pending only
         }
@@ -238,8 +238,8 @@ classDiagram
         class SFVSegmentStore
         class SFVSessionRecordBuilder
     }
-    NetworkStepHarness *-- "one per UE" SFVSimulationController
-    NetworkStepHarness *-- "one per UE" SFVExternalTransport
+    SFVNetworkStepHarness *-- "one per UE" SFVSimulationController
+    SFVNetworkStepHarness *-- "one per UE" SFVExternalTransport
     SFVSimulationController --> SFVExternalTransport : requests and cancellations
     SFVSimulationController --> SFVCurrentVideoRule
     SFVSimulationController --> SFVMultiVideoPrefetchRule
@@ -264,7 +264,7 @@ The request identifier is an opaque correlation key that the network does not in
 
 ## Offline Simulation and Validation Paths
 
-The harness runs the JavaScript engine from the `sfv-reference-implementation` submodule as a subprocess, through the bridge in `capcsp/player/` (adapted from the SFV-VQEG v0.7.2 repository). The engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
+The harness runs the JavaScript engine from the `sfv-reference-implementation` submodule as a subprocess, through the bridge in `capcsp/player/bridge.py` and the SFV co-simulation worker (both adapted from the SFV-VQEG v0.7.2 repository). The engine receives `NetworkStep` events and returns request submissions and cancellations through the [Network Backend API](network-backend-api.md); it never sees backend-specific messages.
 
 The same policy code runs in the browser in a patched dash.js player supporting multi-video short-form playback. That player lets a short-form controller own all requests, with access to the feed queue, download history, and active network requests.
 

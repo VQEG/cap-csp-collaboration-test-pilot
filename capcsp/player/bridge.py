@@ -27,7 +27,9 @@ from capcsp.collaboration.runtime import (
 )
 from capcsp.network.api import NetworkBackend, step_to_dict
 
-WORKER = Path(__file__).resolve().parent / "js" / "worker.mjs"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+# The co-simulation adapter lives in SFV; the JSON lines protocol is the only interface.
+WORKER = REPO_ROOT / "sfv-reference-implementation" / "scripts" / "cosim-network-step-worker.mjs"
 
 
 class NodePlayerBridge:
