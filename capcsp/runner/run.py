@@ -20,6 +20,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from capcsp.network.constant_rate import ConstantRateBackend
 from capcsp.network.mock import MockNetworkBackend
 from capcsp.network.transport_fikore import TransportFikoreBackend, TransportFikoreConfig
 from capcsp.collaboration.factory import build_collaboration_stack
@@ -31,7 +32,7 @@ from capcsp.shared_state.types import CspFields
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CONTENT = REPO_ROOT / "sfv-reference-implementation" / "fixtures" / "content" / "content.json"
-BACKENDS = ("mock", "transport_fikore")
+BACKENDS = ("mock", "constant_rate", "transport_fikore")
 
 # Keys passed through to the player process
 PLAYER_KEYS = ("sessions", "duration_s", "timingDefaults", "run_id", "signaling_level", "condition", "swipe_profile")
@@ -42,6 +43,8 @@ def load_config(path: Path) -> dict[str, Any]:
     config = json.loads(path.read_text(encoding="utf-8"))
     if config.get("network_backend") not in BACKENDS:
         raise ValueError(f"network_backend must be one of {BACKENDS}")
+    if not isinstance(config.get("network", {}), dict):
+        raise ValueError("network must be an object of backend settings")
     duration = config.get("duration_s")
     if not isinstance(duration, (int, float)) or duration <= 0:
         raise ValueError("duration_s must be positive")
@@ -76,6 +79,8 @@ def create_backend(config: dict[str, Any], output_dir: Path) -> Any:
     settings = dict(config.get("network", {}))
     if config["network_backend"] == "mock":
         return MockNetworkBackend(ue_ids=ue_ids, duration_s=config["duration_s"], **settings)
+    if config["network_backend"] == "constant_rate":
+        return ConstantRateBackend(ue_ids=ue_ids, duration_s=config["duration_s"], **settings)
     return TransportFikoreBackend(
         TransportFikoreConfig.from_dict(settings),
         ue_ids=ue_ids,

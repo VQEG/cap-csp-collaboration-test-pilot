@@ -1,0 +1,62 @@
+{
+  "run_id": "b1-b2-two-ue-constant-rate",
+  "network_backend": "constant_rate",
+  "network": {
+    "step_s": 0.01,
+    "downlink_rate_mbps": 1.0,
+    "synthetic_delay_ms": 25,
+    "cancellation_tail_bytes": 0
+  },
+  "condition": "example-only",
+  "signaling_level": "L0",
+  "duration_s": 20,
+  "timingDefaults": {
+    "playbackTiming": {
+      "mode": "causal-simple",
+      "slotPreparationS": 0.01,
+      "appendDurationS": 0.005,
+      "startupDelayS": 0.005,
+      "observationIntervalS": 0.05
+    }
+  },
+  "sessions": [
+    {
+      "ue_id": 0,
+      "player_behavior": "simple",
+      "config": {
+        "sessionId": "generic-ue0",
+        "seed": 17,
+        "scheduling": {
+          "maxConcurrentRequests": 2
+        },
+        "swipeTimesS": [
+          1.5,
+          5.2
+        ]
+      },
+      "rule_config": {
+        "activeBufferTargetSegments": 2
+      }
+    },
+    {
+      "ue_id": 1,
+      "player_behavior": "preload",
+      "config": {
+        "sessionId": "generic-ue1",
+        "seed": 21,
+        "scheduling": {
+          "maxConcurrentRequests": 3
+        },
+        "swipeTimesS": [
+          1.5,
+          5.2
+        ]
+      },
+      "rule_config": {
+        "activeBufferTargetSegments": 2,
+        "max_preload_segments": 4,
+        "preload_segments_per_video": 2
+      }
+    }
+  ]
+}

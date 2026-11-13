@@ -102,9 +102,9 @@ class CspTelemetrySource(Protocol):
     def poll(self, *, force: bool = False) -> list[NetworkTelemetryReceived]: ...
 ```
 
-The harness calls `poll()` after every `advance()` and `poll(force=True)` after the final one. The source returns the samples due at the current backend time and nothing otherwise. `TransportFikoreBackend` uses FikoRE's `NetworkTelemetrySampler`, which reads cumulative per-UE counters from the link (`FikoreLink` state snapshots or the loopback queue) every `csp_telemetry_interval_s` (1 s by default) and takes RTT and retransmitted bytes from the transport. A backend without a source, such as `mock`, writes no CSP telemetry.
+The harness calls `poll()` after every `advance()` and `poll(force=True)` after the final one. The source returns the samples due at the current backend time and nothing otherwise. `TransportFikoreBackend` uses FikoRE's `NetworkTelemetrySampler`, which reads cumulative per-UE counters from the link (`FikoreLink` state snapshots or the loopback queue) every `csp_telemetry_interval_s` (1 s by default) and takes RTT and retransmitted bytes from the transport. A backend without a source, such as `mock` or `constant_rate`, writes no CSP telemetry.
 
-`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged.
+`ControllableNetworkBackend` reserves the L3 control interface. Baseline levels L0, L1, L2, and L4 do not require it. For `TransportBackend` over FikoRE it maps straight onto the control protocol: `priority` becomes an absolute scheduler priority that replaces the configured value, and `rmax_mbps` a token-bucket cap where `0` removes the cap and `None` leaves it unchanged. `ConstantRateBackend` uses the same `rmax_mbps` semantics as a cap on the UE's configured rate, and records `priority` without effect, because its UEs do not share capacity.
 
 ## Common Semantics
 
@@ -135,12 +135,26 @@ In real HTTP runs, the client measures bytes delivered to the application layer 
 Each backend has a fixed name. Experiment configurations select the backend by this name, and session records store it in `network_backend`:
 
 - `mock`: `MockNetworkBackend`, a deterministic shared byte budget for contract tests, adapted from the SFV-VQEG v0.7.2 repository. It never produces research results.
-- `constant_rate`: `ConstantRateBackend`, still to be implemented.
+- `constant_rate`: `ConstantRateBackend`, a deterministic dedicated rate per UE, described below.
 - `trace`: `TraceBackend`, still to be implemented.
 - `transport_fikore`: `TransportBackend` from the FikoRE submodule over `FikoreLink`. The same class over the deterministic `LoopbackLink` is used only in tests.
 - `http`: `HttpBackend`, which issues HTTP requests through FikoRE in real-time emulation and records the bytes actually delivered to the application.
 
 `HttpBackend` defines an interface contract. The reference validator implements the client inside the extended multi-video dash.js player, bridging request events and telemetry back to the harness.
+
+### Constant-Rate Backend
+
+`ConstantRateBackend` (`capcsp/network/constant_rate.py`) gives every UE its own constant downlink rate, so UEs never compete for capacity. It is the network model of the analytical results of Wehner et al., which assume a constant bandwidth per user, and a fast, predictable network for prototyping player and L1 to L3 policies. It follows the per-UE behaviour of `SFVConstantRateTransport` in the SFV reference implementation, but in `NetworkStep` lockstep. It is not a TCP, HTTP or radio model: there is no slow start, no loss and no queue.
+
+- **Clock**: a deterministic logical clock. After the initial step at `t = 0.0`, every step advances by `step_s`; the last step ends exactly at the run duration.
+- **Sharing**: the requests of a UE that are ready share its rate equally. Within a step, the backend splits time at every instant where a request becomes ready or reaches its byte limit, so a request that finishes early hands its share to the others (processor sharing).
+- **Delay**: a request receives no bytes before `requested_at_s + synthetic_delay_ms / 1000`, where `requested_at_s` is the backend time at which it was submitted.
+- **Exact byte accounting**: delivered bytes are kept as exact fractions, so a UE that always has a ready request receives exactly rate × time over any run length. Events report whole bytes, rounded down; the fraction carries over to the next step. 1,000,000 bytes at 8 Mbps take exactly 1 s after the delay.
+- **Event times**: all events carry the time of the step in which they happen, as on the other backends, even when a request completes inside the step. The player issues follow-up requests at event times, and the backend can only receive them at the step time.
+- **Cancellation**: a cancelled request still receives up to `cancellation_tail_bytes` beyond the bytes reported so far, at its share of the rate, then ends with a single `DownloadCancelled`. A request cancelled while still within its synthetic delay ends with 0 bytes in the next step.
+- **Control**: `set_ue_control` caps the UE rate at `rmax_mbps` from the next step on (`0` removes the cap, `None` leaves it unchanged). `priority` is recorded but has no effect.
+
+Unknown UEs, duplicate request IDs per UE, non-positive sizes, submissions after the final step or after `close()`, and steps after the final step or after `close()` raise errors, as on `mock`. The configuration keys are listed in [Experiments and Configuration](experiments.md#constant-rate-backend).
 
 ## Transport Models
 
@@ -163,7 +177,7 @@ The architecture separates three latency components:
 - **Core-network latency**: transport delay outside the radio access network.
 - **Radio latency**: queueing delay, MAC scheduling, radio transmission, and HARQ retransmissions in FikoRE.
 
-Constant-rate and trace backends will inject configured non-radio delay directly. The planned common harness may hold an object until `ready_at_s = requested_at_s + synthetic_delay_ms / 1000` before submitting it to `TransportBackend`. The current SFV/FikoRE validator does not add this synthetic hold; FikoRE applies the template's configured backhaul and radio latency. The real-HTTP backend measures live end-to-end latency directly.
+The constant-rate backend injects the configured non-radio delay directly: it holds back the first byte of every request by `synthetic_delay_ms`. The trace backend will do the same. The planned common harness may hold an object until `ready_at_s = requested_at_s + synthetic_delay_ms / 1000` before submitting it to `TransportBackend`. The current SFV/FikoRE validator does not add this synthetic hold; FikoRE applies the template's configured backhaul and radio latency. The real-HTTP backend measures live end-to-end latency directly.
 
 ## Real-HTTP Validation Architecture
 

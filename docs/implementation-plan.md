@@ -20,7 +20,7 @@ cap-csp-collaboration-test-pilot/
     network/
       api.py                    # * Network Backend API types
       mock.py                   # * Backend `mock`
-      constant_rate.py
+      constant_rate.py          # * Backend `constant_rate`
       trace.py
       transport_fikore.py       # * Backend `transport_fikore`: wiring to submodule TransportBackend
       http.py
@@ -45,7 +45,7 @@ cap-csp-collaboration-test-pilot/
   configs/
     content.yaml
     network_conditions.yaml
-    experiments/                # * Example B1/B2 runs on `mock` and `transport_fikore`
+    experiments/                # * Example B1/B2 runs on `mock`, `constant_rate` and `transport_fikore`
     fikore/
   tests/                        # * API contract and end-to-end runs
   results/
@@ -75,12 +75,12 @@ The system is structured as a single installable Python package (`capcsp`). Subp
 
 | Step | Status | Notes |
 |------|--------|--------|
-| 1–2, 4–5 | **Done** | `mock` and `transport_fikore`, scoring, examples C1–C8b (see paragraph below). |
-| 3 (partial) | **Done: bus and gating** | `capcsp/shared_state`, signaling read filters, `plan_downlink_mbps_by_ue`. **Open:** `constant_rate` / `trace` backends; **open:** SFV policies that consume CSP fields (L1, L2, L4). See [Collaboration runtime](collaboration.md). |
+| 1–2, 4–5 | **Done** | `mock`, `constant_rate` and `transport_fikore`, scoring, examples C1–C8b (see paragraph below). |
+| 3 (partial) | **Done: bus and gating** | `capcsp/shared_state`, signaling read filters, `plan_downlink_mbps_by_ue`. `constant_rate` backend. **Open:** `trace` backend; **open:** SFV policies that consume CSP fields (L1, L2, L4). See [Collaboration runtime](collaboration.md). |
 | 6–8 | Planned | Real HTTP path and validation matrix. |
 | 7 (partial) | **Done: wiring** | `capcsp/collaboration`, CAP/CSP paths, `DummyCSPController`, `FikoreControlAdapter` / `NoOpControlAdapter`, `csp-control.jsonl`. **Open:** real control algorithm and effective `set_ue_control`. |
 
-Steps 4 and 5 are done for the `mock` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on either backend and writes session records with P.1203 scores, a KPI table and a report. The provisional FikoRE condition pack C1–C8b runs end to end with the B1/B2 fixture. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3.
+Steps 4 and 5 are done for the `mock`, `constant_rate` and `transport_fikore` backends: `capcsp run` runs the B1/B2 example on each backend and writes session records with P.1203 scores, a KPI table and a report. The provisional FikoRE condition pack C1–C8b runs end to end with the B1/B2 fixture. The step order changed because FikoRE was ready before the constant-rate and trace backends of steps 1 and 3; `constant_rate` followed later, and `trace` is still open.
 
 ## Mock Backend
 

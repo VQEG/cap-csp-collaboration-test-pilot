@@ -168,6 +168,33 @@ Optional keys: `csp_baseline_control_by_ue`, `clock_mode` (`"simulation"` only),
 >[!NOTE]
 > The runner does not expand grids yet. Each run is one JSON file (see `configs/experiments/`), and swipe times are given per session as `swipeTimesS` instead of being drawn from a swipe profile.
 
+## Constant-Rate Backend
+
+The `constant_rate` backend gives every UE a dedicated constant downlink rate; see the [Network Backend API](network-backend-api.md#constant-rate-backend) for its behaviour. Its settings go into the `network` object of the experiment configuration:
+
+```json
+"network_backend": "constant_rate",
+"network": {
+  "step_s": 0.01,
+  "downlink_rate_mbps": 1.0,
+  "downlink_rate_mbps_by_ue": {"1": 4.0},
+  "synthetic_delay_ms": 25,
+  "cancellation_tail_bytes": 0
+}
+```
+
+- `step_s`: length of one `NetworkStep` in seconds, 0.01 by default.
+- `downlink_rate_mbps`: rate of every UE without an entry in `downlink_rate_mbps_by_ue`. It may be left out if every UE has one.
+- `downlink_rate_mbps_by_ue`: optional rate per UE ID, overriding `downlink_rate_mbps`.
+- `synthetic_delay_ms`: time from submitting a request to its first byte, 0 by default.
+- `cancellation_tail_bytes`: bytes a request may still receive after its cancellation, 0 by default.
+
+Rates are in Mbps of application payload (10^6 bit/s). `configs/experiments/b1-b2-two-ue-constant-rate.json` runs B1 and B2 at 1 Mbps each with a 25 ms delay:
+
+```bash
+uv run capcsp run configs/experiments/b1-b2-two-ue-constant-rate.json output/constant-rate
+```
+
 ## Trace Backend
 
 The trace backend replays stepwise available bitrates over elapsed session time. Time advances continuously while the player is idle. Multi-UE runs require one independent rate trace per UE.

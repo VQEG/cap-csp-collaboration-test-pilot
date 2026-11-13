@@ -50,6 +50,8 @@ Run the example with two UEs (B1 and B2) on the deterministic mock backend. This
 uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json output/mock
 ```
 
+To run B1 and B2 on a dedicated constant rate per UE instead, as assumed by the analytical model of Wehner et al., use `configs/experiments/b1-b2-two-ue-constant-rate.json`; its settings are described in [Experiments and Configuration](docs/experiments.md#constant-rate-backend).
+
 The output directory holds the run manifest, one session record per UE with its P.1203 scores, the `NetworkStep` transcript, `kpis.csv` and `report.md`. See [Results and Scoring](docs/results-and-scoring.md#qoe-estimation-models) for how the scores are computed. `uv run capcsp report output/run-a output/run-b -o report.md` compares several runs. `output/` is not tracked by git. See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run.
 
 Runs on FikoRE need Linux. On macOS, build the container and run inside it:
@@ -82,7 +84,7 @@ The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Current Validation
 
-The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` backend and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. The provisional FikoRE conditions C1–C8b run end to end. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, the final network-condition values are pending, and L1 to L4 are not connected.
+The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` and `constant_rate` backends and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. The provisional FikoRE conditions C1–C8b run end to end. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, the final network-condition values are pending, and L1 to L4 are not connected.
 
 ## Contributing
 

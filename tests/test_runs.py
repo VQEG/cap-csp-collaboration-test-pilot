@@ -99,6 +99,25 @@ def test_mock(tmp_path: Path) -> None:
     )
 
 
+def test_constant_rate(tmp_path: Path) -> None:
+    output = run(tmp_path, "b1-b2-two-ue-constant-rate", duration_s=8)
+    check_sessions(output, "constant_rate")
+    network = json.loads((CONFIGS / "b1-b2-two-ue-constant-rate.json").read_text())["network"]
+    bytes_per_step = network["downlink_rate_mbps"] * 1e6 / 8 * network["step_s"]
+    delivered: dict[tuple[int, str], int] = {}
+    for line in (output / "network-steps.jsonl").read_text().splitlines():
+        step_bytes: dict[int, int] = {}
+        for event in json.loads(line)["network_step"]["events"]:
+            if event["event_type"] == "DownloadProgress":
+                ue_id, key = event["ue_id"], (event["ue_id"], event["request_id"])
+                increase = event["bytes_delivered"] - delivered.get(key, 0)
+                step_bytes[ue_id] = step_bytes.get(ue_id, 0) + increase
+                delivered[key] = event["bytes_delivered"]
+        # Each UE has its own rate; whole-byte reporting moves at most one byte per request between steps
+        assert all(amount <= bytes_per_step + 3 for amount in step_bytes.values())
+    assert {ue_id for ue_id, _ in delivered} == {0, 1}
+
+
 def test_l3_dummy_writes_csp_control(tmp_path: Path) -> None:
     output = run(
         tmp_path,

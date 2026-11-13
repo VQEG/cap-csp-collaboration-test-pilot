@@ -4,7 +4,7 @@ This page describes how the harness moves CAP–CSP collaboration data on the si
 
 The harness keeps byte delivery and collaboration state apart. A `NetworkStep` carries download events only. CSP telemetry and CAP reports go through the shared state table, which only the Python harness reads and writes. The SFV player process does not touch the table. It receives a filtered CSP snapshot with each `network_step` and returns its pending CAP reports when asked.
 
-In this page, the CAP is the SFV player process and the CSP is the network backend (`mock` or `transport_fikore`).
+In this page, the CAP is the SFV player process and the CSP is the network backend (`mock`, `constant_rate` or `transport_fikore`).
 
 ## One Step
 
@@ -57,7 +57,7 @@ At L0, `csp_by_ue` is empty. The messages between the harness and the player are
 | `build_collaboration_payload` | `capcsp/collaboration/snapshot.py` | Filtered CSP snapshot for the player |
 | `SfVCapReporter` | `capcsp/collaboration/cap_reporter.py` | Writes the player's CAP reports to the table |
 | `DummyCSPController` | `capcsp/collaboration/csp_controller.py` | Reads CAP reports at L3 and above and logs proposals |
-| `FikoreControlAdapter` | `capcsp/collaboration/adapters/fikore_control.py` | Maps a `CspControlIntent` to `set_ue_control`. No controller calls it yet |
+| `FikoreControlAdapter` | `capcsp/collaboration/adapters/fikore_control.py` | Maps a `CspControlIntent` to `set_ue_control` on `transport_fikore` and `constant_rate`. No controller calls it yet |
 | `NoOpControlAdapter` | `capcsp/collaboration/adapters/noop_control.py` | Control adapter for `mock` |
 | `SFVNetworkStepHarness` | `sfv-reference-implementation/src/cosim/` | Runs the SFV sessions, applies CSP snapshots and drains CAP reports |
 
@@ -66,7 +66,7 @@ At L0, `csp_by_ue` is empty. The messages between the harness and the player are
 ## Output Files
 
 - `shared-state.jsonl`: every run. One row each time a UE's CSP fields or CAP report change. The row format is in [Signaling and Shared State](signaling.md#reference-implementation).
-- `telemetry.jsonl`: one row per UE and CSP telemetry sample. It is empty on `mock`.
+- `telemetry.jsonl`: one row per UE and CSP telemetry sample. It is empty on `mock` and `constant_rate`.
 - `network-steps.jsonl`: the steps sent to the player, with download events and the `collaboration` snapshot.
 - `csp-control.jsonl`: only at L3 and above with `csp_controller: "dummy"`.
 

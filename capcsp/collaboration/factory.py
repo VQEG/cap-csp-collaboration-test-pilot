@@ -43,7 +43,7 @@ def build_collaboration_stack(
     signaling_level = str(config.get("signaling_level", "L0"))
     baseline = baseline_from_config(config.get("csp_baseline_control_by_ue"))
     network_backend = config.get("network_backend", "mock")
-    if network_backend == "transport_fikore":
+    if network_backend in ("transport_fikore", "constant_rate"):
         control: FikoreControlAdapter | NoOpControlAdapter = FikoreControlAdapter(
             backend, baseline_by_ue=baseline
         )

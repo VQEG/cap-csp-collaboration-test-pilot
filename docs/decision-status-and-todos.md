@@ -61,7 +61,9 @@ Owner: Werner
 
 - [x] Build the first runner, KPI table and report (`capcsp run`, `capcsp report`) for the `mock` and `transport_fikore` backends ([Architecture](architecture.md#main-loop)).
 - [x] Render the effective FikoRE INI per run, validate overrides and map UE numbers by scenario block order.
-- [ ] Add the `constant_rate` and `trace` backends ([Network Backend API](network-backend-api.md#backend-implementations)). `constant_rate` is needed to check B2 against the analytical results of Wehner et al. before using FikoRE.
+- [x] Add the `constant_rate` backend with a dedicated rate per UE, `synthetic_delay_ms` and rate caps ([Network Backend API](network-backend-api.md#constant-rate-backend)).
+- [ ] Check B2 on `constant_rate` against the analytical results of Wehner et al. before using FikoRE.
+- [ ] Add the `trace` backend ([Network Backend API](network-backend-api.md#backend-implementations)).
 - [ ] Expand experiment grids (conditions × signaling levels × player behaviour × swipe profiles × seeds) into single runs, instead of one hand-written JSON file per run ([Experiments](experiments.md#experiment-grid)).
 - [ ] Generate swipe times from the swipe profile and seed.
 - [x] Wire CAP reports, shared state table, collaboration snapshots, and dummy `CSPController` in the runner ([Collaboration](collaboration.md), [Signaling](signaling.md)).
