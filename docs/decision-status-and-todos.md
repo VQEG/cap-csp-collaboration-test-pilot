@@ -94,6 +94,6 @@ Owners: Werner, Markus, Federica
 - [x] Apply P.1203 per video and combine the video scores into the session score as their mean, weighted by played duration ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [x] Score videos shorter than 1 minute fully, knowing that P.1203 is only valid from 1 minute ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [ ] Replace the assumed constant good audio quality (O21 5.0) with real audio scores for future encodings; this needs audio in the content, the player and the session record ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
-- [ ] Replace the assumed frame rate of 30 fps with the frame rate per representation in the content file for future encodings ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
+- [x] Score each segment with the `frameRateFps` of its representation in the content file, with `scoring.fallback_frame_rate_fps` (30) only for representations without one ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [ ] Add the Hoßfeld QoE-fairness and Jain throughput-fairness metrics ([Results and Scoring](results-and-scoring.md#aggregate-evaluation-formulas)).
 - [ ] Add the KPIs from the results specification that `capcsp` does not compute yet to `kpis.csv` and the report: per-video metrics such as time to first byte, watch duration and swipe-away, and the fairness metrics above ([Results and Scoring](results-and-scoring.md#session-record-format)).

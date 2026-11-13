@@ -77,6 +77,22 @@ def test_intervals_split_into_segments_with_their_own_bitrate() -> None:
     assert [s.played_duration_s for s in segments] == [1.5, 1.0, 1.0, 2.0]
     assert segments[0].bitrate_kbps == pytest.approx(52129 * 8 / 2 / 1000)
     assert (segments[0].width, segments[0].height, segments[0].content_codec) == (180, 320, "avc1")
+    assert segments[0].frame_rate_fps == 30
+
+
+def test_segments_without_frame_rate_in_content_have_none() -> None:
+    content = json.loads(CONTENT.read_text())["videos"][0]
+    for representation in content["representations"]["video"]:
+        del representation["frameRateFps"]
+    segments = played_segments_of_video({"representation_intervals": [interval("0", 1.0, 0.0, 1.0)]}, content)
+    assert segments[0].frame_rate_fps is None
+
+
+def test_non_positive_frame_rate_in_content_is_rejected() -> None:
+    content = json.loads(CONTENT.read_text())["videos"][0]
+    content["representations"]["video"][0]["frameRateFps"] = 0
+    with pytest.raises(ValueError, match="frameRateFps"):
+        played_segments_of_video({"representation_intervals": [interval("0", 1.0, 0.0, 1.0)]}, content)
 
 
 def test_per_second_scores_round_the_played_duration() -> None:
@@ -135,7 +151,7 @@ def test_p1203_without_video_scores_returns_none() -> None:
 
 @pytest.mark.parametrize(
     "values",
-    [{"device": "tv"}, {"unknown": 1}, {"audio_o21": 0}, {"frame_rate_fps": 0}, {"display_width": -1}],
+    [{"device": "tv"}, {"unknown": 1}, {"audio_o21": 0}, {"fallback_frame_rate_fps": 0}, {"display_width": -1}],
 )
 def test_invalid_settings(values: dict) -> None:
     with pytest.raises(ValueError):
@@ -183,3 +199,34 @@ def test_score_run_adds_scores_to_session_record(tmp_path: Path) -> None:
     assert scoring["integration_model"]["version"] == "1.11.0"
     assert scoring["video_model"]["commit"]
     assert scoring["settings"]["device"] == "mobile"
+
+
+def test_score_run_uses_the_frame_rate_of_the_content_file(tmp_path: Path) -> None:
+    dataset = json.loads(CONTENT.read_text())
+    representations = dataset["videos"][1]["representations"]["video"]
+    representations[0]["frameRateFps"] = 15
+    del representations[2]["frameRateFps"]
+    (tmp_path / "sessions").mkdir()
+    session_path = tmp_path / "sessions" / "ue-0.json"
+    videos = [
+        {"video_id": "v2", "representation_intervals": [interval("0", 1.0, 0.0, 2.0), interval("2", 3.0, 2.0, 4.0)]},
+    ]
+    session_path.write_text(json.dumps({"sessionRecord": {"videos": videos, "session_summary": {}}}))
+
+    score_run(tmp_path, dataset, ScoringSettings(fallback_frame_rate_fps=24.0))
+
+    segment_scores = json.loads(session_path.read_text())["sessionRecord"]["videos"][0]["p1204_1_segment_scores"]
+    low, high = segment_scores[0], segment_scores[-1]
+    assert (low["frame_rate_fps"], low["frame_rate_from_content"]) == (15, True)
+    assert (high["frame_rate_fps"], high["frame_rate_from_content"]) == (24.0, False)
+    at_content_frame_rate = segment_video_quality_mos(
+        content_codec=low["content_codec"],
+        bitrate_kbps=low["bitrate_kbps"],
+        width=low["width"],
+        height=low["height"],
+        frame_rate_fps=15,
+        device="mobile",
+        display_width=1080,
+        display_height=1920,
+    )
+    assert low["video_quality_mos"] == pytest.approx(at_content_frame_rate)

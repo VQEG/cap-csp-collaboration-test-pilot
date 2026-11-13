@@ -154,7 +154,7 @@ def test_run_writes_p1203_scores(tmp_path: Path) -> None:
     assert not (output / "csp-control.jsonl").exists()
     assert manifest["clock_mode"] == "simulation"
     assert manifest["cap_application"] == "sfv"
-    assert manifest["scoring"]["settings"]["frame_rate_fps"] == 30.0
+    assert manifest["scoring"]["settings"]["fallback_frame_rate_fps"] == 30.0
     write_report([output], output / "report.md")
     report = (output / "report.md").read_text()
     assert "## P.1203 Scores per Video" in report

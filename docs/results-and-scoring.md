@@ -101,7 +101,7 @@ The record also holds the transport settings, session timing, cache lifecycle, p
 
 Scoring adds these fields after the simulation. See [QoE Estimation Models](#qoe-estimation-models).
 
-- `videos[].p1204_1_segment_scores`: played segments with their model inputs and `video_quality_mos`
+- `videos[].p1204_1_segment_scores`: played segments with their model inputs and `video_quality_mos`; `frame_rate_fps` is the frame rate used for the segment and `frame_rate_from_content` says whether it came from the content file or the fallback
 - `videos[].p1203_output`: `O46`, `O35`, `O23` and the per-second `O22` of the video, or `null` if less than 0.5 s was played
 - `session_summary.p1203_output`: means of `O46`, `O35` and `O23` over the scored videos, weighted by played duration, or `null` if no video was scored
 
@@ -228,15 +228,12 @@ The optional `scoring` block of an experiment configuration sets the model input
 
 - `device`: `mobile` (default) or `pc`
 - `display_width` and `display_height`: display resolution for the upscaling degradation, by default 1080x1920 (portrait full HD)
-- `frame_rate_fps`: assumed frame rate of all representations, by default 30, as stated in the manifests of the SFV fixture
+- `fallback_frame_rate_fps`: frame rate for representations without `frameRateFps` in the content file, by default 30. The scoring otherwise uses the `frameRateFps` of each representation.
 - `audio_o21`: assumed constant audio score, by default 5.0 (constant good quality), as the player does not request audio
 
 P.1203 is only valid for media of 1 minute or longer. Shorter videos are scored fully anyway, knowing this limit. Only videos with less than 0.5 s of played media have no score, as they have no per-second O22 value. They do not count towards the session score.
 
-Two inputs are assumptions and not measured, and must be addressed for future encodings:
-
-- Audio is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
-- The frame rate is assumed to be the same for all representations. The content file and the representation intervals carry `frame_rate_fps` per representation (30 fps in the fixture), but the scoring does not read it yet.
+Audio is an assumption, not a measured input, and must be addressed for future encodings. It is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
 
 Reports must state model versions. Short-Video Streaming Challenge metrics may be reported as supplementary comparative benchmarks.
 

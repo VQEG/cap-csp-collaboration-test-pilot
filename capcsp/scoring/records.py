@@ -20,6 +20,8 @@ class PlayedSegment:
     bitrate_kbps: float
     width: int
     height: int
+    # `frameRateFps` of the representation in the content file, None if the file has none
+    frame_rate_fps: float | None
     played_duration_s: float
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,6 +38,13 @@ def played_segments_of_video(video_record: dict[str, Any], video_content: dict[s
     The bitrate of a segment is its size in the content file divided by its duration.
     """
     representations = {str(rep["id"]): rep for rep in video_content["representations"]["video"]}
+    for representation in representations.values():
+        frame_rate_fps = representation.get("frameRateFps")
+        if frame_rate_fps is not None and not frame_rate_fps > 0:
+            raise ValueError(
+                f"frameRateFps of representation {representation['id']} of video {video_content['videoId']} "
+                "must be positive"
+            )
     played_segments = []
     for interval in _intervals_in_playback_order(video_record):
         representation = representations[str(interval["representation_id"])]
@@ -54,6 +63,7 @@ def played_segments_of_video(video_record: dict[str, Any], video_content: dict[s
                         bitrate_kbps=segment["bytes"] * 8 / segment["durationS"] / 1000,
                         width=representation["width"],
                         height=representation["height"],
+                        frame_rate_fps=representation.get("frameRateFps"),
                         played_duration_s=overlap_s,
                     )
                 )

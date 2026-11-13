@@ -71,6 +71,13 @@ def _table(columns: tuple[tuple[str, str, str], ...], rows: list[dict[str, Any]]
     return lines
 
 
+def _frame_rate_description(settings: dict[str, Any]) -> str:
+    # Manifests written before the scoring read the frame rate from the content file
+    if "frame_rate_fps" in settings:
+        return f"assumed frame rate {settings['frame_rate_fps']:g} fps"
+    return f"frame rate from the content file, fallback {settings['fallback_frame_rate_fps']:g} fps"
+
+
 def _model_version(model: dict[str, Any]) -> str:
     revision = f", commit {model['commit'][:7]}" if model.get("commit") else ""
     return f"{model['standard']} (`{model['package']}` {model['version']}{revision})"
@@ -86,7 +93,7 @@ def _scoring_summary(run_dir: Path) -> str | None:
         f"- `{manifest['run_id']}`: {_model_version(scoring['integration_model'])}, "
         f"{_model_version(scoring['video_model'])}, device {settings['device']}, "
         f"display {settings['display_width']}x{settings['display_height']}, "
-        f"assumed frame rate {settings['frame_rate_fps']:g} fps, assumed constant audio score O21 {settings['audio_o21']:g}"
+        f"{_frame_rate_description(settings)}, assumed constant audio score O21 {settings['audio_o21']:g}"
     )
 
 

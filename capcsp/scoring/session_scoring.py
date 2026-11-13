@@ -22,8 +22,8 @@ class ScoringSettings:
     # Display resolution for the upscaling degradation (portrait full HD)
     display_width: int = 1080
     display_height: int = 1920
-    # Assumed frame rate of all representations; the manifests of the SFV fixture state 30 fps
-    frame_rate_fps: float = 30.0
+    # Frame rate of representations without `frameRateFps` in the content file
+    fallback_frame_rate_fps: float = 30.0
     # Assumed constant audio score, because the player does not request audio; 5.0 is constant good quality
     audio_o21: float = 5.0
 
@@ -35,7 +35,7 @@ class ScoringSettings:
         settings = cls(**values)
         if settings.device not in ("pc", "mobile"):
             raise ValueError("scoring.device must be 'pc' or 'mobile'")
-        if settings.display_width <= 0 or settings.display_height <= 0 or settings.frame_rate_fps <= 0:
+        if settings.display_width <= 0 or settings.display_height <= 0 or settings.fallback_frame_rate_fps <= 0:
             raise ValueError("scoring display size and frame rate must be positive")
         if not 1 <= settings.audio_o21 <= 5:
             raise ValueError("scoring.audio_o21 must be between 1 and 5")
@@ -61,17 +61,25 @@ def _score_session_record(record: dict[str, Any], dataset: dict[str, Any], setti
         segment_outputs = []
         segment_scores = []
         for segment in played_segments_of_video(video, video_content_by_id[video["video_id"]]):
+            frame_rate_fps = segment.frame_rate_fps or settings.fallback_frame_rate_fps
             mos = segment_video_quality_mos(
                 content_codec=segment.content_codec,
                 bitrate_kbps=segment.bitrate_kbps,
                 width=segment.width,
                 height=segment.height,
-                frame_rate_fps=settings.frame_rate_fps,
+                frame_rate_fps=frame_rate_fps,
                 device=settings.device,
                 display_width=settings.display_width,
                 display_height=settings.display_height,
             )
-            segment_outputs.append({**segment.to_dict(), "video_quality_mos": mos})
+            segment_outputs.append(
+                {
+                    **segment.to_dict(),
+                    "frame_rate_fps": frame_rate_fps,
+                    "frame_rate_from_content": segment.frame_rate_fps is not None,
+                    "video_quality_mos": mos,
+                }
+            )
             segment_scores.append((segment.played_duration_s, mos))
 
         per_second_video_o22 = per_second_scores(segment_scores)
