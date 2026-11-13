@@ -20,20 +20,13 @@ uv run capcsp run \
   output/vqeg/c1
 ```
 
-Run the complete matrix:
+Run all nine conditions with 2 and 4 UEs and five replications:
 
 ```bash
-for config in configs/experiments/vqeg/*-b1-b2.json; do
-  name="$(basename "$config" -b1-b2.json)"
-  uv run capcsp run "$config" "output/vqeg/$name"
-done
+uv run capcsp grid configs/grids/vqeg-conditions.json --jobs 16
 ```
 
-Then compare the outputs:
-
-```bash
-uv run capcsp report output/vqeg/* -o output/vqeg/report.md
-```
+The grid uses `c1-b1-b2.json` as its base and only swaps the FikoRE scenario and the duration per condition. Each replication sets its own FikoRE seed.
 
 The current SFV fixture contains three short videos. It is sufficient to validate end-to-end player integration, byte conservation, effective scenario rendering and timeline replay. Some late C6/C8 events occur after the finite content has been downloaded, so this matrix is not by itself a performance validation of every dynamic condition. A future long or repeating content catalog should be used for application-level sensitivity measurements across the complete C6–C8 timelines.
 

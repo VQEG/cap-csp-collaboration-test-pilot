@@ -1,0 +1,22 @@
+{
+  "grid_id": "smoke",
+  "base": "../experiments/b1-b2-two-ue-mock.json",
+  "signaling_levels": [
+    "L0",
+    "L2"
+  ],
+  "ue_counts": [
+    2,
+    3
+  ],
+  "behavior_mixes": {
+    "b1-b2": [
+      "simple",
+      "preload"
+    ],
+    "b1": [
+      "simple"
+    ]
+  },
+  "replications": 2
+}

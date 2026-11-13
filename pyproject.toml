@@ -9,6 +9,7 @@ dependencies = [
     "fikore-transport",
     "itu-p1203",
     "mode0-retraining",
+    "rich>=15.0.0",
 ]
 
 [project.scripts]

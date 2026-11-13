@@ -68,7 +68,8 @@ Owner: Werner
 - [x] Add the `constant_rate` backend ([Network Backend API](network-backend-api.md#constant-rate-backend)).
 - [ ] Check B2 on `constant_rate` against the analytical results of Wehner et al. before using FikoRE.
 - [ ] Add the `trace` backend ([Network Backend API](network-backend-api.md#backend-implementations)).
-- [ ] Expand experiment grids (conditions × signaling levels × player behaviour × swipe profiles × seeds) into single runs, instead of one hand-written JSON file per run ([Experiments](experiments.md#experiment-grid)).
+- [x] Run experiment grids of conditions, signaling levels, UE counts, behaviour mixes and replications with `capcsp grid` ([Experiments](experiments.md#experiment-grid)).
+- [ ] Add swipe profiles as a grid axis once they are defined.
 - [x] Use the seeded `userModel` of SFV as a simple user model, with 2–16 s between swipes ([Experiments](experiments.md#experiment-grid)).
 - [x] Wire CAP reports and the shared state table into the runner ([Signaling](signaling.md)).
 - [ ] Call effective `set_ue_control()` and feed CSP fields into SFV policies so that L1–L3 change player behaviour ([Signaling](signaling.md)).

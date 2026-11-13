@@ -55,8 +55,10 @@ Building FikoRE requires Linux and the tools listed in its [README](5g-network-e
 Run the example with two UEs (B1 and B2) on the deterministic mock backend. This needs `uv` and Node.js 20 or newer:
 
 ```bash
-uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json output/mock
+uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json
 ```
+
+The results go to `output/runs/<run_id>`. Pass a directory as the second argument to write them elsewhere. If the directory already holds a run, add `--force` to run it again.
 
 To run B1 and B2 on a dedicated constant rate per UE instead, as assumed by the analytical model of Wehner et al., use `configs/experiments/b1-b2-two-ue-constant-rate.json`; its settings are described in [Experiments and Configuration](docs/experiments.md#constant-rate-backend).
 
@@ -65,7 +67,7 @@ The output directory contains the run manifest, one session record per UE with i
 To compare several runs, run:
 
 ```bash
-uv run capcsp report output/run-a output/run-b -o report.md
+uv run capcsp report output/runs/run-a output/runs/run-b -o report.md
 ```
 
 See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run. Actual results should not be committed.
@@ -77,7 +79,7 @@ Runs on FikoRE need Linux. On macOS, you can build the container via Docker and 
 ```bash
 docker build -t capcsp .
 docker run --rm -v "$PWD/output:/pilot/output" capcsp \
-  capcsp run configs/experiments/b1-b2-two-ue-fikore.json output/fikore
+  capcsp run configs/experiments/b1-b2-two-ue-fikore.json
 ```
 
 ## Configs
@@ -85,10 +87,18 @@ docker run --rm -v "$PWD/output:/pilot/output" capcsp \
 The contributed FikoRE condition matrix is under `configs/experiments/vqeg/`. For example:
 
 ```bash
-uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json output/vqeg/c1
+uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json
 ```
 
-See `configs/experiments/vqeg/README.md` for all nine C1–C8a/C8b runs, their common transport assumptions and the complete matrix command (to be replaced by an experiment runner that does the matrix run on its own).
+See `configs/experiments/vqeg/README.md` for all nine C1–C8a/C8b runs and their common transport assumptions.
+
+To run a whole grid of conditions, signaling levels, UE counts, behaviour mixes and replications, use a grid file:
+
+```bash
+uv run capcsp grid configs/grids/vqeg-conditions.json --jobs 16
+```
+
+The grid runner shows the progress of the grid and of every running cell. It writes to `output/grids/<grid_id>`: one directory per cell, an `index.csv` with the status of every cell and one merged `kpis.csv`. If you start it again, it skips the cells that already finished with the same configuration. Add `--force` to run them again. Add `--list` to only list the cells. The grid format is described in [Experiments and Configuration](docs/experiments.md#experiment-grid).
 
 ## Testing
 

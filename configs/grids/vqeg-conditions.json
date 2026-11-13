@@ -1,0 +1,84 @@
+{
+  "grid_id": "vqeg",
+  "base": "../experiments/vqeg/c1-b1-b2.json",
+  "conditions": {
+    "C1": {
+      "condition": "C1",
+      "duration_s": 120,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c1_healthy_5g.ini"
+      }
+    },
+    "C2": {
+      "condition": "C2",
+      "duration_s": 120,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c2_plan_capped.ini"
+      }
+    },
+    "C3": {
+      "condition": "C3",
+      "duration_s": 120,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c3_borderline_cell.ini"
+      }
+    },
+    "C4": {
+      "condition": "C4",
+      "duration_s": 120,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c4_congested_cell.ini"
+      }
+    },
+    "C5": {
+      "condition": "C5",
+      "duration_s": 120,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c5_cell_edge_low_sinr.ini"
+      }
+    },
+    "C6": {
+      "condition": "C6",
+      "duration_s": 180,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini"
+      }
+    },
+    "C7": {
+      "condition": "C7",
+      "duration_s": 120,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c7_satellite_like.ini"
+      }
+    },
+    "C8a": {
+      "condition": "C8a",
+      "duration_s": 300,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c8a_bursty_congestion.ini"
+      }
+    },
+    "C8b": {
+      "condition": "C8b",
+      "duration_s": 180,
+      "network": {
+        "fikore_base_ini": "configs/fikore/c8b_coverage_transition.ini"
+      }
+    }
+  },
+  "signaling_levels": [
+    "L0"
+  ],
+  "ue_counts": [
+    2,
+    4
+  ],
+  "behavior_mixes": {
+    "b1-b2": [
+      "simple",
+      "preload"
+    ]
+  },
+  "replications": 5,
+  "network_seed_base": 20260927
+}

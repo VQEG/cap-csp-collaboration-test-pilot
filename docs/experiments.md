@@ -21,7 +21,7 @@ The first two streams live inside FikoRE and depend on the run seed specified in
 
 ## Cell Runs
 
-A cell run models all video UEs competing within a shared network instance. Milestone 1 assumes four homogeneous video UEs per cell with matching player policies, signaling levels, and swipe profiles. Mixed-policy cells are deferred to later milestones.
+A cell run models all video UEs competing within a shared network instance. The UEs of a cell can use different player behaviours, as real users run different apps. All UEs of a cell share the signaling level. The number of UEs per cell is a grid axis.
 
 The runner initializes one session per UE and one shared network backend. Cell-level aggregations are computed once all session records complete.
 
@@ -138,35 +138,45 @@ The YAML above shows the fields only. The runner reads the SFV `content.json` fo
 
 ## Experiment Grid
 
-```yaml
-network_backend: transport_fikore
-sync_ms: 10
-transport:
-  kind: tcp
-  congestion_control: cubic
-  receive_window_bytes: 131072
-  mss_bytes: 1500
-  ecn: not-ect
-  tcp_connection_mode: persistent
-  max_idle_tcp_connections_per_ue: 6
-session:
-  max_videos: 20
-  max_duration_s: 300
-grid:
-  network_condition: [C1, C2, C3, C4, C5]
-  signaling_level: [L0, L1, L2, L3, L4]
-  player_behavior: [simple, preload]
-  swipe_profile: [slow, medium, fast]
-  seed: {from: 1, to: 30}
-content: content.json
+A grid file expands into one experiment configuration per cell. `capcsp grid` runs the cells in parallel. Example: `configs/grids/vqeg-conditions.json`.
+
+```json
+{
+  "grid_id": "vqeg",
+  "base": "../experiments/vqeg/c1-b1-b2.json",
+  "conditions": {
+    "C1": {"condition": "C1", "duration_s": 120, "network": {"fikore_base_ini": "configs/fikore/c1_healthy_5g.ini"}},
+    "C6": {"condition": "C6", "duration_s": 180, "network": {"fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini"}}
+  },
+  "signaling_levels": ["L0"],
+  "ue_counts": [2, 4],
+  "behavior_mixes": {"b1-b2": ["simple", "preload"]},
+  "replications": 5,
+  "network_seed_base": 20260927
+}
 ```
+
+The keys:
+
+- `base`: a normal experiment configuration, relative to the grid file. Every cell starts from it.
+- `conditions`: named partial configurations. Each is merged over the base: objects merge key by key, other values replace. Without `conditions`, the grid uses the base condition.
+- `signaling_levels`: the signaling levels. All UEs of a cell share one level.
+- `ue_counts`: the number of video UEs per cell.
+- `behavior_mixes`: named behaviour patterns. A pattern repeats over the UEs of a cell, so `["simple", "preload"]` gives B1, B2, B1, B2 for four UEs. Each behaviour takes its session settings from the first base session with that behaviour.
+- `replications`: the number of replications. Replication r sets the FikoRE seed to `network_seed_base + r` and the seed of UE k to `1000 r + k`. Cells of the same replication therefore see the same radio and the same users, so they can be compared in pairs.
+
+Each cell is named `<grid_id>-<condition>-<level>-<n>ue-<mix>-r<replication>`. The output directory, by default `output/grids/<grid_id>`, holds one directory per cell, `index.csv` and `kpis.csv`:
+
+- `index.csv` lists every cell with its axis values, a hash of its configuration, its status and its wall-clock time.
+- `kpis.csv` merges the KPI tables of all completed cells. It adds the UE count, the behaviour mix and the replication as leading columns.
+
+A cell is finished when it completed with an unchanged configuration. A new invocation skips finished cells and runs failed or changed ones. With `--force`, it runs all cells again. A failed cell writes `error.log` and does not stop the others.
 
 At L3, set `csp_controller: "dummy"` to exercise the collaboration bus without changing FikoRE (the dummy controller logs proposals only). Example: `configs/experiments/collaboration/l3-dummy-mock.json`. See [Collaboration runtime](collaboration.md).
 
-Optional keys: `csp_baseline_control_by_ue`, `clock_mode` (`"simulation"` only), `plan_downlink_mbps_by_ue` (L1).
+Optional keys of an experiment configuration: `csp_baseline_control_by_ue`, `clock_mode` (`"simulation"` only), `plan_downlink_mbps_by_ue` (L1).
 
->[!NOTE]
-> The runner does not expand grids yet. Each run is one JSON file (see `configs/experiments/`). Swipes come from the SFV `userModel` of each session instead of a swipe profile. The condition configurations in `configs/experiments/vqeg/` use the simple `seeded` model, which draws the time between swipes uniformly from `watchDurationRangeS` (2–16 s, the viewing times of the [swipe delay study](https://arxiv.org/abs/2603.18575)) with the session seed. That time runs from the previous swipe, so loading delays and stalls count towards it. Scripted examples keep fixed `swipeTimesS`. Without a `swipe_profile` key, the session records name the user model type, or `scripted`.
+Swipes come from the SFV `userModel` of each session. The condition configurations in `configs/experiments/vqeg/` use the simple `seeded` model, which draws the time between swipes uniformly from `watchDurationRangeS` (2–16 s, the viewing times of the [swipe delay study](https://arxiv.org/abs/2603.18575)) with the session seed. That time runs from the previous swipe, so loading delays and stalls count towards it. Scripted examples keep fixed `swipeTimesS`. Without a `swipe_profile` key, the session records name the user model type, or `scripted`. Swipe profiles are not yet a grid axis.
 
 ## Constant-Rate Backend
 
@@ -192,7 +202,7 @@ The `constant_rate` backend gives every UE a dedicated constant downlink rate; s
 Rates are in Mbps of application payload (10^6 bit/s). `configs/experiments/b1-b2-two-ue-constant-rate.json` runs B1 and B2 at 1 Mbps each with a 25 ms delay:
 
 ```bash
-uv run capcsp run configs/experiments/b1-b2-two-ue-constant-rate.json output/constant-rate
+uv run capcsp run configs/experiments/b1-b2-two-ue-constant-rate.json
 ```
 
 ## Trace Backend

@@ -279,4 +279,4 @@ The first milestone excludes:
 - Cross-backend numerical identity
 - Distributed databases or remote message brokers
 - Standardized L3 network-control algorithms
-- Heterogeneous player policies or mixed signaling levels within a single cell
+- Mixed signaling levels within a single cell

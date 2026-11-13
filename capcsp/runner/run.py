@@ -18,7 +18,7 @@ import subprocess
 import time
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from capcsp.network.constant_rate import ConstantRateBackend
 from capcsp.network.mock import MockNetworkBackend
@@ -122,8 +122,13 @@ def swipe_profile_label(config: dict[str, Any]) -> str:
     return model_types.pop() if len(model_types) == 1 else "mixed"
 
 
-def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
-    """Run the experiment in `config_path` and write all outputs to `output_dir`."""
+def run_experiment(
+    config_path: Path, output_dir: Path, on_step: Callable[[float], None] | None = None
+) -> dict[str, Any]:
+    """Run the experiment in `config_path` and write all outputs to `output_dir`.
+
+    `on_step` receives the simulated time of every network step, for progress displays.
+    """
     config = load_config(config_path)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "sessions").mkdir(exist_ok=True)
@@ -206,6 +211,7 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
                 transcript=transcript,
                 telemetry=telemetry,
                 collaboration=collaboration,
+                on_step=on_step,
             )
         manifest["status"] = "completed"
     finally:

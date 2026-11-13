@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from capcsp.collaboration.factory import CollaborationContext
 from capcsp.collaboration.runtime import (
@@ -96,11 +96,12 @@ def run_sessions(
     telemetry: list[dict[str, Any]],
     collaboration: CollaborationContext,
     max_steps: int = 1_000_000,
+    on_step: Callable[[float], None] | None = None,
 ) -> dict[str, Any]:
     """Run all sessions on the backend clock until the final step.
 
     Checks every event against the requests the player submitted, and returns
-    the player's final result.
+    the player's final result. `on_step` receives the simulated time of every step.
     """
     previous_time = -1.0
     sizes: dict[tuple[int, str], int] = {}
@@ -111,6 +112,8 @@ def run_sessions(
         if step.time_s <= previous_time:
             raise ValueError(f"Backend time did not advance: {step.time_s} after {previous_time}")
         previous_time = step.time_s
+        if on_step is not None:
+            on_step(step.time_s)
         step_dict = step_to_dict(step)
         apply_player_network_events(
             step_dict,
