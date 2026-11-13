@@ -38,7 +38,7 @@ Start with these documents:
 - [Specification Overview](docs/README.md): system summary and index of all design documents
 - [Architecture](docs/architecture.md): components, ownership, time, and execution modes
 - [Decision Status](docs/decision-status-and-todos.md): unresolved decisions and implementation action items
-- [Simulator Explorer](docs/simulator-explorer/README.md): interactive diagram of which components interact at each signaling level, backend and implementation state (build with `npm run build`, then open `dist/index.html`) — kept in sync with the current state of the codebase and design documents
+- [Simulator Explorer](docs/simulator-explorer/README.md): interactive diagram of which components interact at each signaling level, backend and implementation state (**live at <https://vqeg.github.io/cap-csp-collaboration-test-pilot/>**) — kept in sync with the current state of the codebase and design documents
 
 ## Requirements
 

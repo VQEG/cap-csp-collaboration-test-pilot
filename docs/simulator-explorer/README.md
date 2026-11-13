@@ -1,5 +1,7 @@
 # CAP–CSP simulator explorer
 
+**Live version: <https://vqeg.github.io/cap-csp-collaboration-test-pilot/>** (rebuilt on every push to master)
+
 An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend (FikoRE, constant rate or mock), FikoRE condition or constant rate per UE, player behavior and transport. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
 
 Diagram boxes are colored by the repository that holds the code. Every dotted-underlined term, and every arrow label, shows an explanation on hover.
