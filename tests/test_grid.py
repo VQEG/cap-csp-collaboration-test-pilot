@@ -71,6 +71,14 @@ def test_conditions_merge_over_the_base() -> None:
     assert merge_configurations({"a": {"b": 1, "c": 2}}, {"a": {"c": 3}}) == {"a": {"b": 1, "c": 3}}
 
 
+def test_a_grid_file_can_hold_the_base_experiment_itself(tmp_path: Path) -> None:
+    base = json.loads((CONFIGS / "experiments" / "b1-b2-two-ue-mock.json").read_text())
+    grid_path = tmp_path / "grid.json"
+    grid_path.write_text(json.dumps({"grid_id": "inline", "base": base, "ue_counts": [3]}))
+    cells = GridSpecification.from_file(grid_path).cells()
+    assert [cell.run_id for cell in cells] == ["inline-example-only-l0-3ue-b1-b2-r01"]
+
+
 @pytest.mark.parametrize(
     "changes",
     [

@@ -1,6 +1,6 @@
 """Expand an experiment grid into one experiment configuration per cell.
 
-A grid file names a base experiment and the axes to vary:
+A grid file names a base experiment (a path relative to the grid file, or the experiment itself) and the axes to vary:
 
 - `conditions`: named partial configurations merged over the base, for example the FikoRE scenario and duration
 - `signaling_levels`: signaling levels, for example ["L0"]
@@ -71,11 +71,14 @@ class GridSpecification:
     @classmethod
     def from_file(cls, path: Path) -> GridSpecification:
         values = json.loads(path.read_text(encoding="utf-8"))
-        base_path = (path.parent / values["base"]).resolve()
-        base_experiment = json.loads(base_path.read_text(encoding="utf-8"))
-        # Content paths are relative to the base file; make them independent of where cell configs are written
+        if isinstance(values.get("base"), dict):
+            base_experiment, base_dir = copy.deepcopy(values["base"]), path.parent
+        else:
+            base_path = (path.parent / values["base"]).resolve()
+            base_experiment, base_dir = json.loads(base_path.read_text(encoding="utf-8")), base_path.parent
+        # Content paths are relative to the file that holds the base; make them independent of where cell configs are written
         if "content" in base_experiment:
-            base_experiment["content"] = str((base_path.parent / base_experiment["content"]).resolve())
+            base_experiment["content"] = str((base_dir / base_experiment["content"]).resolve())
         return cls.from_dict({**values, "base": base_experiment}, default_grid_id=path.stem)
 
     @classmethod

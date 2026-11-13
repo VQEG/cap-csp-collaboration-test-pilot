@@ -158,7 +158,7 @@ A grid file expands into one experiment configuration per cell. `capcsp grid` ru
 
 The keys:
 
-- `base`: a normal experiment configuration, relative to the grid file. Every cell starts from it.
+- `base`: a normal experiment configuration, as a path relative to the grid file or inline as an object. Every cell starts from it. The [simulator explorer](simulator-explorer/README.md) writes grid files with an inline base.
 - `conditions`: named partial configurations. Each is merged over the base: objects merge key by key, other values replace. Without `conditions`, the grid uses the base condition.
 - `signaling_levels`: the signaling levels. All UEs of a cell share one level.
 - `ue_counts`: the number of video UEs per cell.
