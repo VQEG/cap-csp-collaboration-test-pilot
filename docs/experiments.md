@@ -166,7 +166,7 @@ At L3, set `csp_controller: "dummy"` to exercise the collaboration bus without c
 Optional keys: `csp_baseline_control_by_ue`, `clock_mode` (`"simulation"` only), `plan_downlink_mbps_by_ue` (L1).
 
 >[!NOTE]
-> The runner does not expand grids yet. Each run is one JSON file (see `configs/experiments/`), and swipe times are given per session as `swipeTimesS` instead of being drawn from a swipe profile.
+> The runner does not expand grids yet. Each run is one JSON file (see `configs/experiments/`). Swipes come from the SFV `userModel` of each session instead of a swipe profile. The condition configurations in `configs/experiments/vqeg/` use the simple `seeded` model, which draws the time between swipes uniformly from `watchDurationRangeS` (2–16 s, the viewing times of the [swipe delay study](https://arxiv.org/abs/2603.18575)) with the session seed. That time runs from the previous swipe, so loading delays and stalls count towards it. Scripted examples keep fixed `swipeTimesS`. Without a `swipe_profile` key, the session records name the user model type, or `scripted`.
 
 ## Constant-Rate Backend
 

@@ -1,7 +1,7 @@
 {
   "run_id": "vqeg-c1-b1-b2",
   "status": "completed",
-  "started_at": "2026-11-11T16:59:17+00:00",
+  "started_at": "2026-11-13T10:41:49+00:00",
   "config_path": "configs/experiments/vqeg/c1-b1-b2.json",
   "config": {
     "run_id": "vqeg-c1-b1-b2",
@@ -47,9 +47,13 @@
           "scheduling": {
             "maxConcurrentRequests": 2
           },
-          "swipeTimesS": [
-            0.1
-          ]
+          "userModel": {
+            "type": "seeded",
+            "watchDurationRangeS": [
+              2,
+              16
+            ]
+          }
         },
         "rule_config": {
           "activeBufferTargetSegments": 2
@@ -64,9 +68,13 @@
           "scheduling": {
             "maxConcurrentRequests": 3
           },
-          "swipeTimesS": [
-            0.11
-          ]
+          "userModel": {
+            "type": "seeded",
+            "watchDurationRangeS": [
+              2,
+              16
+            ]
+          }
         },
         "rule_config": {
           "activeBufferTargetSegments": 2,
@@ -85,15 +93,15 @@
   ],
   "revisions": {
     "capcsp": {
-      "commit": "2b3bf02c51193a657f2199705863ad47c184131c",
-      "dirty": false
+      "commit": "22f3f27541b2ca25c32fe6d8abc7d77b34f952b6",
+      "dirty": true
     },
     "fikore": {
       "commit": "df3ca9ae6a2ff6ee5fcae326f5988eb76cca2817",
       "dirty": false
     },
     "sfv_reference_implementation": {
-      "commit": "aca0b9b14e7d013e017506dfc4e25b90498f5cc6",
+      "commit": "92386aeac99f452a39b2b38f31219b72fc55afb4",
       "dirty": false
     }
   },
@@ -101,12 +109,12 @@
   "csp_control_log": null,
   "clock_mode": "simulation",
   "cap_application": "sfv",
-  "wall_s": 15.85,
+  "wall_s": 6.293,
   "network_steps": 12001,
   "byte_accounting": {
-    "submitted_bytes": 1119670,
+    "submitted_bytes": 2192054,
     "terminal_bytes": {
-      "delivered": 1119670,
+      "delivered": 2192054,
       "dropped": 0,
       "expired": 0
     },
@@ -131,7 +139,7 @@
       "device": "mobile",
       "display_width": 1080,
       "display_height": 1920,
-      "frame_rate_fps": 30.0,
+      "fallback_frame_rate_fps": 30.0,
       "audio_o21": 5.0
     }
   }

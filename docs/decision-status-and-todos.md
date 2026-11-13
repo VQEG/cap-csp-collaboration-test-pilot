@@ -70,7 +70,7 @@ Owner: Werner
 - [ ] Check B2 on `constant_rate` against the analytical results of Wehner et al. before using FikoRE.
 - [ ] Add the `trace` backend ([Network Backend API](network-backend-api.md#backend-implementations)).
 - [ ] Expand experiment grids (conditions × signaling levels × player behaviour × swipe profiles × seeds) into single runs, instead of one hand-written JSON file per run ([Experiments](experiments.md#experiment-grid)).
-- [ ] Start with a simple user model instead of fixed `swipeTimesS`: the seeded `userModel` of SFV, which draws the time between swipes uniformly from a range in seconds, with the session seed.
+- [x] Start with a simple user model instead of fixed `swipeTimesS`: the seeded `userModel` of SFV, which draws the time between swipes uniformly from a range in seconds, with the session seed. The condition configurations and the constant-rate example draw from 2–16 s ([Experiments](experiments.md#experiment-grid)).
 - [x] Wire CAP reports, shared state table, collaboration snapshots, and dummy `CSPController` in the runner ([Collaboration](collaboration.md), [Signaling](signaling.md)).
 - [ ] Call effective `set_ue_control()` and feed CSP fields into SFV policies so that L1–L3 change player behaviour ([Signaling](signaling.md)).
 - [ ] Decide whether to unify the naming in `sessions/ue-<id>.json`: the SFV result object uses camelCase (`sessionRecord`, `terminationReason`), while the record inside it uses snake_case (`session_id`, `representation_intervals`).

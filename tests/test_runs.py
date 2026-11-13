@@ -13,7 +13,7 @@ import pytest
 from capcsp.network.transport_fikore import TransportFikoreConfig
 from capcsp.runner.kpis import collect_kpis
 from capcsp.runner.report import write_report
-from capcsp.runner.run import run_experiment
+from capcsp.runner.run import run_experiment, swipe_profile_label
 
 CONFIGS = Path(__file__).resolve().parents[1] / "configs" / "experiments"
 TERMINAL_STATES = {"COMPLETED", "CANCELLED"}
@@ -116,6 +116,22 @@ def test_constant_rate(tmp_path: Path) -> None:
         # Each UE has its own rate; whole-byte reporting moves at most one byte per request between steps
         assert all(amount <= bytes_per_step + 3 for amount in step_bytes.values())
     assert {ue_id for ue_id, _ in delivered} == {0, 1}
+    for session in (output / "sessions").glob("ue-*.json"):
+        record = json.loads(session.read_text())["sessionRecord"]
+        assert record["swipe_profile"] == "seeded"
+        assert record["user_model"]["watchDurationRangeS"] == [2, 16]
+
+
+def test_swipe_profile_label_follows_the_user_model() -> None:
+    def config(*models: dict | None, **extra) -> dict:
+        sessions = [{"config": {"userModel": model} if model else {"swipeTimesS": [1]}} for model in models]
+        return {"sessions": sessions, **extra}
+
+    seeded = {"type": "seeded", "watchDurationRangeS": [2, 16]}
+    assert swipe_profile_label(config(seeded, seeded)) == "seeded"
+    assert swipe_profile_label(config(None, None)) == "scripted"
+    assert swipe_profile_label(config(seeded, None)) == "mixed"
+    assert swipe_profile_label(config(seeded, swipe_profile="medium")) == "medium"
 
 
 def test_l3_dummy_writes_csp_control(tmp_path: Path) -> None:

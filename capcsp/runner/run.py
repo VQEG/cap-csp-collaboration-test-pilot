@@ -108,6 +108,20 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
             file.write(json.dumps(row) + "\n")
 
 
+def swipe_profile_label(config: dict[str, Any]) -> str:
+    """The `swipe_profile` of the session records.
+
+    Without an explicit `swipe_profile`, SFV labels every session "scripted", even one
+    with a `userModel`. Use the user model type of the sessions instead.
+    """
+    if "swipe_profile" in config:
+        return config["swipe_profile"]
+    model_types = {
+        session.get("config", {}).get("userModel", {}).get("type", "scripted") for session in config["sessions"]
+    }
+    return model_types.pop() if len(model_types) == 1 else "mixed"
+
+
 def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
     """Run the experiment in `config_path` and write all outputs to `output_dir`."""
     config = load_config(config_path)
@@ -116,6 +130,7 @@ def run_experiment(config_path: Path, output_dir: Path) -> dict[str, Any]:
     player_config = {key: config[key] for key in PLAYER_KEYS if key in config}
     player_config["dataset"] = json.loads(Path(config["content_path"]).read_text(encoding="utf-8"))
     player_config["network_backend"] = config["network_backend"]
+    player_config["swipe_profile"] = swipe_profile_label(config)
     ue_ids = {session["ue_id"] for session in config["sessions"]}
 
     shared_state_log_name = "shared-state.jsonl"

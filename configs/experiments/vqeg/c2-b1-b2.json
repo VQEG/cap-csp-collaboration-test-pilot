@@ -42,9 +42,13 @@
         "scheduling": {
           "maxConcurrentRequests": 2
         },
-        "swipeTimesS": [
-          0.1
-        ]
+        "userModel": {
+          "type": "seeded",
+          "watchDurationRangeS": [
+            2,
+            16
+          ]
+        }
       },
       "rule_config": {
         "activeBufferTargetSegments": 2
@@ -59,9 +63,13 @@
         "scheduling": {
           "maxConcurrentRequests": 3
         },
-        "swipeTimesS": [
-          0.11
-        ]
+        "userModel": {
+          "type": "seeded",
+          "watchDurationRangeS": [
+            2,
+            16
+          ]
+        }
       },
       "rule_config": {
         "activeBufferTargetSegments": 2,
