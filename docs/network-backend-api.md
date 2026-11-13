@@ -191,6 +191,6 @@ dash.js in UE network namespace
   -> HTTP origin server
 ```
 
-The origin serves segment payloads matching byte sizes from `content.yaml` (using synthetic payloads or real encoded media). FikoRE schedules, shapes, delays, and drops packets in real time.
+The origin serves segment payloads matching byte sizes from the content file (using synthetic payloads or real encoded media). FikoRE schedules, shapes, delays, and drops packets in real time.
 
 The multi-video dash.js player runs this pipeline, providing empirical validation of TCP slow start, connection reuse, and transport multiplexing against offline simulation models.

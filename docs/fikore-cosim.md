@@ -106,16 +106,16 @@ Cancellation stops new application data immediately. Segments already admitted t
 
 The compact state accompanying `events` exposes delivered throughput, queue and loss counters, one-way PDCP/IP latency, SINR and mobility. The transport measures RTT from its own acknowledgement path. `rtt_ms` and one-way `pdcp_latency_ms` remain separate measurements.
 
-## Default SFV Configuration
+## Default FikoRE Configuration
 
-The SFV validator uses [`config/control_demo.ini`](../5g-network-emulator/config/control_demo.ini) as a template. `EmulatorConfig` writes a temporary effective configuration:
+Without `network.fikore_base_ini`, the harness uses [`config/control_demo.ini`](../5g-network-emulator/config/control_demo.ini) as a template. `EmulatorConfig` writes a temporary effective configuration:
 
 - `duration`: SFV duration + 1 s process margin
 - `period`: `-1` fast mode
 - `n_ues`: number of sessions in the SFV JSON
 - `dl_target`, `ul_target`: `0.0`; all bytes come from the client
 - `pkt_size`: 12000 bits = 1500-byte MSS
-- `pkt_delay_budget`: 30 s for the validation
+- `pkt_delay_budget`: 30 s (`delay_budget_s`)
 - `random_v`: `false`
 - `sync_mode`: `barrier`
 - `on_timeout`: `abort`
@@ -123,8 +123,6 @@ The SFV validator uses [`config/control_demo.ini`](../5g-network-emulator/config
 - monitoring output: disabled
 
 The template keeps the 20 MHz, 3.5 GHz scenario, proportional-fair scheduler, static UEs at 300 m and equal DL/UL TDD ratio. The backend uses CUBIC, a 128 KiB receive window, downlink, Not-ECT and a 10 ms player-facing window.
-
-`--config` in `validate_sfv.py` selects the SFV experiment JSON; it does not select another FikoRE INI template.
 
 ### Scenario templates and socket timeline replay
 
@@ -136,7 +134,7 @@ Co-simulation uses the Unix control socket, so a template's `transport: file` ca
 
 ### Seeds
 
-FikoRE accepts a run seed and derives independent streams for fading, mobility and traffic. Experiment grids must record the seed and use the same value for paired signaling-level comparisons. The SFV integration fixture uses `random_v: false` for a deterministic seam check rather than a seed sweep.
+FikoRE accepts a run seed and derives independent streams for fading, mobility and traffic. Experiment grids must record the seed and use the same value for paired signaling-level comparisons. By default, `random_v` is `false`, so the short test runs are deterministic.
 
 ## Failure Semantics
 
@@ -149,16 +147,10 @@ The repository includes:
 - deterministic transport tests over `LoopbackLink`;
 - emulator-backed `FikoreLink` tests for replay, loss and conservation;
 - 300 s scale campaigns for objects, expiry recovery and Prague/ECN;
-- controller comparison with RFC vectors and ns.py;
-- an SFV v0.7.2 mock/FikoRE integration example.
+- controller comparison with RFC vectors and ns.py.
 
-Use [Offline Transport Validation](offline-transport-validation.md) for the reproducible SFV procedure. Current model limitations are documented in [`transport/docs/LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
+`tests/test_runs.py` runs the SFV player on the mock and on FikoRE and checks that both make the same requests in the short fixture. Current model limitations are documented in [`transport/docs/LIMITATIONS.md`](../5g-network-emulator/transport/docs/LIMITATIONS.md).
 
 ## Remaining Pilot Work
 
-The generic transport and link are implemented. Remaining work belongs to the common harness and experiment definition:
-
-- make the temporary Python–Node bridge a permanent harness component;
-- select transport profiles per condition;
-- calibrate offline models against real HTTP runs;
-- execute the complete C1–C5 and signaling-level matrix.
+Open work is tracked in [Decision Status and Action Items](decision-status-and-todos.md).

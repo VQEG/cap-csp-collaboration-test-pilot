@@ -158,7 +158,7 @@ grid:
   player_behavior: [simple, preload]
   swipe_profile: [slow, medium, fast]
   seed: {from: 1, to: 30}
-content: content.yaml
+content: content.json
 ```
 
 At L3, set `csp_controller: "dummy"` to exercise the collaboration bus without changing FikoRE (the dummy controller logs proposals only). Example: `configs/experiments/collaboration/l3-dummy-mock.json`. See [Collaboration runtime](collaboration.md).
@@ -225,10 +225,10 @@ Condition labels unify parameter sets across backends without implying numerical
 - **FikoRE offline**: multi-UE closed-loop scheduling and L3 feedback evaluation.
 - **Real HTTP via FikoRE**: end-to-end validation under kernel transport dynamics.
 
-The current `validate_sfv.py` manifest records the FikoRE and two SFV revisions, transport and connection mode, backend counters and conservation. Once implemented, every common harness report will additionally record:
+Every run writes `run-manifest.json` with:
 
-- the common-harness revision;
-- the backend and transport profile, including CC, rwnd, MSS, ECN and ACK path;
-- internal TTI and player-facing `NetworkStep` interval;
-- FikoRE base INI plus effective overrides, including delay budget;
-- latency model, random seed and terminal byte-conservation result.
+- the revisions of `capcsp`, FikoRE and the SFV reference implementation, and whether their trees had local changes
+- the full experiment configuration, including the backend, its transport settings, the `NetworkStep` interval and the session seeds
+- the wall-clock time, the simulated time and the byte accounting, including whether all bytes were conserved
+
+FikoRE runs also write the effective INI as `fikore-effective.ini`.

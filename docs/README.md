@@ -53,15 +53,13 @@ Offline FikoRE does not receive video payloads. The harness requests delivery of
 Procedural stuff:
 
 - [Architecture](architecture.md): components, state ownership, time models, and execution modes.
-- [Implementation Plan](implementation-plan.md): package layout and development milestones.
 - [Decision Status and Action Items](decision-status-and-todos.md): unresolved decisions and implementation work.
-- [Offline Transport Validation](offline-transport-validation.md): reproduce the SFV mock and FikoRE integration.
 
 Specific API decisions:
 
 - [Player API](player-api.md): player state, policy observations, actions, swipe models, preloading, and concurrency.
 - [Network Backend API](network-backend-api.md): common request and event interface across network backends.
-- [FikoRE Co-simulation](fikore-cosim.md): implemented transport/Link boundary, lockstep, delivery guarantees and remaining harness work.
+- [FikoRE Co-simulation](fikore-cosim.md): transport and Link boundary, lockstep and delivery guarantees.
 - [Co-simulation Messages](fikore-cosim-messages.md): JSON wire protocol schema and examples.
 - [Signaling and Shared State](signaling.md): signaling levels L0–L4, shared table fields, and read filters.
 - [Collaboration Runtime](collaboration.md): harness wiring, step tick, artifacts, and extension points.

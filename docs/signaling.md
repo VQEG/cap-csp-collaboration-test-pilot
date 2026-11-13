@@ -12,7 +12,7 @@ The harness writes all CSP fields and CAP reports to the shared table at every l
 - **L3**: as L2. In addition, a `CSPController` may read CAP reports and act on the CSP.
 - **L4**: the CAP receives a capacity oracle trace. The harness does not implement L4 yet.
 
-The B1 and B2 policies do not use CSP fields yet, and no controller acts on the CSP yet. Both are tracked in the [implementation plan](implementation-plan.md).
+The B1 and B2 policies do not use CSP fields yet, and no controller acts on the CSP yet. Both are tracked in [Decision Status and Action Items](decision-status-and-todos.md).
 
 Unavailable measurements default to `None`. Backends must not fabricate synthetic values for missing metrics.
 
