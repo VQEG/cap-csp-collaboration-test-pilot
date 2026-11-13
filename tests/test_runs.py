@@ -255,6 +255,30 @@ def test_transport_over_fikore(tmp_path: Path) -> None:
     assert manifest["byte_accounting"]["bytes_conserved"]
 
 
+def request_signatures(output: Path) -> dict[str, list[tuple[str, int]]]:
+    """Request ID and size of every request, per session."""
+    signatures = {}
+    for session in sorted((output / "sessions").glob("ue-*.json")):
+        requests = json.loads(session.read_text())["requests"]
+        signatures[session.stem] = [(request["requestId"], request["bytesTotal"]) for request in requests]
+    return signatures
+
+
+@pytest.mark.skipif(
+    not Path(TransportFikoreConfig().fikore_binary).exists(), reason="FikoRE is not built"
+)
+def test_mock_and_fikore_make_the_same_requests_in_the_short_fixture(tmp_path: Path) -> None:
+    # Replacing the mock with FikoRE must not change which requests the player makes in the 0.2 s fixture.
+    # Timing differs, so a request that completes on the mock can still be in flight on FikoRE when it is
+    # cancelled; final states and delivered bytes are therefore not compared.
+    (tmp_path / "mock").mkdir()
+    (tmp_path / "fikore").mkdir()
+    mock = request_signatures(run(tmp_path / "mock", "b1-b2-two-ue-mock"))
+    fikore = request_signatures(run(tmp_path / "fikore", "b1-b2-two-ue-fikore"))
+    assert mock == fikore
+    assert all(mock.values())
+
+
 def _run_with_hash_seed(config: Path, output: Path, hash_seed: str) -> dict[str, str]:
     """Run `config` in a new process and return a digest per result file."""
     subprocess.run(
