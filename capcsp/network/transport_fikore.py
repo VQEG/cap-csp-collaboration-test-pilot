@@ -223,8 +223,6 @@ class TransportFikoreConfig:
     fikore_ue_overrides: dict[str, dict[str, object]] = field(
         default_factory=dict
     )
-    fikore_overrides: dict[str, str] = field(default_factory=dict)
-    """Legacy selected-UE overrides; prefer structured overrides."""
 
     @classmethod
     def from_dict(cls, values: dict[str, Any]) -> TransportFikoreConfig:
@@ -355,7 +353,6 @@ class TransportFikoreBackend(TransportBackend):
                         }
                         for ue_id, values in config.fikore_ue_overrides.items()
                     },
-                    extra=dict(config.fikore_overrides),
                 )
             )
             ue_id_map = physical_ue_map(
