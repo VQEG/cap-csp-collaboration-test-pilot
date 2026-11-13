@@ -37,6 +37,8 @@ export const NODE_BOXES: Record<DiagramNodeId, DiagramRectangle> = {
   fikoreLink: { x: 1040, y: 262, width: 400, height: 126 },
   fikore: { x: 1040, y: 436, width: 400, height: 150 },
   mockBackend: { x: 1040, y: 56, width: 400, height: 158 },
+  // Reaches down to the set_ue_control arrow, which applies rate caps to this backend
+  constantRateBackend: { x: 1040, y: 56, width: 400, height: 530 },
   sharedStateTable: { x: 560, y: 700, width: 380, height: 166 },
   cspController: { x: 1060, y: 700, width: 380, height: 150 },
   capacityOracle: { x: 40, y: 700, width: 380, height: 120 },

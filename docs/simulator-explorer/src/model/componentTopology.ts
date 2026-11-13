@@ -1,4 +1,11 @@
-import { signalingLevelNumber, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import {
+  backendAcceptsUeControl,
+  backendHasCspTelemetrySource,
+  signalingLevelNumber,
+  usesConstantRateBackend,
+  usesFikoreBackend,
+  type ExplorerSettings,
+} from "@/model/explorerSettings";
 
 // Which diagram arrows and boxes take part in a run for the chosen settings.
 // Edge and node ids must match the ids used in diagramLayout.ts and in
@@ -32,6 +39,7 @@ export type DiagramNodeId =
   | "fikoreLink"
   | "fikore"
   | "mockBackend"
+  | "constantRateBackend"
   | "sharedStateTable"
   | "cspController"
   | "capacityOracle";
@@ -49,7 +57,8 @@ export function computeComponentTopology(settings: ExplorerSettings): ComponentT
   const fikore = usesFikoreBackend(settings);
   const state = settings.implementationState;
   const hasSharedStateTable = true;
-  const backendEmitsTelemetry = fikore; // the mock backend has no CSP telemetry source
+  const constantRate = usesConstantRateBackend(settings);
+  const backendEmitsTelemetry = backendHasCspTelemetrySource(settings); // mock and constant_rate have no CSP telemetry source
   const planRateConfigured = settings.planDownlinkMbps !== "";
   const dummyControllerRuns = state === "master" && level >= 3 && settings.dummyCspControllerEnabled;
 
@@ -77,7 +86,7 @@ export function computeComponentTopology(settings: ExplorerSettings): ComponentT
     readCspFields: hasSharedStateTable && level >= 1,
     writeCapReport: capReportsCollected,
     controllerReadsCapReport: controllerReads,
-    controllerSetsUeControl: state === "design" && level >= 3 && fikore,
+    controllerSetsUeControl: state === "design" && level >= 3 && backendAcceptsUeControl(settings),
     controllerLogsProposal: dummyControllerRuns,
     capacityTrace: state === "design" && level === 4,
   };
@@ -91,7 +100,8 @@ export function computeComponentTopology(settings: ExplorerSettings): ComponentT
     transportBackend: fikore,
     fikoreLink: fikore,
     fikore: fikore,
-    mockBackend: !fikore,
+    mockBackend: settings.networkBackend === "mock",
+    constantRateBackend: constantRate,
     sharedStateTable: hasSharedStateTable,
     cspController: controllerReads,
     capacityOracle: activeEdges.capacityTrace,

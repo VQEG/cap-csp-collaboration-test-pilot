@@ -123,6 +123,14 @@ export const GLOSSARY = {
     summary:
       "Deterministic test backend. Shares a fixed budget of 80,000 bytes per 10 ms step (64 Mbps) across all active requests. No radio, no TCP, no delay and no telemetry source.",
   },
+  ConstantRateBackend: {
+    name: "ConstantRateBackend",
+    kind: "component",
+    repository: "harness",
+    definedIn: "capcsp/network/constant_rate.py (backend name constant_rate)",
+    summary:
+      "Deterministic backend that gives every UE its own constant downlink rate, so UEs never compete. The ready requests of a UE share its rate equally (processor sharing). A request gets no bytes until `synthetic_delay_ms` after submission. Bytes are kept as exact fractions; events report whole bytes at the step time. `set_ue_control` caps the UE rate with `rmax_mbps`; `priority` is recorded only. Not a TCP, HTTP or radio model, and no telemetry source. It is the network model of the analytical results of Wehner et al.",
+  },
   SharedStateTable: {
     name: "SharedStateTable",
     kind: "component",
@@ -152,7 +160,7 @@ export const GLOSSARY = {
     repository: "harness",
     definedIn: "capcsp/collaboration/adapters/fikore_control.py",
     summary:
-      "Maps a `CspControlIntent` (priority, max_downlink_mbps) to `UeControl` (priority, rmax_mbps) and calls `set_ue_control` on the backend. Ready for a real controller; the dummy controller does not call it.",
+      "Maps a `CspControlIntent` (priority, max_downlink_mbps) to `UeControl` (priority, rmax_mbps) and calls `set_ue_control` on the backend. Used on `transport_fikore` and `constant_rate`; `mock` gets `NoOpControlAdapter`. Ready for a real controller; the dummy controller does not call it.",
   },
   CapacityOracle: {
     name: "Capacity oracle",
@@ -192,10 +200,10 @@ export const GLOSSARY = {
     repository: "fikore",
     definedIn: "5g-network-emulator/transport/fikore_transport/backend.py",
     summary:
-      "Per-UE network knob set by an L3 controller. FikoRE applies it at a stated TTI and acknowledges the exact instant. Priority only has an effect with the PF scheduler (metric_type 6).",
+      "Per-UE network knob set by an L3 controller. FikoRE applies it at a stated TTI and acknowledges the exact instant; priority only has an effect with the PF scheduler (metric_type 6). The constant_rate backend applies `rmax_mbps` from the next step and records `priority` without effect.",
     fields: [
       { name: "priority", type: "float | None", description: "Scheduler weight of the UE." },
-      { name: "rmax_mbps", type: "float | None", description: "Downlink rate cap of the UE." },
+      { name: "rmax_mbps", type: "float | None", description: "Downlink rate cap of the UE. 0 removes the cap, None leaves it unchanged." },
     ],
   },
   CspControlIntent: {
@@ -227,7 +235,7 @@ export const GLOSSARY = {
     repository: "fikore",
     definedIn: "5g-network-emulator/transport/fikore_transport/telemetry.py",
     summary:
-      "CSP telemetry source of `TransportBackend`, exposed as `csp_telemetry`. The runner polls it after every step. Every `csp_telemetry_interval_s` (1 s), and once more on the final step, it returns one `NetworkTelemetry` sample per UE with rates over that interval. Each sample is mapped to `CspFields` and logged to `telemetry.jsonl`. The mock backend has no source.",
+      "CSP telemetry source of `TransportBackend`, exposed as `csp_telemetry`. The runner polls it after every step. Every `csp_telemetry_interval_s` (1 s), and once more on the final step, it returns one `NetworkTelemetry` sample per UE with rates over that interval. Each sample is mapped to `CspFields` and logged to `telemetry.jsonl`. The mock and constant_rate backends have no source.",
     fields: [
       { name: "throughput_mbps", type: "float | None", description: "→ achieved_throughput_mbps" },
       { name: "rtt_ms", type: "float | None", description: "→ rtt_ms (TCP ACK timing)" },
@@ -251,7 +259,7 @@ export const GLOSSARY = {
     name: "plan_downlink_mbps",
     kind: "field",
     summary:
-      "Provisioned subscriber downlink rate (tariff). Comes from `plan_downlink_mbps_by_ue` in the config, not from the network. It is written to the table at run start from L1, so it also works on the mock backend.",
+      "Provisioned subscriber downlink rate (tariff). Comes from `plan_downlink_mbps_by_ue` in the config, not from the network. It is written to the table at run start from L1, so it also works on backends without telemetry (mock, constant_rate).",
   },
   achieved_throughput_mbps: {
     name: "achieved_throughput_mbps",
@@ -300,9 +308,9 @@ export const GLOSSARY = {
     name: "set_ue_control(ue_id, UeControl)",
     kind: "method",
     repository: "fikore",
-    definedIn: "ControllableNetworkBackend (capcsp/network/api.py), TransportBackend",
+    definedIn: "ControllableNetworkBackend (capcsp/network/api.py), TransportBackend, ConstantRateBackend",
     summary:
-      "Changes scheduler priority and rate cap of one UE at runtime through the FikoRE control protocol. Nothing in the pilot calls it yet.",
+      "Changes the scheduler priority and rate cap of one UE at runtime. On `transport_fikore` it goes through the FikoRE control protocol. On `constant_rate`, `rmax_mbps` caps the UE's configured rate from the next step and `priority` is recorded without effect. Nothing in the pilot calls it yet.",
   },
   write_csp_fields: {
     name: "write_csp_fields(ue_id, CspFields, extensions)",
@@ -436,6 +444,31 @@ export const GLOSSARY = {
     kind: "config key",
     summary: "`\"dummy\"` enables `DummyCSPController` at L3 and above. `null` runs without controller.",
   },
+  downlink_rate_mbps: {
+    name: "downlink_rate_mbps",
+    kind: "config key",
+    summary:
+      "Rate of every UE on the constant_rate backend, in Mbps of application payload (10^6 bit/s). `downlink_rate_mbps_by_ue` overrides it per UE ID; it may be left out if every UE has an entry there. The example uses 1.0.",
+  },
+  synthetic_delay_ms: {
+    name: "synthetic_delay_ms",
+    kind: "config key",
+    summary:
+      "constant_rate setting: time from submitting a request to its first byte, standing in for application, origin and core-network delay. 0 by default; the example uses 25.",
+  },
+  cancellation_tail_bytes: {
+    name: "cancellation_tail_bytes",
+    kind: "config key",
+    summary:
+      "Bytes a request may still receive after its cancellation, beyond those reported so far, before it ends with `DownloadCancelled`. 0 by default on constant_rate; the mock example uses 512.",
+  },
+  fallback_frame_rate_fps: {
+    name: "scoring.fallback_frame_rate_fps",
+    kind: "config key",
+    definedIn: "capcsp/scoring/session_scoring.py",
+    summary:
+      "Frame rate for representations without `frameRateFps` in the content file, 30 by default. Replaces `frame_rate_fps`. Each scored segment records the `frame_rate_fps` used and `frame_rate_from_content`.",
+  },
   csp_telemetry_interval_s: {
     name: "csp_telemetry_interval_s",
     kind: "config key",
@@ -446,9 +479,9 @@ export const GLOSSARY = {
   "run-manifest.json": { name: "run-manifest.json", kind: "output file", summary: "Configuration, code revisions, timing and byte accounting of the run." },
   "sessions/": { name: "sessions/ue-<id>.json", kind: "output file", summary: "Full player result per UE: events, requests, rule state, cache and the scored session record." },
   "network-steps.jsonl": { name: "network-steps.jsonl", kind: "output file", summary: "Every step as sent to the player, with the `collaboration` snapshot and the player's response." },
-  "telemetry.jsonl": { name: "telemetry.jsonl", kind: "output file", summary: "One row per UE and CSP telemetry sample, every `csp_telemetry_interval_s` (1 s). Empty on the mock backend." },
+  "telemetry.jsonl": { name: "telemetry.jsonl", kind: "output file", summary: "One row per UE and CSP telemetry sample, every `csp_telemetry_interval_s` (1 s). Empty on the mock and constant_rate backends." },
   "kpis.csv": { name: "kpis.csv", kind: "output file", summary: "One row of KPIs per UE, including P.1203 scores." },
-  "report.md": { name: "report.md", kind: "output file", summary: "Readable run report: KPIs per UE, scores per video and model versions." },
+  "report.md": { name: "report.md", kind: "output file", summary: "Readable run report: KPIs per UE, scores per video, model versions and scoring settings, including where the frame rate came from." },
   "player.log": { name: "player.log", kind: "output file", summary: "Log output (stderr) of the Node player process." },
   "fikore-effective.ini": { name: "fikore-effective.ini", kind: "output file", summary: "The FikoRE INI actually used, after config overrides." },
   "fikore.log": { name: "fikore.log", kind: "output file", summary: "Output of the FikoRE process." },

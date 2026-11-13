@@ -9,7 +9,7 @@ import { GlossaryTerm as T } from "@/components/GlossaryTerm";
 import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import { SIGNALING_LEVELS } from "@/data/signalingLevels";
-import { usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import { usesConstantRateBackend, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
 
 interface SettingsPanelProps {
   settings: ExplorerSettings;
@@ -52,6 +52,12 @@ function SegmentedChoice<V extends string>({ value, options, onChange }: { value
 
 export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
   const fikore = usesFikoreBackend(settings);
+  const constantRate = usesConstantRateBackend(settings);
+  const backendHint = fikore
+    ? "TransportBackend over FikoreLink, Linux only"
+    : constantRate
+      ? "Dedicated constant rate per UE, no telemetry"
+      : "Deterministic byte budget for tests";
   const condition = NETWORK_CONDITIONS[settings.conditionId];
   return (
     <Card className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-x-5 gap-y-4 px-4">
@@ -69,33 +75,51 @@ export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
           onChange={(value) => updateSetting("signalingLevel", value)}
         />
       </SettingControl>
-      <SettingControl title="Network backend" hint={fikore ? "TransportBackend over FikoreLink, Linux only" : "Deterministic byte budget for tests"}>
+      <SettingControl title="Network backend" hint={backendHint}>
         <SegmentedChoice
           value={settings.networkBackend}
           options={[
             ["transport_fikore", "FikoRE"],
+            ["constant_rate", "constant rate"],
             ["mock", "mock"],
           ]}
           onChange={(value) => updateSetting("networkBackend", value)}
         />
       </SettingControl>
-      <SettingControl
-        title="Condition"
-        hint={fikore ? `${condition.downlinkMbpsBand[0]}–${condition.downlinkMbpsBand[1]} Mbps · RTT ${condition.rttMsBand[0]}–${condition.rttMsBand[1]} ms` : 'Mock runs use condition "example-only"'}
-      >
-        <Select value={settings.conditionId} onValueChange={(value) => updateSetting("conditionId", value)} disabled={!fikore}>
-          <SelectTrigger size="sm" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.entries(NETWORK_CONDITIONS).map(([id, entry]) => (
-              <SelectItem key={id} value={id}>
-                {id} · {entry.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </SettingControl>
+      {constantRate ? (
+        <SettingControl
+          title={<T id="downlink_rate_mbps">Rate per UE (Mbps)</T>}
+          hint='Instead of a FikoRE condition; the run uses condition "example-only"'
+        >
+          <Input
+            type="number"
+            min={0.1}
+            step={0.5}
+            value={settings.constantRateDownlinkMbps}
+            placeholder="1"
+            className="h-8"
+            onChange={(event) => updateSetting("constantRateDownlinkMbps", event.target.value)}
+          />
+        </SettingControl>
+      ) : (
+        <SettingControl
+          title="Condition"
+          hint={fikore ? `${condition.downlinkMbpsBand[0]}–${condition.downlinkMbpsBand[1]} Mbps · RTT ${condition.rttMsBand[0]}–${condition.rttMsBand[1]} ms` : 'Mock runs use condition "example-only"'}
+        >
+          <Select value={settings.conditionId} onValueChange={(value) => updateSetting("conditionId", value)} disabled={!fikore}>
+            <SelectTrigger size="sm" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(NETWORK_CONDITIONS).map(([id, entry]) => (
+                <SelectItem key={id} value={id}>
+                  {id} · {entry.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </SettingControl>
+      )}
       <SettingControl title="Player behavior" hint="All UEs in a cell use the same policy">
         <SegmentedChoice
           value={settings.playerBehavior}

@@ -1,6 +1,6 @@
 import { bandMidpoint, NETWORK_CONDITIONS } from "@/data/networkConditions";
 import type { GlossaryTermId } from "@/data/glossary";
-import { signalingLevelNumber, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import { backendHasCspTelemetrySource, signalingLevelNumber, type ExplorerSettings } from "@/model/explorerSettings";
 
 // CspFields rows for UE 0: where each value comes from and whether the player
 // can see it. Values are midpoints of the calibration bands, not run data.
@@ -17,7 +17,7 @@ export interface PlayerVisibleFieldRow {
 
 export function computePlayerVisibleFields(settings: ExplorerSettings): PlayerVisibleFieldRow[] {
   const level = signalingLevelNumber(settings.signalingLevel);
-  const fikore = usesFikoreBackend(settings);
+  const hasTelemetrySource = backendHasCspTelemetrySource(settings);
   const condition = NETWORK_CONDITIONS[settings.conditionId];
   const planValue = settings.planDownlinkMbps === "" ? null : Number(settings.planDownlinkMbps);
   const rttMidpoint = bandMidpoint(condition.rttMsBand);
@@ -25,18 +25,18 @@ export function computePlayerVisibleFields(settings: ExplorerSettings): PlayerVi
 
   const rows: Omit<PlayerVisibleFieldRow, "visibility">[] = [
     { field: "plan_downlink_mbps", source: "config: plan_downlink_mbps_by_ue", minimumLevel: 1, exampleValue: planValue },
-    { field: "achieved_throughput_mbps", source: "telemetry sample: throughput_mbps (1 s mean)", minimumLevel: 2, exampleValue: fikore ? throughputShare : null },
+    { field: "achieved_throughput_mbps", source: "telemetry sample: throughput_mbps (1 s mean)", minimumLevel: 2, exampleValue: hasTelemetrySource ? throughputShare : null },
     {
       field: "rtt_ms",
       source: "telemetry sample: rtt_ms (TCP ACK path)",
       minimumLevel: 2,
-      exampleValue: fikore ? (settings.acksOverFikoreUplink ? rttMidpoint : Math.max(5, Math.round(rttMidpoint / 2))) : null,
+      exampleValue: hasTelemetrySource ? (settings.acksOverFikoreUplink ? rttMidpoint : Math.max(5, Math.round(rttMidpoint / 2))) : null,
     },
     {
       field: "loss_rate",
       source: "telemetry sample: drop_rate",
       minimumLevel: 2,
-      exampleValue: fikore ? Math.round((bandMidpoint(condition.lossPercentBand) / 100) * 10000) / 10000 : null,
+      exampleValue: hasTelemetrySource ? Math.round((bandMidpoint(condition.lossPercentBand) / 100) * 10000) / 10000 : null,
     },
     { field: "congestion_rate", source: "telemetry sample: ce_rate (ECN; L4S is off)", minimumLevel: 2, exampleValue: null },
   ];

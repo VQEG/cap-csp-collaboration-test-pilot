@@ -1,7 +1,14 @@
 import type { ReactNode } from "react";
 import { GlossaryTerm as T, InlineCode as C } from "@/components/GlossaryTerm";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
-import { signalingLevelNumber, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import {
+  CONSTANT_RATE_SYNTHETIC_DELAY_MS,
+  constantRateDownlinkMbps,
+  signalingLevelNumber,
+  usesConstantRateBackend,
+  usesFikoreBackend,
+  type ExplorerSettings,
+} from "@/model/explorerSettings";
 
 // Ordered steps of one 10 ms NetworkStep, in the order of docs/collaboration.md.
 // `highlightedEdges` and `highlightedNodes` are emphasised in the diagram while
@@ -20,7 +27,9 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
   const level = signalingLevelNumber(settings.signalingLevel);
   const state = settings.implementationState;
   const { activeEdges } = topology;
-  const backendNode: DiagramNodeId = fikore ? "transportBackend" : "mockBackend";
+  const constantRate = usesConstantRateBackend(settings);
+  const backendNode: DiagramNodeId = fikore ? "transportBackend" : constantRate ? "constantRateBackend" : "mockBackend";
+  const backendWithoutTelemetryName = constantRate ? "The constant_rate backend" : "The mock backend";
   const ruleTerm = settings.playerBehavior === "simple" ? <T id="SFVCurrentVideoRule">B1 current-video rule</T> : <T id="SFVMultiVideoPrefetchRule">B2 prefetch rule</T>;
 
   return [
@@ -46,6 +55,20 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
           ),
           highlightedEdges: ["transportToLink", "linkToFikore"],
           highlightedNodes: ["transportBackend", "fikoreLink", "fikore"],
+          active: true,
+        }
+      : constantRate
+      ? {
+          actor: "ConstantRateBackend",
+          description: (
+            <>
+              Gives each UE {constantRateDownlinkMbps(settings)} Mbps for the 10 ms, shared equally by that UE's ready requests. A request gets no bytes until{" "}
+              <T id="synthetic_delay_ms" asCode>synthetic_delay_ms</T> ({CONSTANT_RATE_SYNTHETIC_DELAY_MS} ms) after it was submitted. No contention between UEs, no
+              telemetry.
+            </>
+          ),
+          highlightedEdges: [],
+          highlightedNodes: ["constantRateBackend"],
           active: true,
         }
       : {
@@ -90,11 +113,11 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
           </>
         ) : (
           <>
-            The mock backend has no telemetry source. Only the <T id="plan_downlink_mbps">plan rate</T> was written, once, at run start.
+            {backendWithoutTelemetryName} has no telemetry source. Only the <T id="plan_downlink_mbps">plan rate</T> was written, once, at run start.
           </>
         )
       ) : (
-        <>Nothing to write: no telemetry on mock and no plan rate at this level.</>
+        <>Nothing to write: no telemetry on {settings.networkBackend} and no plan rate at this level.</>
       ),
       highlightedEdges: ["writeCspFields"],
       highlightedNodes: [backendNode, "runner", "sharedStateTable"],
@@ -178,9 +201,16 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
       actor: "CSP controller",
       description:
         state === "design" ? (
-          <>
-            Reads CAP reports and calls <T id="set_ue_control" asCode>set_ue_control</T> with <T id="UeControl" asCode />, applied at a stated TTI and acknowledged.
-          </>
+          constantRate ? (
+            <>
+              Reads CAP reports and calls <T id="set_ue_control" asCode>set_ue_control</T> with <T id="UeControl" asCode />. The constant_rate backend applies{" "}
+              <C>rmax_mbps</C> as a cap on the UE rate from the next step; <C>priority</C> has no effect.
+            </>
+          ) : (
+            <>
+              Reads CAP reports and calls <T id="set_ue_control" asCode>set_ue_control</T> with <T id="UeControl" asCode />, applied at a stated TTI and acknowledged.
+            </>
+          )
         ) : (
           <>
             <T id="DummyCSPController" asCode /> reads CAP reports with <T id="read_cap_report" asCode>read_cap_report</T> and logs changed proposals to{" "}

@@ -1,6 +1,6 @@
 # CAP–CSP simulator explorer
 
-An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend, FikoRE condition, player behavior and transport. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
+An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend (FikoRE, constant rate or mock), FikoRE condition or constant rate per UE, player behavior and transport. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
 
 Diagram boxes are colored by the repository that holds the code. Every dotted-underlined term, and every arrow label, shows an explanation on hover.
 
@@ -32,12 +32,12 @@ Data, in `src/data/`:
 
 Logic, in `src/model/` (each function takes the `ExplorerSettings`):
 
-- `explorerSettings.ts`: settings type and defaults
+- `explorerSettings.ts`: settings type and defaults, and which backend has a telemetry source or accepts `set_ue_control`
 - `componentTopology.ts`: which diagram arrows and boxes are active
 - `implementationStatus.ts`: banner text, is this level implemented in this state
 - `networkStepWalkthrough.tsx`: ordered steps of one `NetworkStep`, with the arrows and boxes to highlight
 - `playerVisibleFields.ts`: `CspFields` rows, their source and whether they are visible, filtered or null; values are midpoints of the calibration bands, not run data
-- `experimentConfig.ts`: the experiment JSON; keep its keys in sync with `configs/experiments/` and `capcsp/runner/run.py`
+- `experimentConfig.ts`: the experiment JSON, including the `network` settings per backend; keep its keys in sync with `configs/experiments/` and `capcsp/runner/run.py`
 - `runOutputFiles.ts`: files written to the output directory
 
 View, in `src/components/`:
@@ -65,6 +65,10 @@ When B1/B2 or a new policy reads CSP fields:
 
 - Remove the "rules do not use them yet" texts in `implementationStatus.ts`, the rule box and `SetupNotesCard.tsx`, and add the policy to the Player behavior control.
 
+When a backend is added or its settings change:
+
+- Add it to `NetworkBackendKind` and `NETWORK_BACKEND_KINDS` in `explorerSettings.ts`, set whether it has a telemetry source or accepts `set_ue_control`, give it a box in `diagramLayout.ts` and `ArchitectureDiagram.tsx`, a node in `componentTopology.ts`, a step in `networkStepWalkthrough.tsx` and its `network` keys in `experimentConfig.ts`. The constant-rate settings mirror `configs/experiments/b1-b2-two-ue-constant-rate.json`.
+
 When conditions are recalibrated or added:
 
 - Update `networkConditions.ts` from `configs/fikore/README.md`. New conditions appear in the selector automatically.
@@ -77,4 +81,4 @@ When a component moves to another repository:
 
 - Change the `repository` prop of its box in `ArchitectureDiagram.tsx` and its glossary entry.
 
-After any change, run `npm run build`, open the page and click through each implementation state at L0–L4 on both backends to check that the banner, diagram and step list agree.
+After any change, run `npm run build`, open the page and click through each implementation state at L0–L4 on each backend to check that the banner, diagram and step list agree.

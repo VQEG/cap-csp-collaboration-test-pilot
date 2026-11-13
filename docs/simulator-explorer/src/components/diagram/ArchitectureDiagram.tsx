@@ -13,7 +13,14 @@ import {
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import { cn } from "@/lib/utils";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
-import { signalingLevelNumber, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import {
+  CONSTANT_RATE_CANCELLATION_TAIL_BYTES,
+  CONSTANT_RATE_SYNTHETIC_DELAY_MS,
+  constantRateDownlinkMbps,
+  signalingLevelNumber,
+  usesFikoreBackend,
+  type ExplorerSettings,
+} from "@/model/explorerSettings";
 import { listRunOutputFiles } from "@/model/runOutputFiles";
 
 interface ArchitectureDiagramProps {
@@ -42,6 +49,9 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
   const { activeEdges, activeNodes } = topology;
   const nodeProps = (id: DiagramNodeId) => ({ box: NODE_BOXES[id], active: activeNodes[id], highlighted: highlightedNodes.includes(id) });
   const isB1 = settings.playerBehavior === "simple";
+
+  // The tall constant-rate box covers the FikoRE-internal arrows, so they are not drawn at all
+  const hiddenEdges: DiagramEdgeId[] = settings.networkBackend === "constant_rate" ? ["transportToLink", "linkToFikore"] : [];
 
   const visibleCspFieldsText = level === 0 ? "nothing" : level === 1 ? "plan rate only" : "all CspFields";
 
@@ -161,6 +171,22 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
             />
           </DiagramNode>
         </>
+      ) : settings.networkBackend === "constant_rate" ? (
+        <DiagramNode {...nodeProps("constantRateBackend")} repository="harness" title={<T id="ConstantRateBackend" />} codePath="capcsp/network/constant_rate.py">
+          <NodeDetailList
+            items={[
+              <>{constantRateDownlinkMbps(settings)} Mbps dedicated to each UE (<T id="downlink_rate_mbps" asCode>downlink_rate_mbps</T>); UEs never compete</>,
+              <>The ready requests of a UE share its rate equally (processor sharing)</>,
+              <>First byte {CONSTANT_RATE_SYNTHETIC_DELAY_MS} ms after submission (<T id="synthetic_delay_ms" asCode>synthetic_delay_ms</T>)</>,
+              <>Exact byte accounting; events report whole bytes at the step time</>,
+              <>A cancelled request gets at most {CONSTANT_RATE_CANCELLATION_TAIL_BYTES} more bytes (<T id="cancellation_tail_bytes" asCode>cancellation_tail_bytes</T>)</>,
+              <>Accepts <T id="set_ue_control" asCode>set_ue_control</T>: <C>rmax_mbps</C> caps the UE rate from the next step; <C>priority</C> is recorded only</>,
+              <>No TCP, no radio, no loss, no queue</>,
+              <>No telemetry source</>,
+              <>Condition: example-only</>,
+            ]}
+          />
+        </DiagramNode>
       ) : (
         <DiagramNode {...nodeProps("mockBackend")} repository="harness" title={<T id="MockNetworkBackend" />} codePath="capcsp/network/mock.py">
           <NodeDetailList items={[<>80 kB per 10 ms step (64 Mbps), shared by all requests</>, <>No radio, no TCP, no delay</>, <>No telemetry source</>, <>Condition: example-only</>]} />
@@ -216,7 +242,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         />
       </DiagramNode>
 
-      {(Object.keys(EDGE_GEOMETRY) as DiagramEdgeId[]).map((edgeId) => (
+      {(Object.keys(EDGE_GEOMETRY) as DiagramEdgeId[]).filter((edgeId) => !hiddenEdges.includes(edgeId)).map((edgeId) => (
         <DiagramEdge key={edgeId} geometry={EDGE_GEOMETRY[edgeId]} active={activeEdges[edgeId]} highlighted={highlightedEdges.includes(edgeId)} />
       ))}
     </svg>

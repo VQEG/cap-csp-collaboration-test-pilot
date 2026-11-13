@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
-import { DEFAULT_EXPLORER_SETTINGS, type ExplorerSettings } from "@/model/explorerSettings";
+import { DEFAULT_EXPLORER_SETTINGS, NETWORK_BACKEND_KINDS, type ExplorerSettings } from "@/model/explorerSettings";
 
 function readSettingsFromHash(): ExplorerSettings {
   const settings: ExplorerSettings = { ...DEFAULT_EXPLORER_SETTINGS };
@@ -20,6 +20,7 @@ function readSettingsFromHash(): ExplorerSettings {
     else writable[key] = raw;
   }
   if (!NETWORK_CONDITIONS[settings.conditionId]) settings.conditionId = DEFAULT_EXPLORER_SETTINGS.conditionId;
+  if (!NETWORK_BACKEND_KINDS.includes(settings.networkBackend)) settings.networkBackend = DEFAULT_EXPLORER_SETTINGS.networkBackend;
   if (!IMPLEMENTATION_STATES[settings.implementationState]) settings.implementationState = DEFAULT_EXPLORER_SETTINGS.implementationState;
   return settings;
 }

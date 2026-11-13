@@ -1,5 +1,5 @@
 import { SIGNALING_LEVELS } from "@/data/signalingLevels";
-import { signalingLevelNumber, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import { backendHasCspTelemetrySource, signalingLevelNumber, usesConstantRateBackend, type ExplorerSettings } from "@/model/explorerSettings";
 
 // Banner text: is the chosen level implemented in the chosen state?
 
@@ -14,10 +14,18 @@ export interface ImplementationStatus {
 
 export function describeImplementationStatus(settings: ExplorerSettings): ImplementationStatus {
   const level = signalingLevelNumber(settings.signalingLevel);
-  const fikore = usesFikoreBackend(settings);
+  const hasTelemetrySource = backendHasCspTelemetrySource(settings);
+  const constantRate = usesConstantRateBackend(settings);
   const planRateConfigured = settings.planDownlinkMbps !== "";
 
   if (settings.implementationState === "design") {
+    if (level === 3 && constantRate)
+      return {
+        kind: "partial",
+        title: "Specified in parts",
+        explanation:
+          "`ConstantRateBackend` accepts `set_ue_control`: `rmax_mbps` caps the UE rate from the next step, `priority` is recorded without effect. The controller algorithm, its inputs, interval and damping are still open, and L3 is excluded from milestone 1.",
+      };
     if (level === 3)
       return {
         kind: "partial",
@@ -54,15 +62,15 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       kind: "ok",
       title: "Implemented",
       explanation:
-        "The plan rate is written to the table at run start, also on mock. Reads return only `plan_downlink_mbps`. The player stores it with `applyCspUpdate`. B1 and B2 do not use it yet.",
+        "The plan rate is written to the table at run start, also on backends without telemetry (mock, constant_rate). Reads return only `plan_downlink_mbps`. The player stores it with `applyCspUpdate`. B1 and B2 do not use it yet.",
     };
   }
   if (level === 2) {
-    if (!fikore)
+    if (!hasTelemetrySource)
       return {
         kind: "partial",
-        title: "Live fields empty on mock",
-        explanation: "The mock backend has no telemetry source. Only the plan rate, if set, reaches the player. The live fields stay null.",
+        title: `Live fields empty on ${settings.networkBackend}`,
+        explanation: `The ${settings.networkBackend} backend has no telemetry source. Only the plan rate, if set, reaches the player. The live fields stay null.`,
       };
     return {
       kind: "ok",
