@@ -59,10 +59,15 @@ function runDurationSeconds(settings: ExplorerSettings): number {
   return 0.2;
 }
 
-/** Swipe times of one session, as in the b1-b2-two-ue-*.json examples. */
-function swipeTimesSeconds(settings: ExplorerSettings, ueId: number): number[] {
-  if (usesConstantRateBackend(settings)) return [1.5, 5.2];
-  return [Math.round((0.1 + 0.01 * ueId) * 100) / 100];
+/**
+ * Swipes of one session. The condition and constant-rate configurations use the seeded user model of SFV,
+ * which draws the time between swipes from 2–16 s; the 0.2 s mock smoke test keeps one fixed swipe.
+ */
+function swipeSettings(settings: ExplorerSettings, ueId: number): Record<string, unknown> {
+  if (usesFikoreBackend(settings) || usesConstantRateBackend(settings)) {
+    return { userModel: { type: "seeded", watchDurationRangeS: [2, 16] } };
+  }
+  return { swipeTimesS: [Math.round((0.1 + 0.01 * ueId) * 100) / 100] };
 }
 
 export function buildExperimentConfig(settings: ExplorerSettings): Record<string, unknown> {
@@ -95,7 +100,7 @@ export function buildExperimentConfig(settings: ExplorerSettings): Record<string
       sessionId: `generic-ue${ueId}`,
       seed: 17 + 4 * ueId,
       scheduling: { maxConcurrentRequests: settings.playerBehavior === "simple" ? 2 : 3 },
-      swipeTimesS: swipeTimesSeconds(settings, ueId),
+      ...swipeSettings(settings, ueId),
     },
     rule_config:
       settings.playerBehavior === "simple"
