@@ -12,7 +12,7 @@ export function ExperimentConfigCard({ settings }: { settings: ExplorerSettings 
       <CardContent className="space-y-2">
         <pre className="max-h-[460px] overflow-auto rounded-lg bg-muted p-3 font-mono text-xs leading-relaxed">{JSON.stringify(buildExperimentConfig(settings), null, 2)}</pre>
         <p className="text-xs text-muted-foreground">
-          Shape of a file in <C>{experimentConfigDirectory(settings)}</C>. Run with <C>{"uv run capcsp run <config> output/<dir>"}</C>.
+          Shape of a file in <C>{experimentConfigDirectory(settings)}</C>. Run with <C>{"uv run capcsp run <config>"}</C>; results go to <C>{"output/runs/<run_id>"}</C>.
         </p>
       </CardContent>
     </Card>

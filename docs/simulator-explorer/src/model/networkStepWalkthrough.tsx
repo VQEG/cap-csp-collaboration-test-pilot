@@ -108,7 +108,7 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
             Polls the backend's <T id="NetworkTelemetrySampler">telemetry sampler</T>. Every <T id="csp_telemetry_interval_s" asCode>csp_telemetry_interval_s</T> (1 s), and
             once more on the final step, it returns one sample per UE. The runner maps each sample to <T id="CspFields" asCode />, calls{" "}
             <T id="write_csp_fields" asCode>write_csp_fields</T>
-            {state === "master" && level === 0 ? " (audit only at L0)" : ""} and logs it to <T id="telemetry.jsonl" asCode />. Changes go to{" "}
+            {level === 0 ? " (audit only at L0)" : ""} and logs it to <T id="telemetry.jsonl" asCode />. Changes go to{" "}
             <T id="shared-state.jsonl" asCode />.
           </>
         ) : (
@@ -190,7 +190,7 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
         <>
           The runner sends <T id="cap_reports" asCode />. SFV <T id="drainCapReports" asCode>drainCapReports</T> returns a report for a UE only when one is due, so the
           reply is often empty. Each report goes to <T id="write_cap_report" asCode>write_cap_report</T>
-          {state === "master" && level < 3 ? " (audit only below L3)." : "."}
+          {level < 3 ? " (audit only below L3)." : "."}
         </>
       ),
       highlightedEdges: ["capReportsIpc", "writeCapReport"],

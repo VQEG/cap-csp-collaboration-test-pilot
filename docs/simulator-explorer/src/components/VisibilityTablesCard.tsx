@@ -84,10 +84,8 @@ export function VisibilityTablesCard({ settings, topology }: { settings: Explore
                     <>
                       <C>is_stalled, playable_buffer_s, current_video_id, swipe_rate_per_s</C> <StateBadge tone="cap">readable</StateBadge>
                     </>
-                  ) : settings.implementationState === "master" ? (
-                    <StateBadge tone="muted">written for audit, not readable</StateBadge>
                   ) : (
-                    <StateBadge tone="muted">not sent</StateBadge>
+                    <StateBadge tone="muted">written for audit, not readable</StateBadge>
                   )}
                 </TableCell>
               </TableRow>

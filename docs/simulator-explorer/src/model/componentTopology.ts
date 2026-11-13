@@ -62,14 +62,11 @@ export function computeComponentTopology(settings: ExplorerSettings): ComponentT
   const planRateConfigured = settings.planDownlinkMbps !== "";
   const dummyControllerRuns = state === "master" && level >= 3 && settings.dummyCspControllerEnabled;
 
-  // master writes telemetry at every level (audit) and the plan rate at run
-  // start from L1. The design only writes what a level exposes.
-  const writeCspFields =
-    state === "master"
-      ? backendEmitsTelemetry || (level >= 1 && planRateConfigured)
-      : level >= 1 && (backendEmitsTelemetry || planRateConfigured);
-  // master collects CAP reports at every level (audit); the design from L3.
-  const capReportsCollected = state === "master" || level >= 3;
+  // Telemetry is written at every level (audit) and the plan rate at run start
+  // from L1; the level filters reads only (docs/signaling.md).
+  const writeCspFields = backendEmitsTelemetry || (level >= 1 && planRateConfigured);
+  // CAP reports are collected at every level (audit); the controller reads them from L3.
+  const capReportsCollected = true;
   const controllerReads = level >= 3 && (state === "design" || dummyControllerRuns);
 
   const activeEdges: Record<DiagramEdgeId, boolean> = {

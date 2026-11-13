@@ -77,11 +77,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         <NodeDetailList
           items={[
             <>One worker process for all UEs; applies each <T id="network_step" asCode /> and replies <T id="player_actions" asCode /></>,
-            state === "master" ? (
-              <>Passes changed <T id="collaboration" asCode /> fields to <T id="applyCspUpdate" asCode>applyCspUpdate</T> and answers <T id="cap_reports" asCode /></>
-            ) : (
-              <>Forwards CSP fields to the engine (L1+) and returns <T id="CapReport" asCode /> (L3+)</>
-            ),
+            <>Passes changed <T id="collaboration" asCode /> fields to <T id="applyCspUpdate" asCode>applyCspUpdate</T> and answers <T id="cap_reports" asCode /></>,
           ]}
         />
       </DiagramNode>
@@ -95,11 +91,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
         <NodeDetailList
           items={[
             <>One per UE: playback clock, buffer, swipes, up to {isB1 ? 2 : 3} concurrent requests</>,
-            state === "master" ? (
-              <>Holds the latest <T id="CspFields" asCode />; <T id="drainCapReports" asCode>drainCapReports</T> returns a report when one is due</>
-            ) : (
-              <>Same engine and policy code also runs in dash.js</>
-            ),
+            <>Holds the latest <T id="CspFields" asCode />; <T id="drainCapReports" asCode>drainCapReports</T> returns a report when one is due</>,
           ]}
         />
       </DiagramNode>
@@ -126,7 +118,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
             <>Owns the simulation clock and the step loop</>,
             <>JSON lines to Node over the process pipes</>,
             <>Runs the <T id="byteConservation">byte conservation check</T></>,
-            state === "master" && <>Collaboration tick: telemetry sample → table → <T id="collaboration" asCode />; CAP reports → table; controller</>,
+            <>Collaboration tick: telemetry sample → table → <T id="collaboration" asCode />; CAP reports → table; controller</>,
             <>Applies player actions before the next <C>advance()</C></>,
           ]}
         />
@@ -213,7 +205,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
             <>Per UE: latest <T id="CspFields" asCode /> (CSP → CAP) and <T id="CapReport" asCode /> (CAP → CSP)</>,
             <>Writes are always stored; changes go to <T id="shared-state.jsonl" asCode /></>,
             <><T id="signalingLevelFilter">Filter on read</T> at {settings.signalingLevel}: player gets {visibleCspFieldsText}; controller {level >= 3 ? "can" : "cannot"} read CAP reports</>,
-            state === "master" && fikore && level === 0 && <>Telemetry still written at L0, for audit</>,
+            fikore && level === 0 && <>Telemetry still written at L0, for audit</>,
           ]}
         />
       </DiagramNode>
