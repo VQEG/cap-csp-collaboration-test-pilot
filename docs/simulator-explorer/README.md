@@ -2,7 +2,9 @@
 
 **Live version: <https://vqeg.github.io/cap-csp-collaboration-test-pilot/>** (rebuilt on every push to master)
 
-An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend (FikoRE, constant rate or mock), FikoRE condition or constant rate per UE, player behavior and transport. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
+An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend (FikoRE, constant rate or mock), FikoRE condition or constant rate per UE, player behaviour and transport.
+
+The experiment design card lets you change the parameters of the conditions (FikoRE INI values), the behaviours (B1 and B2 rule and scheduling settings, and the mix over the UEs of a cell) and the swipes (SFV user model). It shows the swipe times SFV resolves for each UE. It also lists the content every run plays, which cannot be changed yet. The page renders the matching run config, or a grid config with an inline base experiment, and copies it to the clipboard. Both run unchanged with `capcsp run` and `capcsp grid`. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
 
 Diagram boxes are colored by the repository that holds the code. Every dotted-underlined term, and every arrow label, shows an explanation on hover.
 
@@ -28,6 +30,9 @@ Data, in `src/data/`:
 
 - `signalingLevels.ts`: name and one-line description of L0–L4, from `docs/signaling.md`
 - `networkConditions.ts`: C1–C8b calibration bands, dominant cause, background UEs, INI, timeline and duration, from `configs/fikore/README.md`; `defaultPlanDownlinkMbps` presets the plan rate
+- `conditionParameters.ts`: the FikoRE parameters you can change per condition, with their INI values from `configs/fikore/c*.ini`
+- `playerBehaviors.ts`: B1 and B2 parameters with the values of the condition configs and the SFV defaults, and the behaviour mixes
+- `contentCatalogue.ts`: the videos and representations of `sfv-reference-implementation/fixtures/content/content.json`
 - `implementationStates.ts`: the states in the Implementation selector
 - `repositories.ts`: the three repositories and their names in the legend
 - `glossary.ts`: every hover text, keyed by term id
@@ -39,7 +44,8 @@ Logic, in `src/model/` (each function takes the `ExplorerSettings`):
 - `implementationStatus.ts`: banner text, is this level implemented in this state
 - `networkStepWalkthrough.tsx`: ordered steps of one `NetworkStep`, with the arrows and boxes to highlight
 - `playerVisibleFields.ts`: `CspFields` rows, their source and whether they are visible, filtered or null; values are midpoints of the calibration bands, not run data
-- `experimentConfig.ts`: the experiment JSON, including the `network` settings per backend; keep its keys in sync with `configs/experiments/` and `capcsp/runner/run.py`
+- `experimentConfig.ts`: the run and grid JSON, including the `network` settings per backend and the condition overrides; keep its keys in sync with `configs/experiments/`, `capcsp/runner/run.py` and `capcsp/runner/grid_specification.py`
+- `swipeSchedule.ts`: the swipe times SFV resolves per session (a copy of `resolveUserInteractions` and its seeded generator)
 - `runOutputFiles.ts`: files written to the output directory
 
 View, in `src/components/`:
@@ -73,7 +79,11 @@ When a backend is added or its settings change:
 
 When conditions are recalibrated or added:
 
-- Update `networkConditions.ts` from `configs/fikore/README.md`. New conditions appear in the selector automatically.
+- Update `networkConditions.ts` from `configs/fikore/README.md` and the INI values in `conditionParameters.ts`. New conditions appear in the selectors automatically.
+
+When an SFV rule gets a parameter, its defaults change or the content changes:
+
+- Update `playerBehaviors.ts` and `contentCatalogue.ts`.
 
 When the config schema, output files, `CspFields`, `CapReport`, the telemetry mapping or the telemetry interval change:
 

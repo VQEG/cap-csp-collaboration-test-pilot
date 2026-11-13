@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type { WalkthroughStep } from "@/model/networkStepWalkthrough";
 
@@ -16,13 +17,15 @@ interface StepWalkthroughStripProps {
 
 /** Horizontally scrolling list of the steps of one NetworkStep. The selected step scrolls to the middle. */
 export function StepWalkthroughStrip({ steps, selectedStepIndex, selectStep, moveSelection, playing, togglePlaying }: StepWalkthroughStripProps) {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const stepListRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    const list = stepListRef.current;
-    const item = list?.children[selectedStepIndex] as HTMLElement | undefined;
-    if (!list || !item) return;
-    list.scrollTo({ left: item.offsetLeft - (list.clientWidth - item.offsetWidth) / 2, behavior: "smooth" });
+    // The scroll area's viewport is the element that scrolls
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>("[data-slot=scroll-area-viewport]");
+    const item = stepListRef.current?.children[selectedStepIndex] as HTMLElement | undefined;
+    if (!viewport || !item) return;
+    viewport.scrollTo({ left: item.offsetLeft - (viewport.clientWidth - item.offsetWidth) / 2, behavior: "smooth" });
   }, [selectedStepIndex, steps.length]);
 
   return (
@@ -41,30 +44,33 @@ export function StepWalkthroughStrip({ steps, selectedStepIndex, selectStep, mov
           </Button>
         </div>
       </div>
-      <ol ref={stepListRef} className="relative flex snap-x snap-proximity gap-2.5 overflow-x-auto pb-2">
-        {steps.map((step, index) => (
-          <li
-            key={index}
-            onClick={() => step.active && selectStep(index)}
-            className={cn(
-              "relative w-[clamp(220px,21vw,280px)] shrink-0 cursor-pointer snap-start rounded-lg border py-2.5 pr-3 pl-10 text-[13px] leading-snug transition-colors",
-              index === selectedStepIndex ? "border-highlight bg-highlight-soft" : "hover:bg-muted/60",
-              !step.active && "cursor-default text-muted-foreground/70 line-through decoration-muted-foreground/40",
-            )}
-          >
-            <span
+      <ScrollArea ref={scrollAreaRef} type="always" className="w-full [&>[data-slot=scroll-area-viewport]]:snap-x [&>[data-slot=scroll-area-viewport]]:snap-proximity">
+        <ol ref={stepListRef} className="relative flex w-max gap-2.5 pb-3">
+          {steps.map((step, index) => (
+            <li
+              key={index}
+              onClick={() => step.active && selectStep(index)}
               className={cn(
-                "absolute top-2.5 left-3 grid h-5 w-5 place-items-center rounded-full text-[11px]",
-                index === selectedStepIndex ? "bg-highlight text-white" : "bg-muted text-muted-foreground",
+                "relative w-[clamp(220px,21vw,280px)] shrink-0 cursor-pointer snap-start rounded-lg border py-2.5 pr-3 pl-10 text-[13px] leading-snug transition-colors",
+                index === selectedStepIndex ? "border-highlight bg-highlight-soft" : "hover:bg-muted/60",
+                !step.active && "cursor-default text-muted-foreground/70 line-through decoration-muted-foreground/40",
               )}
             >
-              {index + 1}
-            </span>
-            <span className="mb-0.5 block text-[11px] text-muted-foreground no-underline">{step.actor}</span>
-            {step.description}
-          </li>
-        ))}
-      </ol>
+              <span
+                className={cn(
+                  "absolute top-2.5 left-3 grid h-5 w-5 place-items-center rounded-full text-[11px]",
+                  index === selectedStepIndex ? "bg-highlight text-white" : "bg-muted text-muted-foreground",
+                )}
+              >
+                {index + 1}
+              </span>
+              <span className="mb-0.5 block text-[11px] text-muted-foreground no-underline">{step.actor}</span>
+              {step.description}
+            </li>
+          ))}
+        </ol>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     </Card>
   );
 }

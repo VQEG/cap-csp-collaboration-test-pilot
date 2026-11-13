@@ -1,12 +1,24 @@
-// Settings chosen in the control panel. They are mirrored in the URL hash,
-// so a link reproduces a view.
+import { PLAYER_BEHAVIORS, type BehaviorMixId, type BehaviorParameterValues, type PlayerBehavior } from "@/data/playerBehaviors";
+
+// Settings chosen in the control panel and the experiment design card. They
+// are mirrored in the URL hash, so a link reproduces a view.
 
 export type ImplementationState = "design" | "master";
 export type SignalingLevel = "L0" | "L1" | "L2" | "L3" | "L4";
 export type NetworkBackendKind = "transport_fikore" | "constant_rate" | "mock";
-export type PlayerBehavior = "simple" | "preload";
 export type TcpConnectionMode = "persistent" | "fresh";
-export type VideoUeCount = 1 | 2 | 4;
+export type ConfigOutputKind = "run" | "grid";
+export type SwipeModelKind = "seeded" | "sequence";
+
+export const VIDEO_UE_COUNT_CHOICES = [1, 2, 3, 4, 6, 8];
+
+export interface GridAxes {
+  conditionIds: string[];
+  signalingLevels: SignalingLevel[];
+  ueCounts: number[];
+  behaviorMixes: BehaviorMixId[];
+  replications: number;
+}
 
 export interface ExplorerSettings {
   implementationState: ImplementationState;
@@ -16,8 +28,19 @@ export interface ExplorerSettings {
   conditionId: string;
   /** `downlink_rate_mbps` of the constant_rate backend, the same for every UE. */
   constantRateDownlinkMbps: string;
-  playerBehavior: PlayerBehavior;
-  videoUeCount: VideoUeCount;
+  /** Behaviour pattern over the UEs of the run, and of the cell shown in grid mode. */
+  behaviorMix: BehaviorMixId;
+  videoUeCount: number;
+  behaviorParameters: Record<PlayerBehavior, BehaviorParameterValues>;
+  swipeModel: SwipeModelKind;
+  /** Range of the seeded model's time between swipes, in seconds. */
+  watchDurationRangeS: [number, number];
+  /** Session-relative swipe times of the sequence model, comma-separated. */
+  swipeTimesS: string;
+  /** Changed condition parameters: condition id → parameter id → displayed value. */
+  conditionOverrides: Record<string, Record<string, number>>;
+  configOutputKind: ConfigOutputKind;
+  gridAxes: GridAxes;
   acksOverFikoreUplink: boolean;
   tcpConnectionMode: TcpConnectionMode;
   /** Empty string means no plan rate in the config. */
@@ -31,8 +54,15 @@ export const DEFAULT_EXPLORER_SETTINGS: ExplorerSettings = {
   networkBackend: "transport_fikore",
   conditionId: "C2",
   constantRateDownlinkMbps: "1",
-  playerBehavior: "preload",
+  behaviorMix: "b1-b2",
   videoUeCount: 2,
+  behaviorParameters: { simple: { ...PLAYER_BEHAVIORS.simple.defaults }, preload: { ...PLAYER_BEHAVIORS.preload.defaults } },
+  swipeModel: "seeded",
+  watchDurationRangeS: [2, 16],
+  swipeTimesS: "4, 10",
+  conditionOverrides: {},
+  configOutputKind: "run",
+  gridAxes: { conditionIds: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8a", "C8b"], signalingLevels: ["L0"], ueCounts: [2, 4], behaviorMixes: ["b1-b2"], replications: 5 },
   acksOverFikoreUplink: true,
   tcpConnectionMode: "persistent",
   planDownlinkMbps: "25",

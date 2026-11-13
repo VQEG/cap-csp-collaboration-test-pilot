@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { GlossaryTerm as T, InlineCode as C } from "@/components/GlossaryTerm";
+import { behaviorsInMix } from "@/data/playerBehaviors";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
 import {
   CONSTANT_RATE_SYNTHETIC_DELAY_MS,
@@ -30,7 +31,17 @@ export function buildNetworkStepWalkthrough(settings: ExplorerSettings, topology
   const constantRate = usesConstantRateBackend(settings);
   const backendNode: DiagramNodeId = fikore ? "transportBackend" : constantRate ? "constantRateBackend" : "mockBackend";
   const backendWithoutTelemetryName = constantRate ? "The constant_rate backend" : "The mock backend";
-  const ruleTerm = settings.playerBehavior === "simple" ? <T id="SFVCurrentVideoRule">B1 current-video rule</T> : <T id="SFVMultiVideoPrefetchRule">B2 prefetch rule</T>;
+  const behaviors = behaviorsInMix(settings.behaviorMix, settings.videoUeCount);
+  const ruleTerm =
+    behaviors.length > 1 ? (
+      <>
+        <T id="SFVCurrentVideoRule">B1 current-video rule</T> or <T id="SFVMultiVideoPrefetchRule">B2 prefetch rule</T> of each UE
+      </>
+    ) : behaviors[0] === "simple" ? (
+      <T id="SFVCurrentVideoRule">B1 current-video rule</T>
+    ) : (
+      <T id="SFVMultiVideoPrefetchRule">B2 prefetch rule</T>
+    );
 
   return [
     {

@@ -11,6 +11,7 @@ import {
   type DiagramGroupFrame,
 } from "@/components/diagram/diagramLayout";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
+import { PLAYER_BEHAVIORS, behaviorsInMix, type PlayerBehavior } from "@/data/playerBehaviors";
 import { cn } from "@/lib/utils";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
 import {
@@ -22,6 +23,8 @@ import {
   type ExplorerSettings,
 } from "@/model/explorerSettings";
 import { listRunOutputFiles } from "@/model/runOutputFiles";
+import { runDurationSeconds } from "@/model/experimentConfig";
+import { watchDurationRange } from "@/model/swipeSchedule";
 
 interface ArchitectureDiagramProps {
   settings: ExplorerSettings;
@@ -48,7 +51,19 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
   const condition = NETWORK_CONDITIONS[settings.conditionId];
   const { activeEdges, activeNodes } = topology;
   const nodeProps = (id: DiagramNodeId) => ({ box: NODE_BOXES[id], active: activeNodes[id], highlighted: highlightedNodes.includes(id) });
-  const isB1 = settings.playerBehavior === "simple";
+  const behaviors = behaviorsInMix(settings.behaviorMix, settings.videoUeCount);
+  const parameter = (behavior: PlayerBehavior, id: string) => settings.behaviorParameters[behavior][id] ?? PLAYER_BEHAVIORS[behavior].defaults[id];
+  // "B1 2, B2 3" when the behaviours of the mix differ in a parameter, else the shared value
+  const perBehavior = (id: string, candidates: PlayerBehavior[] = behaviors) => {
+    const values = candidates.map((behavior) => `${parameter(behavior, id)}`);
+    return new Set(values).size === 1 ? values[0] : candidates.map((behavior, index) => `${PLAYER_BEHAVIORS[behavior].shortLabel} ${values[index]}`).join(", ");
+  };
+  const swipeText =
+    settings.networkBackend === "mock"
+      ? "one swipe at 0.1 s"
+      : settings.swipeModel === "seeded"
+        ? `seeded, ${watchDurationRange(settings).join("–")} s between swipes`
+        : `at ${settings.swipeTimesS} s`;
 
   // The tall constant-rate box covers the FikoRE-internal arrows, so they are not drawn at all
   const hiddenEdges: DiagramEdgeId[] = settings.networkBackend === "constant_rate" ? ["transportToLink", "linkToFikore"] : [];
@@ -90,7 +105,8 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
       >
         <NodeDetailList
           items={[
-            <>One per UE: playback clock, buffer, swipes, up to {isB1 ? 2 : 3} concurrent requests</>,
+            <>One per UE: playback clock, buffer, up to {perBehavior("maxConcurrentRequests")} concurrent requests</>,
+            <>Swipes: {swipeText}, run ends at {runDurationSeconds(settings)} s</>,
             <>Holds the latest <T id="CspFields" asCode />; <T id="drainCapReports" asCode>drainCapReports</T> returns a report when one is due</>,
           ]}
         />
@@ -99,13 +115,27 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
       <DiagramNode
         {...nodeProps("playerRule")}
         repository="sfv"
-        title={isB1 ? <><span className="text-muted-foreground">B1 · </span><T id="SFVCurrentVideoRule">SFVCurrentVideoRule</T></> : <><span className="text-muted-foreground">B2 · </span><T id="SFVMultiVideoPrefetchRule">SFVMultiVideoPrefetchRule</T></>}
-        codePath={`sfv-reference-implementation/src/rules/${isB1 ? "SFVCurrentVideoRule" : "SFVMultiVideoPrefetchRule"}.js`}
+        title={
+          <>
+            {behaviors.map((behavior, index) => (
+              <span key={behavior}>
+                {index > 0 && " + "}
+                <span className="text-muted-foreground">{PLAYER_BEHAVIORS[behavior].shortLabel} · </span>
+                <T id={PLAYER_BEHAVIORS[behavior].ruleName}>{behaviors.length > 1 ? PLAYER_BEHAVIORS[behavior].ruleName.replace("SFV", "") : PLAYER_BEHAVIORS[behavior].ruleName}</T>
+              </span>
+            ))}
+          </>
+        }
+        codePath={`sfv-reference-implementation/src/rules/${behaviors.map((behavior) => PLAYER_BEHAVIORS[behavior].ruleName).join(".js, ")}.js`}
       >
         <NodeDetailList
           items={[
-            <>Keeps 2 segments of the current video buffered</>,
-            !isB1 && <>Preloads 2 segments of each next video, at most 4</>,
+            <>Keeps {perBehavior("activeBufferTargetSegments")} segments of the current video buffered</>,
+            behaviors.includes("preload") && (
+              <>
+                {behaviors.length > 1 && "B2 "}preloads {parameter("preload", "preloadSegmentsPerVideo")} segments of each next video, at most {parameter("preload", "maxPreloadSegments")}
+              </>
+            ),
             state === "design" ? <>A policy for L1+ would read <T id="CspFields" asCode /> here (not written yet)</> : <>Reads no <T id="CspFields" asCode /> yet; decisions as at L0</>,
           ]}
         />

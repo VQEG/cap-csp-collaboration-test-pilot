@@ -1,7 +1,7 @@
 import { SIGNALING_LEVELS } from "@/data/signalingLevels";
 import { backendHasCspTelemetrySource, signalingLevelNumber, usesConstantRateBackend, type ExplorerSettings } from "@/model/explorerSettings";
 
-// Banner text: is the chosen level implemented in the chosen state?
+// Banner text: what the chosen level does in the chosen state, in plain words.
 
 export type ImplementationStatusKind = "ok" | "partial" | "none";
 
@@ -11,6 +11,8 @@ export interface ImplementationStatus {
   /** Text in `backticks` is rendered as code. */
   explanation: string;
 }
+
+const CONTROLLER_STILL_OPEN = "The controller itself (algorithm, inputs, interval, damping) is still to be specified. L3 is not part of milestone 1.";
 
 export function describeImplementationStatus(settings: ExplorerSettings): ImplementationStatus {
   const level = signalingLevelNumber(settings.signalingLevel);
@@ -23,22 +25,20 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       return {
         kind: "partial",
         title: "Specified in parts",
-        explanation:
-          "`ConstantRateBackend` accepts `set_ue_control`: `rmax_mbps` caps the UE rate from the next step, `priority` is recorded without effect. The controller algorithm, its inputs, interval and damping are still open, and L3 is excluded from milestone 1.",
+        explanation: `A controller can change how the network serves a UE with \`set_ue_control\`. On \`ConstantRateBackend\`, \`rmax_mbps\` caps the UE's rate from the next step, and \`priority\` is recorded. ${CONTROLLER_STILL_OPEN}`,
       };
     if (level === 3)
       return {
         kind: "partial",
         title: "Specified in parts",
-        explanation:
-          "The FikoRE control path (`set_ue_control`: priority, rmax_mbps) exists. The controller algorithm, its inputs, interval and damping are still open, and L3 is excluded from milestone 1.",
+        explanation: `A controller can change how the network serves a UE with \`set_ue_control\`. FikoRE takes a scheduling priority and a rate cap (\`rmax_mbps\`). ${CONTROLLER_STILL_OPEN}`,
       };
     if (level === 4)
       return {
         kind: "partial",
         title: "Specified in parts",
         explanation:
-          "Single UE: trace from an offline full-buffer FikoRE run with the same seeds. Multi-UE runs must state whether the oracle is exogenous or demand-coupled.",
+          "With one UE, the oracle trace comes from an offline full-buffer FikoRE run with the same seeds. With several UEs, each run states whether the trace is fixed in advance or depends on the players' demand.",
       };
     return { kind: "ok", title: "Specified", explanation: SIGNALING_LEVELS[settings.signalingLevel].description };
   }
@@ -49,20 +49,19 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       kind: "ok",
       title: "Implemented",
       explanation:
-        "CSP telemetry and CAP reports are still written to the table and to `shared-state.jsonl` for audit, but reads return nothing: `collaboration.csp_by_ue` is empty.",
+        "The player gets no network information and estimates throughput from its own downloads. The harness still logs network telemetry and player reports to `shared-state.jsonl`.",
     };
   if (level === 1) {
     if (!planRateConfigured)
       return {
         kind: "partial",
         title: "Implemented, needs a plan rate",
-        explanation: "Set `plan_downlink_mbps_by_ue` in the config. Otherwise the plan rate is null.",
+        explanation: "The player gets the plan rate from `plan_downlink_mbps_by_ue` in the config. No plan rate is set yet.",
       };
     return {
       kind: "ok",
       title: "Implemented",
-      explanation:
-        "The plan rate is written to the table at run start, also on backends without telemetry (mock, constant_rate). Reads return only `plan_downlink_mbps`. The player stores it with `applyCspUpdate`. B1 and B2 do not use it yet.",
+      explanation: "At the start of the run, the player gets its plan rate (`plan_downlink_mbps`) from the config. This works with every backend. B1 and B2 store the value but do not act on it yet.",
     };
   }
   if (level === 2) {
@@ -70,32 +69,33 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       return {
         kind: "partial",
         title: `Live fields empty on ${settings.networkBackend}`,
-        explanation: `The ${settings.networkBackend} backend has no telemetry source. Only the plan rate, if set, reaches the player. The live fields stay null.`,
+        explanation: "The player gets the plan rate, if one is set. Live network measurements come only from the FikoRE backend.",
       };
     return {
       kind: "ok",
       title: "Implemented",
       explanation:
-        "FikoRE's telemetry sampler gives one sample per UE every `csp_telemetry_interval_s` (1 s). Reads return all `CspFields` mapped from it. The player stores them with `applyCspUpdate`. B1 and B2 do not use them yet.",
+        "Every second (`csp_telemetry_interval_s`), the player gets live measurements from FikoRE: achieved throughput, RTT and loss, plus the plan rate. B1 and B2 store them but do not act on them yet.",
     };
   }
   if (level === 3) {
     if (!settings.dummyCspControllerEnabled)
       return {
         kind: "partial",
-        title: "CAP reports only",
-        explanation: "The player sends CAP reports and they are written to the table. Without `csp_controller: \"dummy\"` nothing reads them.",
+        title: "Player reports only",
+        explanation:
+          "The player also reports to the network: stalls, buffer level, current video and swipe rate. To have a controller read these reports, set `csp_controller: \"dummy\"`.",
       };
     return {
       kind: "partial",
       title: "Implemented as a dry run",
       explanation:
-        "`DummyCSPController` reads CAP reports and, on a stall, proposes priority × 2. Proposals go to `csp-control.jsonl`. It never calls `set_ue_control`, so the network does not change.",
+        "The player also reports stalls, buffer level, current video and swipe rate. `DummyCSPController` reads these reports. When a player stalls, it proposes to double that UE's priority and logs the proposal to `csp-control.jsonl`. The proposal is not applied yet.",
     };
   }
   return {
     kind: "none",
     title: "Not implemented",
-    explanation: "L4 is parsed and behaves like L3: all CSP fields, and CAP reports readable by the controller. There is no oracle trace.",
+    explanation: "L4 runs like L3. The trace of future capacity is not built yet.",
   };
 }
