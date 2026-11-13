@@ -29,10 +29,18 @@ Depending on the signaling level (L0 to L4), the player also receives network in
 
 The harness implements L0–L3 **information wiring** (shared state table, collaboration snapshots, dummy `CSPController`) without changing SFV B1/B2 behaviour at L0. Design: [docs/collaboration.md](docs/collaboration.md).
 
-## Requirements
+## Documentation
 
-> [!NOTE]
-> The FikoRE submodule contains the incremental control path, the transport models and `TransportBackend`. The SFV player is included as a second submodule. The common harness and the full experiment matrix are still under development.
+We keep a living set of design documents in the `docs/` folder. These are mostly AI-written so we can keep track of the many changes in our design.
+
+Start with these documents:
+
+- [Specification Overview](docs/README.md): system summary and index of all design documents
+- [Architecture](docs/architecture.md): components, ownership, time, and execution modes
+- [Decision Status](docs/decision-status-and-todos.md): unresolved decisions and implementation action items
+- [Simulator Explorer](docs/simulator-explorer/README.md): interactive diagram of which components interact at each signaling level, backend and implementation state (build with `npm run build`, then open `dist/index.html`) — kept in sync with the current state of the codebase and design documents
+
+## Requirements
 
 Clone with `git clone --recurse-submodules`, or initialize the submodules from the repository root in an existing checkout:
 
@@ -52,9 +60,19 @@ uv run capcsp run configs/experiments/b1-b2-two-ue-mock.json output/mock
 
 To run B1 and B2 on a dedicated constant rate per UE instead, as assumed by the analytical model of Wehner et al., use `configs/experiments/b1-b2-two-ue-constant-rate.json`; its settings are described in [Experiments and Configuration](docs/experiments.md#constant-rate-backend).
 
-The output directory holds the run manifest, one session record per UE with its P.1203 scores, the `NetworkStep` transcript, `kpis.csv` and `report.md`. See [Results and Scoring](docs/results-and-scoring.md#qoe-estimation-models) for how the scores are computed. `uv run capcsp report output/run-a output/run-b -o report.md` compares several runs. `output/` is not tracked by git. See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run.
+The output directory contains the run manifest, one session record per UE with its P.1203 scores, the `NetworkStep` transcript, `kpis.csv` and `report.md`. See [Results and Scoring](docs/results-and-scoring.md#qoe-estimation-models) for how the scores are computed.
 
-Runs on FikoRE need Linux. On macOS, build the container and run inside it:
+To compare several runs, run:
+
+```bash
+uv run capcsp report output/run-a output/run-b -o report.md
+```
+
+See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run. Actual results should not be committed.
+
+### macOS
+
+Runs on FikoRE need Linux. On macOS, you can build the container via Docker and run inside it:
 
 ```bash
 docker build -t capcsp .
@@ -62,25 +80,19 @@ docker run --rm -v "$PWD/output:/pilot/output" capcsp \
   capcsp run configs/experiments/b1-b2-two-ue-fikore.json output/fikore
 ```
 
+## Configs
+
 The contributed FikoRE condition matrix is under `configs/experiments/vqeg/`. For example:
 
 ```bash
 uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json output/vqeg/c1
 ```
 
-See `configs/experiments/vqeg/README.md` for all nine C1–C8a/C8b runs, their common transport assumptions and the complete matrix command.
+See `configs/experiments/vqeg/README.md` for all nine C1–C8a/C8b runs, their common transport assumptions and the complete matrix command (to be replaced by an experiment runner that does the matrix run on its own).
+
+## Testing
 
 Run the tests with `uv run pytest`, or with `docker run --rm capcsp pytest` to include the FikoRE test.
-
-Start with these documents:
-
-- [Specification Overview](docs/README.md): system summary and index of all design documents
-- [Architecture](docs/architecture.md): components, ownership, time, and execution modes
-- [Decision Status](docs/decision-status-and-todos.md): unresolved decisions and implementation action items
-- [Offline Transport Validation](docs/offline-transport-validation.md): run the SFV v0.7.2 example against its mock and FikoRE
-- [Simulator Explorer](docs/simulator-explorer/README.md): interactive diagram of which components interact at each signaling level, backend and implementation state (build with `npm run build`, then open `dist/index.html`)
-
-The build sequence is in the [implementation plan](docs/implementation-plan.md).
 
 ## Current Validation
 
