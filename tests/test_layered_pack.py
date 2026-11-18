@@ -49,6 +49,9 @@ def test_layered_pack_manifest_and_free_scheduler_invariants() -> None:
         assert "rmax_mbps" not in raw, f"{ini.name} must not configure scheduler caps"
         doc = ScenarioDocument.read(str(ini))
         assert doc.get("MACLayer", "metric_type") == "6"
+        assert doc.get("MACLayer", "harq_model") == "legacy_bler"
+        assert doc.get("PDCP_RLC", "order_pkts") == "true"
+        assert float(doc.get("PDCP_RLC", "backhaul_d_var")) == pytest.approx(0.001)
         map_path = (FIKORE_ROOT / doc.get("Scenario", "map_file")).resolve()
         assert map_path.is_file(), f"{ini.name}: {map_path}"
         timeline = doc.get("Control", "timeline_file")

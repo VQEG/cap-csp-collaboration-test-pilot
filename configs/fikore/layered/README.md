@@ -11,7 +11,7 @@ This directory defines an 11-condition layered radio and contention model (`M01`
 
 ## Physical and scheduling invariants
 
-- **Cell baseline**: 3.5 GHz Urban Macro (`UMa` n78, `macroscopic_fading_map_URBAN_MACROCELL_3.5.json`), `20 MHz` channel bandwidth (`50 PRBs`, `12 RBGs` of `4 PRBs` per TTI, `scheduling_config: 0`), TDD `7/3/54`, `10 ms` one-way backhaul delay (`backhaul_d_var: 0.0`), in-order delivery (`harq_model: disabled`, `order_pkts: true`).
+- **Cell baseline**: 3.5 GHz Urban Macro (`UMa` n78, `macroscopic_fading_map_URBAN_MACROCELL_3.5.json`), `20 MHz` channel bandwidth (`50 PRBs`, `12 RBGs` of `4 PRBs` per TTI, `scheduling_config: 0`), TDD `7/3/54`, `10 ms` one-way backhaul delay (`backhaul_d_var: 0.001`), 3GPP-style HARQ with in-order PDCP delivery (`harq_model: legacy_bler`, `order_pkts: true`).
 - **Unconstrained scheduler**: Proportional Fair (`metric_type: 6`, `pf_alpha: 1.0`, `throughput_time_window_ms: 100.0`). **No `dl.rmax_mbps` or `ul.rmax_mbps` token-bucket cap is applied to any UE.**
 - **Competing SFV-like flows**: Competing UEs (`backgroundSfV`) attach and detach according to pre-rendered Poisson NDJSON timelines (`timelines/*.ndjson`) at freshly sampled spatial coordinates. In co-simulation (`capcsp`), `network.background_iperf_ues: {"backgroundSfV": 4.0}` drives each active competing UE with an application-paced `4.0 Mbps` TCP Cubic sender with bounded send-buffer backpressure (`64 KiB`), providing client-side congestion self-regulation without scheduler caps.
 
