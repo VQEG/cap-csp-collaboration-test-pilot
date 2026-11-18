@@ -7,7 +7,7 @@ This directory defines an 11-condition layered radio and contention model (`M01`
 1. **Normalized competing channel load (`rho`)**: `0%`, `50%`, `75%`, `100%`.
 2. **Temporal session variability (`tau`)**: `med` (Poisson `M/M/inf` arrivals with 8 s mean session hold) vs `high` (burst-modulated Poisson waves with 12 s mean hold).
 3. **Spatial distribution (`S`)**: homogeneous good-SINR ring (`good_homo`) vs uniform-area cell distribution (`good_het`, `mid_het`, `edge_het`) shifting the study UE from `151.3 m` (MCS 25, ~0.15 RBG/Mbps) to `350.0 m` (MCS 9, ~0.31 RBG/Mbps) and `650.0 m` (MCS 2, ~1.1 RBG/Mbps).
-4. **Mobility (`M`)**: `static`, `ped_edge` (`3.6 km/h` pedestrian walk at cell edge), and `veh_traverse` (`36.6 km/h` deterministic center–edge–center traversal).
+4. **Mobility (`M`)**: `static`, `ped_edge` (`3.6 km/h` pedestrian walk at cell edge), and `veh_traverse` (`73.3 km/h` deterministic center–edge–center traversal, 25 s outbound and 25 s return).
 
 ## Physical and scheduling invariants
 
