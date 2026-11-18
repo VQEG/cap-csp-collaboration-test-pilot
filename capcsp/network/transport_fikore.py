@@ -363,7 +363,7 @@ class TransportFikoreConfig:
     congestion_control: str = "cubic"
     receive_window_bytes: int = 128 * 1024
     tcp_connection_mode: str = "persistent"
-    """`persistent` for an HTTP/1.1-style connection pool per UE, or `fresh` for one connection per object"""
+    """`persistent` for an HTTP/1.1-style pool, `fresh` per object, or `multiplexed` for RFC 9218 single-connection multiplexing"""
     max_idle_tcp_connections_per_ue: int = 6
     """Maximum number of idle connections kept in the pool of each UE"""
     step_ms: int = 10
@@ -402,7 +402,7 @@ class TransportFikoreConfig:
             raise ValueError(f"Unknown link {config.link!r}")
         if config.congestion_control not in CONGESTION_CONTROLLERS:
             raise ValueError(f"Unknown congestion control {config.congestion_control!r}")
-        if config.tcp_connection_mode not in ("persistent", "fresh"):
+        if config.tcp_connection_mode not in ("persistent", "fresh", "multiplexed"):
             raise ValueError(f"Unknown TCP connection mode {config.tcp_connection_mode!r}")
         if config.max_idle_tcp_connections_per_ue < 0:
             raise ValueError("max_idle_tcp_connections_per_ue must not be negative")
