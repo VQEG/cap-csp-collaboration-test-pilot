@@ -116,4 +116,10 @@ def test_extended_portrait_catalog_has_monotonic_p1204_ladder() -> None:
         for rep in reps
     ]
     assert all(b > a for a, b in zip(scores, scores[1:]))
-    assert len(list(LAYERED_EXPERIMENTS.glob("m*-b*.json"))) == 22
+    exp_files = sorted(LAYERED_EXPERIMENTS.glob("m*-b*.json"))
+    assert len(exp_files) == 22
+    for exp_file in exp_files:
+        exp_cfg = json.loads(exp_file.read_text())
+        assert exp_cfg["network"]["tcp_connection_mode"] == "persistent", (
+            f"{exp_file.name} must keep tcp_connection_mode='persistent' across B1 and B2"
+        )

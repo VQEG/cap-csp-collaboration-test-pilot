@@ -4,6 +4,7 @@ These experiment configurations evaluate SFV player policies (`simple` B1 and `p
 
 Each run executes for `65 s` with:
 - seed `20260927` and a unique `Global.run_id`;
+- identical `tcp_connection_mode: "persistent"` across both `B1` (`simple`) and `B2` (`preload`) so player policies are compared over the exact same network stack;
 - `256 KiB` TCP receive window matched to the `20 MHz` cell bandwidth-delay product;
 - TCP acknowledgements carried over the FikoRE uplink (`ack_over_link: true`);
 - application-paced `4.0 Mbps` TCP Cubic competing sessions (`background_iperf_ues`) on conditions `M02`–`M11`.
