@@ -880,8 +880,8 @@ enabled: false
 seed: {seed}
 duration: {duration_s:.1f}
 period: -1
-multithreading: true
-threads: 8
+multithreading: false
+threads: 1
 verbose: false
 progress_log_period_s: 10
 

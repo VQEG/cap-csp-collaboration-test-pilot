@@ -133,11 +133,13 @@
     "L0"
   ],
   "ue_counts": [
-    2
+    1
   ],
   "behavior_mixes": {
-    "b1-b2": [
-      "simple",
+    "b1": [
+      "simple"
+    ],
+    "b2": [
       "preload"
     ]
   },

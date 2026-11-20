@@ -126,19 +126,34 @@ def test_invalid_parametric_cell_settings_are_rejected(bad_cell: dict) -> None:
 def test_core6_and_load_sweep_grids_expand_cleanly() -> None:
     core6_spec = GridSpecification.from_file(REPO_ROOT / "configs" / "grids" / "layered-core6.json")
     core6_cells = core6_spec.cells()
-    assert len(core6_cells) == len(CORE6_PRESET_IDS) * 5
+    assert len(core6_cells) == len(CORE6_PRESET_IDS) * 2 * 5
     assert {cell.condition for cell in core6_cells} == set(CORE6_PRESET_IDS)
-    for cell in core6_cells[:6]:
+    for cell in core6_cells[:12:2]:
         tf_cfg = TransportFikoreConfig.from_dict(cell.experiment_config["network"])
         assert tf_cfg.parametric_cell is not None
         assert tf_cfg.parametric_cell.preset == cell.condition
 
+    full_spec = GridSpecification.from_file(REPO_ROOT / "configs" / "grids" / "layered-m01-m11.json")
+    full_cells = full_spec.cells()
+    assert len(full_cells) == 11 * 2 * 20
+    # Paired B1 and B2 runs in each replication share both Global.seed and user swipe seed
+    b1_cell, b2_cell = full_cells[0], full_cells[1]
+    assert (b1_cell.behavior_mix, b2_cell.behavior_mix) == ("b1", "b2")
+    assert (
+        b1_cell.experiment_config["network"]["fikore_section_overrides"]["Global"]["seed"]
+        == b2_cell.experiment_config["network"]["fikore_section_overrides"]["Global"]["seed"]
+    )
+    assert (
+        b1_cell.experiment_config["sessions"][0]["config"]["seed"]
+        == b2_cell.experiment_config["sessions"][0]["config"]["seed"]
+    )
+
     sweep_spec = GridSpecification.from_file(REPO_ROOT / "configs" / "grids" / "parametric-load-sweep.json")
     sweep_cells = sweep_spec.cells()
-    assert len(sweep_cells) == 5 * 3
+    assert len(sweep_cells) == 5 * 2 * 3
     rhos = [
         TransportFikoreConfig.from_dict(c.experiment_config["network"]).parametric_cell.load_rho  # type: ignore[union-attr]
-        for c in sweep_cells[:5]
+        for c in sweep_cells[:10:2]
     ]
     assert rhos == [0.0, 0.25, 0.5, 0.75, 1.0]
 
