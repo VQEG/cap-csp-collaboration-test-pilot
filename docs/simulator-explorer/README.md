@@ -29,8 +29,9 @@ The stack is Vite, React, TypeScript, Tailwind CSS and shadcn/ui components (in 
 Data, in `src/data/`:
 
 - `signalingLevels.ts`: name and one-line description of L0–L4, from `docs/signaling.md`
-- `networkConditions.ts`: C1–C8b calibration bands, dominant cause, background UEs, INI, timeline and duration, from `configs/fikore/README.md`; `defaultPlanDownlinkMbps` presets the plan rate
+- `networkConditions.ts`: C1–C8b and M01–M11 calibration bands, dominant cause, background UEs, INI, timeline and duration, from `configs/fikore/README.md` and `configs/fikore/layered/README.md`; `defaultPlanDownlinkMbps` presets the plan rate
 - `conditionParameters.ts`: the FikoRE parameters you can change per condition, with their INI values from `configs/fikore/c*.ini`
+- `parametricCells.ts`: `M01`–`M11` presets (`Core-6` marked), `CUSTOM` defaults and analytical active-neighbor UE estimates for `network.parametric_cell`
 - `playerBehaviors.ts`: B1 and B2 parameters with the values of the condition configs and the SFV defaults, and the behaviour mixes
 - `contentCatalogue.ts`: the videos and representations of `sfv-reference-implementation/fixtures/content/content.json`
 - `implementationStates.ts`: the states in the Implementation selector

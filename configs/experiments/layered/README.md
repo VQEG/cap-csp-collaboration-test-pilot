@@ -20,3 +20,14 @@ Summarize a batch of runs:
 ```bash
 uv run capcsp report output/layered/* -o output/layered/report.md
 ```
+
+## Multi-seed parametric grids
+
+Multi-seed grids use `network.parametric_cell` to synthesize seed-dependent session arrival timelines and spatial UE placements from `Global.seed` on every replication (`1` study UE per cell, paired `B1` vs `B2` across seeds):
+
+```bash
+uv run capcsp grid -j 8 configs/grids/layered-core6.json
+uv run capcsp grid -j 8 configs/grids/layered-m01-m11.json
+uv run capcsp grid -j 8 configs/grids/parametric-load-sweep.json
+```
+
