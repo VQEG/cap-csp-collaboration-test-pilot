@@ -1,0 +1,146 @@
+{
+  "grid_id": "parametric-load-sweep",
+  "base": {
+    "run_id": "parametric-load-sweep-base",
+    "content": "../content/sfv-portrait-hd-90s.json",
+    "network_backend": "transport_fikore",
+    "network": {
+      "congestion_control": "cubic",
+      "receive_window_bytes": 262144,
+      "tcp_connection_mode": "persistent",
+      "max_idle_tcp_connections_per_ue": 6,
+      "step_ms": 10,
+      "study_ues": [
+        "studyVqeg"
+      ],
+      "ack_over_link": true,
+      "delay_budget_s": null,
+      "random_v": null,
+      "parametric_cell": {
+        "preset": "custom",
+        "bandwidth_mhz": 20,
+        "study_position": "good",
+        "study_mobility": "static",
+        "bg_spatial": "cell_disk",
+        "bg_bitrate_mbps": 4.0,
+        "arrival_mode": "poisson",
+        "mean_hold_s": 8.0
+      }
+    },
+    "condition": "rho-050",
+    "signaling_level": "L0",
+    "clock_mode": "simulation",
+    "duration_s": 65,
+    "timingDefaults": {
+      "playbackTiming": {
+        "mode": "causal-simple",
+        "slotPreparationS": 0.01,
+        "appendDurationS": 0.005,
+        "startupDelayS": 0.005,
+        "observationIntervalS": 0.05
+      }
+    },
+    "sessions": [
+      {
+        "ue_id": 0,
+        "player_behavior": "simple",
+        "config": {
+          "sessionId": "ue0",
+          "seed": 1000,
+          "scheduling": {
+            "maxConcurrentRequests": 2
+          },
+          "userModel": {
+            "type": "seeded",
+            "watchDurationRangeS": [
+              2,
+              16
+            ]
+          }
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2
+        }
+      },
+      {
+        "ue_id": 1,
+        "player_behavior": "preload",
+        "config": {
+          "sessionId": "ue1",
+          "seed": 1001,
+          "scheduling": {
+            "maxConcurrentRequests": 3
+          },
+          "userModel": {
+            "type": "seeded",
+            "watchDurationRangeS": [
+              2,
+              16
+            ]
+          }
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2,
+          "max_preload_segments": 4,
+          "preload_segments_per_video": 2
+        }
+      }
+    ]
+  },
+  "conditions": {
+    "rho-000": {
+      "condition": "rho-000",
+      "network": {
+        "parametric_cell": {
+          "load_rho": 0.0
+        }
+      }
+    },
+    "rho-025": {
+      "condition": "rho-025",
+      "network": {
+        "parametric_cell": {
+          "load_rho": 0.25
+        }
+      }
+    },
+    "rho-050": {
+      "condition": "rho-050",
+      "network": {
+        "parametric_cell": {
+          "load_rho": 0.5
+        }
+      }
+    },
+    "rho-075": {
+      "condition": "rho-075",
+      "network": {
+        "parametric_cell": {
+          "load_rho": 0.75
+        }
+      }
+    },
+    "rho-100": {
+      "condition": "rho-100",
+      "network": {
+        "parametric_cell": {
+          "load_rho": 1.0
+        }
+      }
+    }
+  },
+  "signaling_levels": [
+    "L0"
+  ],
+  "ue_counts": [
+    2
+  ],
+  "behavior_mixes": {
+    "b1-b2": [
+      "simple",
+      "preload"
+    ]
+  },
+  "replications": 3,
+  "network_seed_base": 20260927
+}

@@ -26,6 +26,8 @@ from fikore_transport.runner import Flow, Runner
 from fikore_transport.scenario import ScenarioDocument
 from fikore_transport.tcp import TcpReceiver, TcpSender
 
+from capcsp.network.parametric_cell import ParametricCellConfig, synthesize_parametric_cell
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIKORE_ROOT = REPO_ROOT / "5g-network-emulator"
 
@@ -371,7 +373,9 @@ class TransportFikoreConfig:
     csp_telemetry_interval_s: float = 1.0
     """Interval of CSP telemetry samples written to the shared state table and telemetry.jsonl"""
     fikore_binary: str = str(FIKORE_ROOT / "bin" / "fikore")
-    fikore_base_ini: str = str(FIKORE_ROOT / "config" / "control_demo.ini")
+    fikore_base_ini: str | None = str(FIKORE_ROOT / "config" / "control_demo.ini")
+    parametric_cell: ParametricCellConfig | None = None
+    """Optional parametric 5G cell specification synthesized into an INI and timeline at run start."""
     study_ues: list[str] | None = None
     ack_over_link: bool = False
     replay_timeline: bool = True
@@ -393,7 +397,21 @@ class TransportFikoreConfig:
         unknown = set(values) - set(cls.__dataclass_fields__)
         if unknown:
             raise ValueError(f"Unknown transport_fikore settings: {sorted(unknown)}")
-        if "fikore_base_ini" in values:
+        has_base_ini = values.get("fikore_base_ini") is not None and "fikore_base_ini" in values
+        has_parametric = values.get("parametric_cell") is not None
+        if has_base_ini and has_parametric:
+            raise ValueError("set fikore_base_ini or parametric_cell, not both")
+        if has_parametric:
+            raw_cell = values["parametric_cell"]
+            values["parametric_cell"] = (
+                raw_cell
+                if isinstance(raw_cell, ParametricCellConfig)
+                else ParametricCellConfig.from_dict(raw_cell)
+            )
+            values["fikore_base_ini"] = None
+        elif "fikore_base_ini" in values:
+            if not isinstance(values["fikore_base_ini"], str) or not values["fikore_base_ini"]:
+                raise ValueError("fikore_base_ini must be a non-empty path when parametric_cell is not set")
             values["fikore_base_ini"] = _resolve_repo_path(
                 values["fikore_base_ini"]
             )
@@ -478,7 +496,33 @@ class TransportFikoreBackend(TransportBackend):
                 raise FileNotFoundError(
                     f"FikoRE binary not found at {config.fikore_binary}; build it with `make` in 5g-network-emulator"
                 )
-            scenario = ScenarioDocument.read(config.fikore_base_ini)
+            effective_bg_iperf = dict(config.background_iperf_ues)
+            if config.parametric_cell is not None:
+                seed_raw = config.fikore_section_overrides.get("Global", {}).get("seed", 20260927)
+                if isinstance(seed_raw, bool) or not isinstance(seed_raw, int):
+                    raise ValueError("Global.seed override must be an integer")
+                synthesized = synthesize_parametric_cell(
+                    config.parametric_cell,
+                    duration_s=duration_s,
+                    seed=seed_raw,
+                    work_dir=self.work_dir,
+                )
+                if synthesized.timeline_path is not None:
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(
+                        synthesized.timeline_path,
+                        output_dir / "fikore-timeline.ndjson",
+                    )
+                base_ini_path = str(synthesized.ini_path)
+                effective_bg_iperf = {
+                    **synthesized.background_iperf_ues,
+                    **effective_bg_iperf,
+                }
+            else:
+                assert config.fikore_base_ini is not None
+                base_ini_path = config.fikore_base_ini
+
+            scenario = ScenarioDocument.read(base_ini_path)
             study_groups = (
                 list(config.study_ues)
                 if config.study_ues is not None
@@ -491,7 +535,7 @@ class TransportFikoreBackend(TransportBackend):
                 )
             study_group = study_groups[0]
             all_scenario_groups = set(scenario.ue_ids())
-            for bg_group in config.background_iperf_ues:
+            for bg_group in effective_bg_iperf:
                 if bg_group == study_group:
                     raise ValueError(
                         f"background_iperf_ues cannot include study group {study_group!r}"
@@ -523,15 +567,15 @@ class TransportFikoreBackend(TransportBackend):
             }
             cosim_groups = list(study_groups)
             emulator_n_ues: int | None = len(ue_ids)
-            if config.background_iperf_ues:
-                cosim_groups.extend(config.background_iperf_ues.keys())
+            if effective_bg_iperf:
+                cosim_groups.extend(effective_bg_iperf.keys())
                 emulator_n_ues = None
                 ue_overrides.setdefault(study_group, {})["n_ues"] = str(len(ue_ids))
 
             emulator = Emulator(
                 EmulatorConfig(
                     binary=config.fikore_binary,
-                    base_ini=config.fikore_base_ini,
+                    base_ini=base_ini_path,
                     socket_path=str(self.work_dir / "control.sock"),
                     duration_s=duration_s + 1.0,
                     work_dir=str(FIKORE_ROOT),
@@ -554,7 +598,7 @@ class TransportFikoreBackend(TransportBackend):
                 ue_id: study_targets[index]
                 for index, ue_id in enumerate(sorted(ue_ids))
             }
-            if config.background_iperf_ues:
+            if effective_bg_iperf:
                 physical = 0
                 for group in scenario.ue_ids():
                     if group == study_group:
@@ -569,12 +613,12 @@ class TransportFikoreBackend(TransportBackend):
                     for slot in range(count):
                         external_ue = -1 - physical
                         target_name = group if count == 1 else f"{group}_{slot}"
-                        if group in config.background_iperf_ues:
+                        if group in effective_bg_iperf:
                             ue_target_map[external_ue] = target_name
                             full_target = f"ue/{target_name}"
                             bg_target_external_ues[full_target] = external_ue
                             bg_target_rates[full_target] = float(
-                                config.background_iperf_ues[group]
+                                effective_bg_iperf[group]
                             )
                         physical += 1
 
