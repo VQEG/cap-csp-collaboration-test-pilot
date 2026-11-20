@@ -1,6 +1,14 @@
-import { CONTENT_PATH_FROM_CONFIG_FILE } from "@/data/contentCatalogue";
+import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
 import { CONDITION_PARAMETER_BASE_VALUES, conditionParametersOf, iniValue } from "@/data/conditionParameters";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
+import {
+  PARAMETRIC_PRESET_DEFAULTS,
+  isParametricCondition,
+  loadSweepConditionSlug,
+  parseLoadSweepValues,
+  resolveParametricCellValues,
+  type ParametricCellValues,
+} from "@/data/parametricCells";
 import { BEHAVIOR_MIXES, BEHAVIOR_PARAMETERS, PLAYER_BEHAVIORS, behaviorOfUe, type PlayerBehavior } from "@/data/playerBehaviors";
 import {
   CONSTANT_RATE_CANCELLATION_TAIL_BYTES,
@@ -15,8 +23,8 @@ import {
 import { parseSwipeTimes, watchDurationRange } from "@/model/swipeSchedule";
 
 // The experiment and grid JSON for the chosen settings. Keep the keys in sync
-// with configs/experiments/, configs/grids/, capcsp/runner/run.py and
-// capcsp/runner/grid_specification.py.
+// with configs/experiments/, configs/grids/, capcsp/runner/run.py,
+// capcsp/runner/grid_specification.py and capcsp/network/parametric_cell.py.
 
 type JsonObject = Record<string, unknown>;
 
@@ -32,12 +40,94 @@ export function sessionSeed(settings: ExplorerSettings, ueId: number, replicatio
 
 /** Simulated run length in seconds: the condition's (possibly changed) duration on FikoRE. */
 export function runDurationSeconds(settings: ExplorerSettings, conditionId = settings.conditionId): number {
-  if (usesFikoreBackend(settings)) return settings.conditionOverrides[conditionId]?.duration ?? NETWORK_CONDITIONS[conditionId].durationSeconds;
+  if (usesFikoreBackend(settings)) {
+    if (isParametricCondition(conditionId)) {
+      return resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]).duration_s;
+    }
+    return settings.conditionOverrides[conditionId]?.duration ?? NETWORK_CONDITIONS[conditionId].durationSeconds;
+  }
   if (usesConstantRateBackend(settings)) return 20;
   return 0.2;
 }
 
-/** Condition parameters that differ from the INI, split by where they go in the config. */
+/** Receive window sized to the cell BDP: 256 KiB for ≤40 MHz parametric cells, 1 MiB for wider/legacy cells. */
+export function receiveWindowBytesForCondition(settings: ExplorerSettings, conditionId = settings.conditionId): number {
+  if (!isParametricCondition(conditionId)) return 1048576;
+  const bw = resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]).bandwidth_mhz;
+  return bw >= 60 ? 1048576 : 262144;
+}
+
+/** Build the `network.parametric_cell` object for a parametric condition. */
+export function buildParametricCellPayload(
+  settings: ExplorerSettings,
+  conditionId: string,
+  options: { omitLoadRho?: boolean; forceSpatialWhenSweep?: boolean } = {},
+): JsonObject {
+  const overrides = settings.parametricOverrides[conditionId] ?? {};
+  const resolved = resolveParametricCellValues(conditionId, overrides);
+  const presetName = conditionId === "CUSTOM" ? "custom" : conditionId;
+
+  if (conditionId !== "CUSTOM" && !options.omitLoadRho) {
+    const defaults = PARAMETRIC_PRESET_DEFAULTS[conditionId];
+    const payload: JsonObject = { preset: presetName };
+    const keys: (keyof Omit<ParametricCellValues, "duration_s">)[] = [
+      "bandwidth_mhz",
+      "study_position",
+      "study_distance_m",
+      "study_mobility",
+      "study_speed_kmh",
+      "traverse_min_distance_m",
+      "traverse_max_distance_m",
+      "load_rho",
+      "bg_spatial",
+      "bg_max_distance_m",
+      "bg_bitrate_mbps",
+      "arrival_mode",
+      "mean_hold_s",
+      "burst_amplitude",
+      "burst_regime_s",
+      "backhaul_delay_ms",
+      "backhaul_jitter_ms",
+    ];
+    for (const key of keys) {
+      if (resolved[key] !== defaults[key]) payload[key] = resolved[key];
+    }
+    return payload;
+  }
+
+  const bgSpatial = options.forceSpatialWhenSweep && resolved.bg_spatial === "none" ? "cell_disk" : resolved.bg_spatial;
+  const payload: JsonObject = {
+    preset: presetName,
+    bandwidth_mhz: resolved.bandwidth_mhz,
+    study_position: resolved.study_position,
+  };
+  if (resolved.study_position === "custom") payload.study_distance_m = resolved.study_distance_m;
+  payload.study_mobility = resolved.study_mobility;
+  if (resolved.study_mobility !== "static") payload.study_speed_kmh = resolved.study_speed_kmh;
+  if (resolved.study_mobility === "vehicular_traverse") {
+    payload.traverse_min_distance_m = resolved.traverse_min_distance_m;
+    payload.traverse_max_distance_m = resolved.traverse_max_distance_m;
+  }
+  if (!options.omitLoadRho) payload.load_rho = resolved.load_rho;
+  if (options.omitLoadRho || resolved.load_rho > 0) {
+    payload.bg_spatial = bgSpatial;
+    if (bgSpatial === "cell_disk" && resolved.bg_max_distance_m !== 630) {
+      payload.bg_max_distance_m = resolved.bg_max_distance_m;
+    }
+    payload.bg_bitrate_mbps = resolved.bg_bitrate_mbps;
+    payload.arrival_mode = resolved.arrival_mode;
+    payload.mean_hold_s = resolved.mean_hold_s;
+    if (resolved.arrival_mode === "mmpp") {
+      payload.burst_amplitude = resolved.burst_amplitude;
+      payload.burst_regime_s = resolved.burst_regime_s;
+    }
+  }
+  if (resolved.backhaul_delay_ms !== 10) payload.backhaul_delay_ms = resolved.backhaul_delay_ms;
+  if (resolved.backhaul_jitter_ms !== 1) payload.backhaul_jitter_ms = resolved.backhaul_jitter_ms;
+  return payload;
+}
+
+/** Condition parameters that differ from the legacy INI, split by where they go in the config. */
 export function conditionOverrideBlocks(settings: ExplorerSettings, conditionId: string) {
   const changed = settings.conditionOverrides[conditionId] ?? {};
   const baseValues = CONDITION_PARAMETER_BASE_VALUES[conditionId] ?? {};
@@ -55,29 +145,51 @@ export function conditionOverrideBlocks(settings: ExplorerSettings, conditionId:
   return { durationS, sectionOverrides, ueOverrides };
 }
 
-function fikoreNetworkSettings(settings: ExplorerSettings, conditionId: string, includeConditionOverrides: boolean): JsonObject {
-  const { sectionOverrides, ueOverrides } = includeConditionOverrides
-    ? conditionOverrideBlocks(settings, conditionId)
-    : { sectionOverrides: {}, ueOverrides: {} };
+interface FikoreSettingsMode {
+  kind: "run" | "grid_base_conditions" | "grid_base_load_sweep";
+}
+
+function fikoreNetworkSettings(settings: ExplorerSettings, conditionId: string, mode: FikoreSettingsMode): JsonObject {
   const network: JsonObject = {
     congestion_control: "cubic",
-    receive_window_bytes: 1048576,
+    receive_window_bytes: receiveWindowBytesForCondition(settings, conditionId),
     tcp_connection_mode: settings.tcpConnectionMode,
     max_idle_tcp_connections_per_ue: 6,
     step_ms: 10,
-    fikore_base_ini: `configs/fikore/${NETWORK_CONDITIONS[conditionId].fikoreIniFile}`,
     study_ues: ["studyVqeg"],
     ack_over_link: settings.acksOverFikoreUplink,
     delay_budget_s: null,
     random_v: null,
-    fikore_section_overrides: { Global: { seed: NETWORK_SEED_BASE }, ...sectionOverrides },
   };
+
+  if (mode.kind === "grid_base_conditions") {
+    // Condition overlays supply either `parametric_cell` or `fikore_base_ini`, and `grid_specification.py` supplies `Global.seed`.
+    return network;
+  }
+
+  if (mode.kind === "grid_base_load_sweep") {
+    network.parametric_cell = buildParametricCellPayload(settings, conditionId, {
+      omitLoadRho: true,
+      forceSpatialWhenSweep: true,
+    });
+    return network;
+  }
+
+  if (isParametricCondition(conditionId)) {
+    network.parametric_cell = buildParametricCellPayload(settings, conditionId);
+    network.fikore_section_overrides = { Global: { seed: NETWORK_SEED_BASE } };
+    return network;
+  }
+
+  const { sectionOverrides, ueOverrides } = conditionOverrideBlocks(settings, conditionId);
+  network.fikore_base_ini = `configs/fikore/${NETWORK_CONDITIONS[conditionId].fikoreIniFile}`;
+  network.fikore_section_overrides = { Global: { seed: NETWORK_SEED_BASE }, ...sectionOverrides };
   if (Object.keys(ueOverrides).length) network.fikore_ue_overrides = ueOverrides;
   return network;
 }
 
-function networkSettings(settings: ExplorerSettings, conditionId: string, includeConditionOverrides: boolean): JsonObject {
-  if (usesFikoreBackend(settings)) return fikoreNetworkSettings(settings, conditionId, includeConditionOverrides);
+function networkSettings(settings: ExplorerSettings, conditionId: string, mode: FikoreSettingsMode): JsonObject {
+  if (usesFikoreBackend(settings)) return fikoreNetworkSettings(settings, conditionId, mode);
   if (usesConstantRateBackend(settings)) {
     return {
       step_s: 0.01,
@@ -132,7 +244,11 @@ function session(settings: ExplorerSettings, ueId: number, behavior: PlayerBehav
 
 function runId(settings: ExplorerSettings): string {
   const levelSlug = settings.signalingLevel.toLowerCase();
-  const prefix = usesFikoreBackend(settings) ? `vqeg-${settings.conditionId.toLowerCase()}` : usesConstantRateBackend(settings) ? "constant-rate" : "mock";
+  const prefix = usesFikoreBackend(settings)
+    ? `${isParametricCondition(settings.conditionId) ? "layered" : "vqeg"}-${settings.conditionId.toLowerCase()}`
+    : usesConstantRateBackend(settings)
+      ? "constant-rate"
+      : "mock";
   return `${prefix}-${levelSlug}-${settings.videoUeCount}ue-${settings.behaviorMix}`;
 }
 
@@ -141,7 +257,7 @@ interface ExperimentShape {
   signalingLevels: SignalingLevel[];
   ueIdsWithPlanRate: number[];
   sessions: JsonObject[];
-  includeConditionOverrides: boolean;
+  fikoreMode: FikoreSettingsMode;
 }
 
 function experimentConfig(settings: ExplorerSettings, shape: ExperimentShape, identifier: string): JsonObject {
@@ -150,17 +266,17 @@ function experimentConfig(settings: ExplorerSettings, shape: ExperimentShape, id
   const config: JsonObject = {
     run_id: identifier,
     network_backend: settings.networkBackend,
-    network: networkSettings(settings, shape.conditionId, shape.includeConditionOverrides),
+    network: networkSettings(settings, shape.conditionId, shape.fikoreMode),
     condition: fikore ? shape.conditionId : "example-only",
     signaling_level: shape.signalingLevels[0],
     clock_mode: "simulation",
-    content: CONTENT_PATH_FROM_CONFIG_FILE,
+    content: CONTENT_CATALOGUES[settings.contentId].pathFromConfigsChild,
   };
   if (Math.max(...levels) >= 1 && settings.planDownlinkMbps !== "") {
     config.plan_downlink_mbps_by_ue = Object.fromEntries(shape.ueIdsWithPlanRate.map((ueId) => [String(ueId), Number(settings.planDownlinkMbps)]));
   }
   if (Math.max(...levels) >= 3) config.csp_controller = settings.dummyCspControllerEnabled ? "dummy" : null;
-  config.duration_s = shape.includeConditionOverrides ? runDurationSeconds(settings, shape.conditionId) : runDurationSeconds({ ...settings, conditionOverrides: {} }, shape.conditionId);
+  config.duration_s = runDurationSeconds(settings, shape.conditionId);
   config.timingDefaults = {
     playbackTiming: { mode: "causal-simple", slotPreparationS: 0.01, appendDurationS: 0.005, startupDelayS: 0.005, observationIntervalS: 0.05 },
   };
@@ -179,27 +295,62 @@ export function buildRunConfig(settings: ExplorerSettings): JsonObject {
       signalingLevels: [settings.signalingLevel],
       ueIdsWithPlanRate: ueIds,
       sessions: ueIds.map((ueId) => session(runSettings, ueId, behaviorOfUe(settings.behaviorMix, ueId), sessionSeed(runSettings, ueId))),
-      includeConditionOverrides: true,
+      fikoreMode: { kind: "run" },
     },
     runId(settings),
   );
 }
 
-/** The condition overlay of a grid: FikoRE scenario, duration and changed parameters. */
+/** The condition overlay of a grid: parametric_cell or legacy FikoRE INI, duration and changed parameters. */
 function gridConditionOverlay(settings: ExplorerSettings, conditionId: string): JsonObject {
+  if (isParametricCondition(conditionId)) {
+    const network: JsonObject = {
+      receive_window_bytes: receiveWindowBytesForCondition(settings, conditionId),
+      parametric_cell: buildParametricCellPayload(settings, conditionId),
+    };
+    return {
+      condition: conditionId,
+      duration_s: runDurationSeconds(settings, conditionId),
+      network,
+    };
+  }
   const { durationS, sectionOverrides, ueOverrides } = conditionOverrideBlocks(settings, conditionId);
-  const network: JsonObject = { fikore_base_ini: `configs/fikore/${NETWORK_CONDITIONS[conditionId].fikoreIniFile}` };
+  const network: JsonObject = {
+    receive_window_bytes: 1048576,
+    fikore_base_ini: `configs/fikore/${NETWORK_CONDITIONS[conditionId].fikoreIniFile}`,
+  };
   if (Object.keys(sectionOverrides).length) network.fikore_section_overrides = sectionOverrides;
   if (Object.keys(ueOverrides).length) network.fikore_ue_overrides = ueOverrides;
   return { condition: conditionId, duration_s: durationS ?? NETWORK_CONDITIONS[conditionId].durationSeconds, network };
 }
 
+export function effectiveLoadSweepRhos(settings: ExplorerSettings): number[] {
+  const parsed = parseLoadSweepValues(settings.loadSweepValues);
+  return typeof parsed === "string" ? [0, 0.25, 0.5, 0.75, 1.0] : parsed;
+}
+
+export function usesParametricLoadSweep(settings: ExplorerSettings): boolean {
+  return (
+    settings.configOutputKind === "grid" &&
+    usesFikoreBackend(settings) &&
+    isParametricCondition(settings.conditionId) &&
+    settings.gridSweepMode === "load_sweep"
+  );
+}
+
 /** Selected grid axes, with empty selections replaced by the run's value. */
 export function effectiveGridAxes(settings: ExplorerSettings) {
   const axes = settings.gridAxes;
-  const conditionIds = usesFikoreBackend(settings) ? axes.conditionIds.filter((id) => NETWORK_CONDITIONS[id]) : [];
+  const validIds = axes.conditionIds.filter((id) => NETWORK_CONDITIONS[id]);
+  const conditionIds = usesFikoreBackend(settings)
+    ? usesParametricLoadSweep(settings)
+      ? effectiveLoadSweepRhos(settings).map(loadSweepConditionSlug)
+      : validIds.length
+        ? validIds
+        : [settings.conditionId]
+    : [];
   return {
-    conditionIds: usesFikoreBackend(settings) ? (conditionIds.length ? conditionIds : [settings.conditionId]) : [],
+    conditionIds,
     signalingLevels: axes.signalingLevels.length ? axes.signalingLevels : [settings.signalingLevel],
     ueCounts: axes.ueCounts.length ? [...axes.ueCounts].sort((a, b) => a - b) : [settings.videoUeCount],
     behaviorMixes: axes.behaviorMixes.length ? axes.behaviorMixes : [settings.behaviorMix],
@@ -215,23 +366,37 @@ export function gridCellCount(settings: ExplorerSettings): number {
 /** The grid file: an inline base experiment plus the axes. `capcsp grid` runs it as it is. */
 export function buildGridConfig(settings: ExplorerSettings): JsonObject {
   const gridSettings = { ...settings, configOutputKind: "grid" as const };
-  const axes = effectiveGridAxes(settings);
+  const loadSweep = usesParametricLoadSweep(gridSettings);
+  const axes = effectiveGridAxes(gridSettings);
   // One session template per behaviour that a mix uses
   const behaviors = [...new Set(axes.behaviorMixes.flatMap((mix) => BEHAVIOR_MIXES[mix].pattern))];
+  const baseConditionId = loadSweep ? gridSettings.conditionId : axes.conditionIds[0] ?? gridSettings.conditionId;
   const base = experimentConfig(
     gridSettings,
     {
-      conditionId: axes.conditionIds[0] ?? settings.conditionId,
+      conditionId: baseConditionId,
       signalingLevels: axes.signalingLevels,
       ueIdsWithPlanRate: [...Array(Math.max(...axes.ueCounts)).keys()],
       sessions: behaviors.map((behavior, ueId) => session(gridSettings, ueId, behavior, sessionSeed(gridSettings, ueId))),
-      // Each condition overlay carries its own changes, so that they do not leak into the other conditions
-      includeConditionOverrides: !usesFikoreBackend(settings),
+      fikoreMode: { kind: loadSweep ? "grid_base_load_sweep" : "grid_base_conditions" },
     },
     "explorer-base",
   );
-  const grid: JsonObject = { grid_id: "explorer", base };
-  if (axes.conditionIds.length) grid.conditions = Object.fromEntries(axes.conditionIds.map((id) => [id, gridConditionOverlay(settings, id)]));
+  const grid: JsonObject = {
+    grid_id: loadSweep ? `parametric-sweep-${gridSettings.conditionId.toLowerCase()}` : "explorer",
+    base,
+  };
+  if (loadSweep) {
+    const rhos = effectiveLoadSweepRhos(gridSettings);
+    grid.conditions = Object.fromEntries(
+      rhos.map((rho) => {
+        const slug = loadSweepConditionSlug(rho);
+        return [slug, { condition: slug, network: { parametric_cell: { load_rho: rho } } }];
+      }),
+    );
+  } else if (axes.conditionIds.length) {
+    grid.conditions = Object.fromEntries(axes.conditionIds.map((id) => [id, gridConditionOverlay(gridSettings, id)]));
+  }
   grid.signaling_levels = axes.signalingLevels;
   grid.ue_counts = axes.ueCounts;
   grid.behavior_mixes = Object.fromEntries(axes.behaviorMixes.map((mix) => [mix, BEHAVIOR_MIXES[mix].pattern]));

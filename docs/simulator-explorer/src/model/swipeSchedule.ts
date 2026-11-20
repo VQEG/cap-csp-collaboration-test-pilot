@@ -1,12 +1,14 @@
-import { CONTENT_VIDEO_COUNT } from "@/data/contentCatalogue";
+import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
 import type { ExplorerSettings } from "@/model/explorerSettings";
 
 // The swipe times SFV resolves for one session, computed as in
 // sfv-reference-implementation/src/simulation/generators/SFVGenerators.js
 // (resolveUserInteractions with the mulberry32 SFVSeededGenerator).
 
-/** A session swipes at most once per further video. */
-export const MAX_SWIPES_PER_SESSION = CONTENT_VIDEO_COUNT - 1;
+/** Maximum number of swipes a session can make for the selected content catalogue. */
+export function maxSwipesPerSession(settings: ExplorerSettings): number {
+  return CONTENT_CATALOGUES[settings.contentId].videoCount - 1;
+}
 
 class SeededGenerator {
   private state: number;
@@ -45,15 +47,16 @@ export function watchDurationRange(settings: ExplorerSettings): [number, number]
 
 /** Session-relative swipe times of one UE, as SFV resolves them before the session starts. */
 export function resolveSwipeTimes(settings: ExplorerSettings, sessionSeed: number, horizonS: number): number[] {
+  const maxSwipes = maxSwipesPerSession(settings);
   if (settings.swipeModel === "sequence") {
     const times = parseSwipeTimes(settings.swipeTimesS);
-    return typeof times === "string" ? [] : times.filter((time) => time < horizonS).slice(0, MAX_SWIPES_PER_SESSION);
+    return typeof times === "string" ? [] : times.filter((time) => time < horizonS).slice(0, maxSwipes);
   }
   const [low, high] = watchDurationRange(settings);
   const generator = new SeededGenerator(sessionSeed);
   const times: number[] = [];
   let time = 0;
-  for (let index = 0; index < MAX_SWIPES_PER_SESSION; index += 1) {
+  for (let index = 0; index < maxSwipes; index += 1) {
     time += generator.between(low, high);
     if (time >= horizonS) break;
     times.push(time);

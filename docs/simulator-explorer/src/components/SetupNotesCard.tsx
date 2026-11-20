@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlossaryTerm as T, InlineCode as C } from "@/components/GlossaryTerm";
+import { isParametricCondition } from "@/data/parametricCells";
 import { signalingLevelNumber, usesConstantRateBackend, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
 
 export function SetupNotesCard({ settings }: { settings: ExplorerSettings }) {
@@ -15,6 +16,13 @@ export function SetupNotesCard({ settings }: { settings: ExplorerSettings }) {
       </>
     ),
     settings.networkBackend === "mock" && "The mock backend is for tests. It has no delay and no telemetry source. Only the plan rate can reach the player.",
+    fikore && isParametricCondition(settings.conditionId) && (
+      <>
+        Parametric conditions (<C>M01</C>–<C>M11</C> and <C>CUSTOM</C>) synthesize <C>fikore-effective.ini</C>, <C>fikore-timeline.ndjson</C> and application-paced
+        TCP background flows at run start from <C>Global.seed</C> (<T id="parametric_cell" asCode>network.parametric_cell</T>), so each replication in{" "}
+        <C>capcsp grid</C> samples an independent Poisson/MMPP arrival and spatial realization.
+      </>
+    ),
     fikore && settings.conditionId === "C2" && "C2 applies a 25 Mbps grant cap as the per-UE plan. At L1 the plan rate tells the player this limit in advance.",
     fikore && settings.conditionId === "C7" && "C7's 15 Mbps cap is a proxy for a backhaul bottleneck, not a plan rate. It should be replaced once FikoRE has a backhaul shaper.",
     fikore && !settings.acksOverFikoreUplink && "Without ACKs over the uplink, ACKs return after 1 ms and the measured RTT is lower than the condition's target.",
