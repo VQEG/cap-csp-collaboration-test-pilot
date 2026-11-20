@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
 import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
+import { isParametricCondition } from "@/data/parametricCells";
 import { BEHAVIOR_MIXES } from "@/data/playerBehaviors";
 import { DEFAULT_EXPLORER_SETTINGS, NETWORK_BACKEND_KINDS, type ExplorerSettings } from "@/model/explorerSettings";
 
@@ -42,8 +44,12 @@ function readSettingsFromHash(): ExplorerSettings {
   };
   if (!BEHAVIOR_MIXES[settings.behaviorMix]) settings.behaviorMix = DEFAULT_EXPLORER_SETTINGS.behaviorMix;
   if (!NETWORK_CONDITIONS[settings.conditionId]) settings.conditionId = DEFAULT_EXPLORER_SETTINGS.conditionId;
+  if (!CONTENT_CATALOGUES[settings.contentId]) settings.contentId = DEFAULT_EXPLORER_SETTINGS.contentId;
   if (!NETWORK_BACKEND_KINDS.includes(settings.networkBackend)) settings.networkBackend = DEFAULT_EXPLORER_SETTINGS.networkBackend;
   if (!IMPLEMENTATION_STATES[settings.implementationState]) settings.implementationState = DEFAULT_EXPLORER_SETTINGS.implementationState;
+  if (settings.gridSweepMode !== "conditions" && settings.gridSweepMode !== "load_sweep") {
+    settings.gridSweepMode = "conditions";
+  }
   return settings;
 }
 
@@ -66,8 +72,12 @@ export function useHashBackedSettings() {
     setSettings((previous) => {
       const next = { ...previous, [key]: value };
       if (key === "conditionId") {
-        const plan = NETWORK_CONDITIONS[value as string].defaultPlanDownlinkMbps;
+        const nextId = value as string;
+        const plan = NETWORK_CONDITIONS[nextId]?.defaultPlanDownlinkMbps;
         next.planDownlinkMbps = plan ? String(plan) : "";
+        if (!isParametricCondition(nextId) && next.gridSweepMode === "load_sweep") {
+          next.gridSweepMode = "conditions";
+        }
       }
       return next;
     });

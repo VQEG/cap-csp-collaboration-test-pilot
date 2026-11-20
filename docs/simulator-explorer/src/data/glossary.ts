@@ -474,6 +474,14 @@ export const GLOSSARY = {
     kind: "config key",
     summary: "Interval of the CSP telemetry samples in the `transport_fikore` network settings. Default 1 s.",
   },
+  parametric_cell: {
+    name: "parametric_cell",
+    kind: "config key",
+    repository: "harness",
+    definedIn: "capcsp/network/parametric_cell.py",
+    summary:
+      "Declarative 5G single-cell model in `network`. Synthesizes `fikore-effective.ini`, `fikore-timeline.ndjson` (Poisson or MMPP session arrivals, spatial coordinates, and trajectories) and application-paced TCP background flows from `Global.seed`, so each grid replication draws an independent arrival realization.",
+  },
 
   // Output files
   "run-manifest.json": { name: "run-manifest.json", kind: "output file", summary: "Configuration, code revisions, timing and byte accounting of the run." },
@@ -484,6 +492,11 @@ export const GLOSSARY = {
   "report.md": { name: "report.md", kind: "output file", summary: "Readable run report: KPIs per UE, scores per video, model versions and scoring settings, including where the frame rate came from." },
   "player.log": { name: "player.log", kind: "output file", summary: "Log output (stderr) of the Node player process." },
   "fikore-effective.ini": { name: "fikore-effective.ini", kind: "output file", summary: "The FikoRE INI actually used, after config overrides." },
+  "fikore-timeline.ndjson": {
+    name: "fikore-timeline.ndjson",
+    kind: "output file",
+    summary: "Synthesized FikoRE control timeline (session arrivals, departures, spatial coordinates and trajectories) written when `parametric_cell` is active.",
+  },
   "fikore.log": { name: "fikore.log", kind: "output file", summary: "Output of the FikoRE process." },
   "shared-state.jsonl": {
     name: "shared-state.jsonl",

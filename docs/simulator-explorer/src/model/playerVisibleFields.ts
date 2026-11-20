@@ -1,4 +1,4 @@
-import { bandMidpoint, NETWORK_CONDITIONS } from "@/data/networkConditions";
+import { bandMidpoint, effectiveConditionView } from "@/data/networkConditions";
 import type { GlossaryTermId } from "@/data/glossary";
 import { backendHasCspTelemetrySource, signalingLevelNumber, type ExplorerSettings } from "@/model/explorerSettings";
 
@@ -18,7 +18,7 @@ export interface PlayerVisibleFieldRow {
 export function computePlayerVisibleFields(settings: ExplorerSettings): PlayerVisibleFieldRow[] {
   const level = signalingLevelNumber(settings.signalingLevel);
   const hasTelemetrySource = backendHasCspTelemetrySource(settings);
-  const condition = NETWORK_CONDITIONS[settings.conditionId];
+  const condition = effectiveConditionView(settings.conditionId, settings.parametricOverrides[settings.conditionId]);
   const planValue = settings.planDownlinkMbps === "" ? null : Number(settings.planDownlinkMbps);
   const rttMidpoint = bandMidpoint(condition.rttMsBand);
   const throughputShare = Math.round((bandMidpoint(condition.downlinkMbpsBand) / Math.max(1, settings.videoUeCount / 2)) * 10) / 10;
