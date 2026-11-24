@@ -23,6 +23,10 @@ interface DiagramNodeProps {
  * One box of the architecture diagram. The content is HTML inside a
  * foreignObject, so it wraps text and hosts hover cards; it scales with the
  * SVG viewBox.
+ *
+ * Avoid position, opacity, transform and filter inside the foreignObject:
+ * WebKit (Safari) paints such layers outside the SVG's scaling transform, so
+ * they drift out of the box and do not wrap at the box width.
  */
 export function DiagramNode({ box, repository, title, codePath, active, highlighted, children }: DiagramNodeProps) {
   return (
@@ -38,7 +42,7 @@ export function DiagramNode({ box, repository, title, codePath, active, highligh
           <div className={cn("text-[14px] leading-tight font-semibold", !active && "text-muted-foreground")}>{title}</div>
           {codePath && <div className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground" title={codePath}>{codePath}</div>}
           {children && (
-            <div className={cn("mt-1.5 text-[11.5px] leading-[1.4] text-foreground/85", !active && "opacity-50")}>{children}</div>
+            <div className={cn("mt-1.5 text-[11.5px] leading-[1.4]", active ? "text-foreground/85" : "text-muted-foreground/60")}>{children}</div>
           )}
         </div>
       </div>
@@ -51,8 +55,9 @@ export function NodeDetailList({ items }: { items: ReactNode[] }) {
   return (
     <ul className="space-y-0.5">
       {items.filter(Boolean).map((item, index) => (
-        <li key={index} className="relative pl-3 before:absolute before:top-[0.6em] before:left-0 before:h-1 before:w-1 before:rounded-full before:bg-current before:opacity-50">
-          {item}
+        <li key={index} className="flex gap-2">
+          <span aria-hidden className="mt-[0.6em] h-1 w-1 shrink-0 rounded-full bg-current/50" />
+          <span className="min-w-0">{item}</span>
         </li>
       ))}
     </ul>
