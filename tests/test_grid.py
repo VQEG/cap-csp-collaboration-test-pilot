@@ -14,12 +14,21 @@ CONFIGS = Path(__file__).resolve().parents[1] / "configs"
 
 
 def fikore_grid(**changes) -> dict:
+    m01_b1 = json.loads((CONFIGS / "experiments" / "layered" / "m01-b1.json").read_text())
+    m01_b2 = json.loads((CONFIGS / "experiments" / "layered" / "m01-b2.json").read_text())
+    s0 = dict(m01_b1["sessions"][0])
+    s1 = dict(m01_b2["sessions"][0])
+    s1["ue_id"] = 1
+    base = {
+        **m01_b1,
+        "sessions": [s0, s1],
+    }
     values = {
         "grid_id": "test",
-        "base": json.loads((CONFIGS / "experiments" / "vqeg" / "c1-b1-b2.json").read_text()),
+        "base": base,
         "conditions": {
-            "C1": {"duration_s": 120, "network": {"fikore_base_ini": "configs/fikore/c1_healthy_5g.ini"}},
-            "C6": {"duration_s": 180, "network": {"fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini"}},
+            "M01": {"duration_s": 65, "network": {"parametric_cell": {"preset": "M01"}}},
+            "M10": {"duration_s": 90, "network": {"parametric_cell": {"preset": "M10"}}},
         },
         "signaling_levels": ["L0", "L2"],
         "ue_counts": [2, 3],
@@ -33,7 +42,7 @@ def test_cells_cover_every_combination_with_distinct_run_ids() -> None:
     cells = GridSpecification.from_dict(fikore_grid()).cells()
     assert len(cells) == 2 * 2 * 2 * 2 * 2
     assert len({cell.run_id for cell in cells}) == len(cells)
-    assert cells[0].run_id == "test-c1-l0-2ue-b1-b2-r01"
+    assert cells[0].run_id == "test-m01-l0-2ue-b1-b2-r01"
     # Replication 1 comes first, so a partial grid already covers every other axis
     assert {cell.replication for cell in cells[:16]} == {1}
 
@@ -63,11 +72,11 @@ def test_a_replication_has_the_same_seeds_in_every_cell() -> None:
 
 
 def test_conditions_merge_over_the_base() -> None:
-    cell = next(cell for cell in GridSpecification.from_dict(fikore_grid()).cells() if cell.condition == "C6")
+    cell = next(cell for cell in GridSpecification.from_dict(fikore_grid()).cells() if cell.condition == "M10")
     network = cell.experiment_config["network"]
-    assert network["fikore_base_ini"] == "configs/fikore/c6_mobility_dropout.ini"
+    assert network["parametric_cell"] == {"preset": "M10"}
     assert network["congestion_control"] == "cubic"
-    assert (cell.experiment_config["condition"], cell.experiment_config["duration_s"]) == ("C6", 180)
+    assert (cell.experiment_config["condition"], cell.experiment_config["duration_s"]) == ("M10", 90)
     assert merge_configurations({"a": {"b": 1, "c": 2}}, {"a": {"c": 3}}) == {"a": {"b": 1, "c": 3}}
 
 

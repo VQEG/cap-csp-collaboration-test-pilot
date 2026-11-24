@@ -2,11 +2,11 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlossaryTerm as T } from "@/components/GlossaryTerm";
 import { SegmentedChoice, SettingControl } from "@/components/SettingControls";
 import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
-import { NETWORK_CONDITIONS } from "@/data/networkConditions";
+import { NETWORK_CONDITIONS, effectiveConditionView } from "@/data/networkConditions";
 import { SIGNALING_LEVELS } from "@/data/signalingLevels";
 import { effectiveGridAxes } from "@/model/experimentConfig";
 import { signalingLevelNumber, usesConstantRateBackend, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
@@ -16,6 +16,12 @@ interface SettingsPanelProps {
   updateSetting: <K extends keyof ExplorerSettings>(key: K, value: ExplorerSettings[K]) => void;
 }
 
+const CONDITION_GROUPS: { family: "core6" | "layered_extended" | "custom"; label: string }[] = [
+  { family: "core6", label: "Core-6 Test Plan (parametric)" },
+  { family: "layered_extended", label: "Extended ablation (M02–M11)" },
+  { family: "custom", label: "Custom parametric cell" },
+];
+
 export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
   const fikore = usesFikoreBackend(settings);
   const constantRate = usesConstantRateBackend(settings);
@@ -24,7 +30,7 @@ export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
     : constantRate
       ? "Dedicated constant rate per UE, no telemetry"
       : "Deterministic byte budget for tests";
-  const condition = NETWORK_CONDITIONS[settings.conditionId];
+  const condition = effectiveConditionView(settings.conditionId, settings.parametricOverrides[settings.conditionId]);
   // A grid writes the plan rate and the controller when any of its levels uses them
   const levels = settings.configOutputKind === "grid" ? effectiveGridAxes(settings).signalingLevels : [settings.signalingLevel];
   const highestLevel = Math.max(...levels.map(signalingLevelNumber));
@@ -82,10 +88,18 @@ export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(NETWORK_CONDITIONS).map(([id, entry]) => (
-                <SelectItem key={id} value={id}>
-                  {id} · {entry.name}
-                </SelectItem>
+              {CONDITION_GROUPS.map((group, groupIdx) => (
+                <SelectGroup key={group.family}>
+                  {groupIdx > 0 && <SelectSeparator />}
+                  <SelectLabel>{group.label}</SelectLabel>
+                  {Object.entries(NETWORK_CONDITIONS)
+                    .filter(([, entry]) => entry.family === group.family)
+                    .map(([id, entry]) => (
+                      <SelectItem key={id} value={id}>
+                        {id} · {entry.name}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>
@@ -96,6 +110,7 @@ export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
           value={settings.tcpConnectionMode}
           options={[
             ["persistent", "persistent"],
+            ["multiplexed", "multiplexed"],
             ["fresh", "fresh"],
           ]}
           onChange={(value) => updateSetting("tcpConnectionMode", value)}

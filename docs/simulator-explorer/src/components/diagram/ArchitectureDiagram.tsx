@@ -10,10 +10,11 @@ import {
   PLAIN_CONNECTORS,
   type DiagramGroupFrame,
 } from "@/components/diagram/diagramLayout";
-import { NETWORK_CONDITIONS } from "@/data/networkConditions";
+import { effectiveConditionView } from "@/data/networkConditions";
 import { PLAYER_BEHAVIORS, behaviorsInMix, type PlayerBehavior } from "@/data/playerBehaviors";
 import { cn } from "@/lib/utils";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
+import { receiveWindowBytesForCondition } from "@/model/experimentConfig";
 import {
   CONSTANT_RATE_CANCELLATION_TAIL_BYTES,
   CONSTANT_RATE_SYNTHETIC_DELAY_MS,
@@ -48,7 +49,8 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
   const fikore = usesFikoreBackend(settings);
   const level = signalingLevelNumber(settings.signalingLevel);
   const state = settings.implementationState;
-  const condition = NETWORK_CONDITIONS[settings.conditionId];
+  const condition = effectiveConditionView(settings.conditionId, settings.parametricOverrides[settings.conditionId]);
+  const rwndLabel = receiveWindowBytesForCondition(settings) >= 1048576 ? "1 MiB" : "256 KiB";
   const { activeEdges, activeNodes } = topology;
   const nodeProps = (id: DiagramNodeId) => ({ box: NODE_BOXES[id], active: activeNodes[id], highlighted: highlightedNodes.includes(id) });
   const behaviors = behaviorsInMix(settings.behaviorMix, settings.videoUeCount);
@@ -172,7 +174,7 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
           <DiagramNode {...nodeProps("transportBackend")} repository="fikore" title={<T id="TransportBackend" />} codePath="5g-network-emulator/transport/fikore_transport/backend.py">
             <NodeDetailList
               items={[
-                <>TCP CUBIC per UE · <T id="tcpConnectionMode">{settings.tcpConnectionMode}</T> connections · 1 MiB window</>,
+                <>TCP CUBIC per UE · <T id="tcpConnectionMode">{settings.tcpConnectionMode}</T> connections · {rwndLabel} window</>,
                 <>Emits download events; its <T id="NetworkTelemetrySampler">telemetry sampler</T> gives one sample per UE every 1 s</>,
                 <>Accepts <T id="set_ue_control" asCode>set_ue_control</T> with <T id="UeControl" asCode /></>,
                 <>ACKs {settings.acksOverFikoreUplink ? "over the FikoRE uplink" : "after a fixed 1 ms"} (<T id="acksOverUplink" asCode>ack_over_link</T>)</>,
@@ -182,12 +184,17 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
           <DiagramNode {...nodeProps("fikoreLink")} repository="fikore" title={<T id="FikoreLink" />} codePath="5g-network-emulator/transport/fikore_transport/fikore_link.py">
             <NodeDetailList items={[<>FikoRE control protocol over a Unix socket</>, <>Per <T id="TTI">TTI</T>: inject packets, read grants, deliveries and drops</>]} />
           </DiagramNode>
-          <DiagramNode {...nodeProps("fikore")} repository="fikore" title={<><T id="FikoRE" /> · {settings.conditionId} {condition.name}</>} codePath={`configs/fikore/${condition.fikoreIniFile}`}>
+          <DiagramNode
+            {...nodeProps("fikore")}
+            repository="fikore"
+            title={<><T id="FikoRE" /> · {settings.conditionId} {condition.name}</>}
+            codePath="capcsp/network/parametric_cell.py"
+          >
             <NodeDetailList
               items={[
                 <>{condition.downlinkMbpsBand[0]}–{condition.downlinkMbpsBand[1]} Mbps · RTT {condition.rttMsBand[0]}–{condition.rttMsBand[1]} ms · loss {condition.lossPercentBand[0]}–{condition.lossPercentBand[1]} %</>,
                 <>Cause: {condition.dominantCause}</>,
-                <><T id="PFScheduler">PF scheduler</T> · 1 ms TTI · {condition.backgroundUeCount} background UEs</>,
+                <><T id="PFScheduler">PF scheduler</T> · 1 ms TTI · ~{condition.backgroundUeCount} active TCP BG UEs</>,
                 condition.timelineFile && <>Timeline <C>{condition.timelineFile}</C></>,
               ]}
             />

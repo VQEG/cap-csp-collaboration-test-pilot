@@ -55,8 +55,10 @@ interface NumberFieldProps {
   value: number;
   onChange: (value: number) => void;
   min?: number;
+  max?: number;
   step?: number;
   integer?: boolean;
+  disabled?: boolean;
   /** Marks a value that differs from the default. */
   changed?: boolean;
   className?: string;
@@ -64,27 +66,30 @@ interface NumberFieldProps {
 }
 
 /** A number input that keeps what is typed and reports only valid numbers. */
-export function NumberField({ value, onChange, min, step, integer = false, changed = false, className, ariaLabel }: NumberFieldProps) {
+export function NumberField({ value, onChange, min, max, step, integer = false, disabled = false, changed = false, className, ariaLabel }: NumberFieldProps) {
   const [text, setText] = useState(String(value));
   useEffect(() => {
     setText((current) => (Number(current) === value ? current : String(value)));
   }, [value]);
   const parsed = Number(text);
-  const valid = text.trim() !== "" && Number.isFinite(parsed) && (min === undefined || parsed >= min) && (!integer || Number.isInteger(parsed));
+  const inBounds = (n: number) => (min === undefined || n >= min) && (max === undefined || n <= max) && (!integer || Number.isInteger(n));
+  const valid = text.trim() !== "" && Number.isFinite(parsed) && inBounds(parsed);
   return (
     <Input
       type="number"
       inputMode="decimal"
       aria-label={ariaLabel}
       aria-invalid={!valid}
+      disabled={disabled}
       min={min}
+      max={max}
       step={step ?? (integer ? 1 : "any")}
       value={text}
       className={cn("h-7 px-2 text-right font-mono text-xs", changed && "border-primary bg-primary/5", className)}
       onChange={(event) => {
         setText(event.target.value);
         const next = Number(event.target.value);
-        if (event.target.value.trim() !== "" && Number.isFinite(next) && (min === undefined || next >= min) && (!integer || Number.isInteger(next))) onChange(next);
+        if (event.target.value.trim() !== "" && Number.isFinite(next) && inBounds(next)) onChange(next);
       }}
     />
   );

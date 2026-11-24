@@ -29,81 +29,43 @@ The runner initializes one session per UE and one shared network backend. Cell-l
 
 Conditions use descriptive identifiers mapped to backend-specific parameters.
 
-The values below illustrate the configuration shape. The calibrated FikoRE conditions actually used by the runner are described below and in `configs/fikore/README.md`.
+On FikoRE (`network_backend: "transport_fikore"`), conditions are defined declaratively via `network.parametric_cell` (`capcsp/network/parametric_cell.py`) and documented in [`configs/experiments/layered/README.md`](../configs/experiments/layered/README.md). Each run deterministically synthesizes `fikore-effective.ini`, `fikore-timeline.ndjson` (Poisson `M/M/inf` or 2-state `mmpp` session arrivals/departures, spatial coordinates, and vehicular trajectories), and application-paced TCP Cubic competing UEs (`backgroundSfV`) strictly from `Global.seed` (`SHA-256("capcsp-parametric-cell::<seed>")`), without checking static `.ini` or `.ndjson` timeline files into git. Raw `.ini` scenarios remain supported via `network.fikore_base_ini` when needed for low-level emulator tests.
 
->[!WARNING]
-> The values are provisional. The final SFV-specific C1–C5 profiles are pending and tracked in [Decision Status and Action Items](decision-status-and-todos.md#network-conditions).
-
-```yaml
-conditions:
-  C1:
-    name: healthy-5g
-    as_seen_by_application:
-      downlink_mbps: 60
-      rtt_ms: 25
-      loss_percent: 0
-    synthetic_delay_ms: 25      # constant-rate and trace backends only, FikoRE implements its own!
-    transport:
-      kind: tcp
-      congestion_control: cubic
-      receive_window_bytes: 131072
-      ack_over_link: false
-      tcp_connection_mode: persistent
-      max_idle_tcp_connections_per_ue: 6
-    fikore:
-      base_ini: offline_uma_n78_pedestrian.ini
-      backhaul_d: 0.020         # one-way backhaul delay in seconds
-      backhaul_d_var: 0.002     # standard deviation of the backhaul delay in seconds
-      metric_type: 6            # proportional fair; round robin ignores priority
-      video_ues:
-        count: 4
-        mobility: static
-        priority: 4
-        dl_target_mbps: 0       # driven entirely by the harness
-        pkt_delay_budget_s: 30  # keep validation transport from budget expiry
-      background_ues:
-        count: 0
-    trace:
-      file_pattern: traces/C1_fullbuffer_seed{seed}.txt
-
-  C4:
-    name: congested-cell
-    as_seen_by_application:
-      downlink_mbps: 6
-      rtt_ms: 60
-      loss_percent: 1
-    synthetic_delay_ms: 60
-    transport:
-      kind: tcp
-      congestion_control: cubic
-      receive_window_bytes: 131072
-      ack_over_link: false
-      tcp_connection_mode: persistent
-      max_idle_tcp_connections_per_ue: 6
-    fikore:
-      base_ini: offline_uma_n78_pedestrian.ini
-      backhaul_d: 0.050
-      backhaul_d_var: 0.005
-      metric_type: 6
-      video_ues:
-        count: 4
-        mobility: static
-        priority: 4
-        dl_target_mbps: 0
-        pkt_delay_budget_s: 30
-      background_ues:
-        count: 20
-        downlink_target_mbps: 20
-        priority: 1
+```json
+{
+  "network_backend": "transport_fikore",
+  "network": {
+    "congestion_control": "cubic",
+    "receive_window_bytes": 262144,
+    "tcp_connection_mode": "persistent",
+    "max_idle_tcp_connections_per_ue": 6,
+    "step_ms": 10,
+    "study_ues": ["studyVqeg"],
+    "ack_over_link": true,
+    "delay_budget_s": null,
+    "random_v": null,
+    "parametric_cell": {
+      "preset": "M04"
+    },
+    "fikore_section_overrides": {
+      "Global": {"seed": 20260927}
+    }
+  }
+}
 ```
 
-FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN, ACK path and connection mode. Persistent mode uses a bounded HTTP/1.1-style pool per UE; fresh mode is the baseline with slow start on every object. The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
+Eleven presets (`M01`–`M11`, with `Core-6` = `M01`, `M04`, `M05`, `M07`, `M09`, `M10`) and `"preset": "custom"` share a single unconstrained Proportional Fair (`metric_type: 6`, no `rmax_mbps` caps) 3.5 GHz Urban Macro (`UMa` n78, `20 MHz` default, configurable `10`–`100 MHz`) cell with in-order PDCP delivery (`order_pkts: true`) and per-class FIFO backhaul delivery, varying four orthogonal axes:
 
-The calibrated pilot conditions are versioned in `configs/fikore/`. The `transport_fikore` backend generates a temporary effective INI from the selected `fikore_base_ini`, converts only the declared study UE group to external traffic and preserves simulated background groups. Since lockstep co-simulation owns FikoRE's Unix control socket, condition timelines are read by the harness and replayed at their original TTIs through `FikoreLink`. Each run records the FikoRE revision and copies the rendered scenario to `fikore-effective.ini`.
+- **Normalized competing cell load (`load_rho`)**: `0.0`–`2.0`, translated analytically from calibrated RB shares into active competing SFV-like TCP flows (`bg_bitrate_mbps`, `4.0 Mbps` by default).
+- **Spatial geometry (`study_position`, `study_distance_m`, `bg_spatial`, `bg_max_distance_m`)**: study UE at `good` (`151.3 m`), `mid` (`350 m`), `edge` (`650 m`), or `custom` (`10`–`850 m`); competing UEs on a `homogeneous_ring` or uniform-area `cell_disk` (`120`–`700 m`).
+- **Temporal arrivals (`arrival_mode`, `mean_hold_s`, `burst_amplitude`, `burst_regime_s`)**: stationary `poisson` (`M/M/inf`) or 2-state `mmpp` burst waves.
+- **Study-UE mobility (`study_mobility`, `study_speed_kmh`, `traverse_min_distance_m`, `traverse_max_distance_m`)**: `static`, cell-edge `pedestrian` (`3.6 km/h`, study UE only), or `vehicular_traverse` (`73.26 km/h` radial center–edge–center traversal).
 
-The optional B1/B2 matrix under `configs/experiments/vqeg/` covers C1–C7, C8a and C8b with one fixed FikoRE seed, TCP ACKs over the FikoRE uplink and a 1 MiB receive window. C2 applies a 25 Mbps nominal grant cap as the intended per-user plan. C7 combines 150 ms one-way backhaul delay with a temporary 15 Mbps grant-cap proxy for missing backhaul capacity shaping; that proxy must be replaced and recalibrated when a backhaul/PDCP-ingress limiter is available.
+FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN, ACK path and connection mode (`persistent` bounded HTTP/1.1-style pool per UE, `multiplexed` RFC 9218 single-connection stream multiplexing, or `fresh` per-object baseline with slow start on every request). The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
 
-On FikoRE, the `.ini` file also defines the delay: `backhaul_d` and `backhaul_d_var` set the backhaul and core-network delay, which adds to the queuing, propagation and HARQ delay of the RAN. There is no extra delay controlled by the runner. Note the following for the transport model:
+Since lockstep co-simulation owns FikoRE's Unix control socket, synthesized or custom control timelines are read by the harness and replayed at their exact TTIs through `FikoreLink`. Each run records the FikoRE revision and copies the rendered scenario to `fikore-effective.ini` (and `fikore-timeline.ndjson` when present).
+
+On FikoRE, the `.ini` file also defines the delay: `backhaul_d` and `backhaul_d_var` set the backhaul and core-network delay (`backhaul_delay_ms` and `backhaul_jitter_ms` in `parametric_cell`), which adds to the queuing, propagation and HARQ delay of the RAN. There is no extra delay controlled by the runner. Note the following for the transport model:
 
 - The backhaul delay applies to downlink data.
 - With `ack_over_link: false`, ACKs return after a fixed 1 ms instead of crossing FikoRE. With `ack_over_link: true`, ACKs are sent over the FikoRE uplink and also receive the backhaul delay.
@@ -134,23 +96,26 @@ videos:
 
 Milestone 1 generates synthetic segment sizes based on target bitrates, segment durations, and seeded random variations, persisting the table before execution. Real video encodes can replace synthetic data without modifying player or backend APIs.
 
-The YAML above shows the fields only. The runner reads the SFV `content.json` format of the `sfv-reference-implementation` submodule, which currently holds three 6 s test videos. Michi's group defines the pilot catalogue (codec, ladder, bitrates, segment durations) in that format; see [Decision Status and Action Items](decision-status-and-todos.md#player-and-video-definitions).
+The YAML above shows the fields only. The runner reads the SFV `content.json` format of the `sfv-reference-implementation` submodule. Two catalogues are currently checked in:
+
+- `sfv-reference-implementation/fixtures/content/content.json`: three 6 s smoke-test videos (`180`–`650 kbps`).
+- `configs/content/sfv-portrait-hd-90s.json`: a **provisional** synthetic 18-video (`8 s` each, `4 × 2 s` segments, 6-rung portrait Full HD `270×480`–`1080×1920` ladder at `300`–`8000 kbps`) catalogue used to sustain `65 s` multi-swipe runs without feed exhaustion while Michi's group finalizes the pilot catalogue; see [Decision Status and Action Items](decision-status-and-todos.md#player-and-video-definitions).
 
 ## Experiment Grid
 
-A grid file expands into one experiment configuration per cell. `capcsp grid` runs the cells in parallel. Example: `configs/grids/vqeg-conditions.json`.
+A grid file expands into one experiment configuration per cell. `capcsp grid` runs the cells in parallel. Examples: `configs/grids/layered-core6.json`, `configs/grids/layered-m01-m11.json`, and `configs/grids/parametric-load-sweep.json`.
 
 ```json
 {
-  "grid_id": "vqeg",
-  "base": "../experiments/vqeg/c1-b1-b2.json",
+  "grid_id": "layered-core6",
+  "base": { "...": "inline base experiment" },
   "conditions": {
-    "C1": {"condition": "C1", "duration_s": 120, "network": {"fikore_base_ini": "configs/fikore/c1_healthy_5g.ini"}},
-    "C6": {"condition": "C6", "duration_s": 180, "network": {"fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini"}}
+    "M01": {"condition": "M01", "network": {"parametric_cell": {"preset": "M01"}}},
+    "M04": {"condition": "M04", "network": {"parametric_cell": {"preset": "M04"}}}
   },
   "signaling_levels": ["L0"],
-  "ue_counts": [2, 4],
-  "behavior_mixes": {"b1-b2": ["simple", "preload"]},
+  "ue_counts": [1],
+  "behavior_mixes": {"b1": ["simple"], "b2": ["preload"]},
   "replications": 5,
   "network_seed_base": 20260927
 }
@@ -176,7 +141,7 @@ At L3, set `csp_controller: "dummy"` to exercise the collaboration bus without c
 
 Optional keys of an experiment configuration: `csp_baseline_control_by_ue`, `clock_mode` (`"simulation"` only), `plan_downlink_mbps_by_ue` (L1).
 
-Swipes come from the SFV `userModel` of each session. The condition configurations in `configs/experiments/vqeg/` use the simple `seeded` model, which draws the time between swipes uniformly from `watchDurationRangeS` (2–16 s, the viewing times of the [swipe delay study](https://arxiv.org/abs/2603.18575)) with the session seed. That time runs from the previous swipe, so loading delays and stalls count towards it. Scripted examples keep fixed `swipeTimesS`. Without a `swipe_profile` key, the session records name the user model type, or `scripted`. Swipe profiles are not yet a grid axis.
+Swipes come from the SFV `userModel` of each session. The grid configurations in `configs/grids/layered-*.json` use the simple `seeded` model, which draws the time between swipes uniformly from `watchDurationRangeS` (2–16 s, the viewing times of the [swipe delay study](https://arxiv.org/abs/2603.18575)) with the session seed. That time runs from the previous swipe, so loading delays and stalls count towards it. Single-run and scripted examples keep fixed `swipeTimesS`. Without a `swipe_profile` key, the session records name the user model type, or `scripted`. Swipe profiles are not yet a grid axis.
 
 ## Constant-Rate Backend
 

@@ -5,7 +5,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { InlineCode as C } from "@/components/GlossaryTerm";
 import type { ExplorerSettings } from "@/model/explorerSettings";
-import { buildExperimentConfig, gridCellCount } from "@/model/experimentConfig";
+import { buildExperimentConfig, configValidationError, gridCellCount } from "@/model/experimentConfig";
 
 async function copyText(text: string): Promise<boolean> {
   try {
@@ -28,6 +28,7 @@ async function copyText(text: string): Promise<boolean> {
 /** The complete experiment or grid JSON for the chosen settings, ready to copy. */
 export function ExperimentConfigCard({ settings }: { settings: ExplorerSettings }) {
   const grid = settings.configOutputKind === "grid";
+  const validationError = useMemo(() => configValidationError(settings), [settings]);
   const json = useMemo(() => JSON.stringify(buildExperimentConfig(settings), null, 2), [settings]);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   useEffect(() => setCopyState("idle"), [json]);
@@ -43,6 +44,7 @@ export function ExperimentConfigCard({ settings }: { settings: ExplorerSettings 
         <Button
           variant={copyState === "copied" ? "secondary" : "outline"}
           size="sm"
+          disabled={validationError !== null}
           onClick={async () => setCopyState((await copyText(json)) ? "copied" : "failed")}
           aria-live="polite"
         >
@@ -51,6 +53,11 @@ export function ExperimentConfigCard({ settings }: { settings: ExplorerSettings 
         </Button>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col gap-2">
+        {validationError && (
+          <div role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            Fix invalid input before copying: {validationError}
+          </div>
+        )}
         <ScrollArea type="always" className="rounded-lg bg-muted xl:min-h-0 xl:flex-1 [&>[data-slot=scroll-area-viewport]]:max-h-[640px] xl:[&>[data-slot=scroll-area-viewport]]:absolute xl:[&>[data-slot=scroll-area-viewport]]:inset-0 xl:[&>[data-slot=scroll-area-viewport]]:max-h-none">
           <pre className="p-3 font-mono text-xs leading-relaxed">{json}</pre>
           <ScrollBar orientation="horizontal" />

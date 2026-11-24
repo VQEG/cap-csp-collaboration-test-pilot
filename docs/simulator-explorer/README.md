@@ -4,7 +4,7 @@
 
 An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend (FikoRE, constant rate or mock), FikoRE condition or constant rate per UE, player behaviour and transport.
 
-The experiment design card lets you change the parameters of the conditions (FikoRE INI values), the behaviours (B1 and B2 rule and scheduling settings, and the mix over the UEs of a cell) and the swipes (SFV user model). It shows the swipe times SFV resolves for each UE. It also lists the content every run plays, which cannot be changed yet. The page renders the matching run config, or a grid config with an inline base experiment, and copies it to the clipboard. Both run unchanged with `capcsp run` and `capcsp grid`. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
+The experiment design card lets you change the parameters of the parametric single-cell 5G presets (`M01`–`M11` / `CUSTOM` via `network.parametric_cell`), the behaviours (B1 and B2 rule and scheduling settings, and the mix over the UEs of a cell), the swipes (SFV user model) and the content catalogue (the provisional 18-video Full HD ladder `sfv-portrait-hd-90s.json` or the 3-video fixture). In Grid mode, parametric conditions also support one-click `load_rho` sweeps while keeping spatial distribution, per-UE background bitrate, session arrival/hold dynamics and mobility fixed. It shows the swipe times SFV resolves for each UE. The page renders the matching run config, or a grid config with an inline base experiment, and copies it to the clipboard when all inputs pass validation. Both run unchanged with `capcsp run` and `capcsp grid`. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
 
 Diagram boxes are colored by the repository that holds the code. Every dotted-underlined term, and every arrow label, shows an explanation on hover.
 
@@ -29,10 +29,10 @@ The stack is Vite, React, TypeScript, Tailwind CSS and shadcn/ui components (in 
 Data, in `src/data/`:
 
 - `signalingLevels.ts`: name and one-line description of L0–L4, from `docs/signaling.md`
-- `networkConditions.ts`: C1–C8b calibration bands, dominant cause, background UEs, INI, timeline and duration, from `configs/fikore/README.md`; `defaultPlanDownlinkMbps` presets the plan rate
-- `conditionParameters.ts`: the FikoRE parameters you can change per condition, with their INI values from `configs/fikore/c*.ini`
+- `networkConditions.ts`: `M01`–`M11` and `CUSTOM` calibration bands, dominant cause, active background UEs, synthesized timeline and duration, from `configs/experiments/layered/README.md`; `defaultPlanDownlinkMbps` presets the plan rate
+- `parametricCells.ts`: `M01`–`M11` presets (`Core-6` marked), `CUSTOM` defaults, `load_rho` sweep parsing/slugs and analytical active-neighbor UE estimates for `network.parametric_cell`
 - `playerBehaviors.ts`: B1 and B2 parameters with the values of the condition configs and the SFV defaults, and the behaviour mixes
-- `contentCatalogue.ts`: the videos and representations of `sfv-reference-implementation/fixtures/content/content.json`
+- `contentCatalogue.ts`: the videos and representations of `configs/content/sfv-portrait-hd-90s.json` (provisional) and `sfv-reference-implementation/fixtures/content/content.json`
 - `implementationStates.ts`: the states in the Implementation selector
 - `repositories.ts`: the three repositories and their names in the legend
 - `glossary.ts`: every hover text, keyed by term id
@@ -79,7 +79,7 @@ When a backend is added or its settings change:
 
 When conditions are recalibrated or added:
 
-- Update `networkConditions.ts` from `configs/fikore/README.md` and the INI values in `conditionParameters.ts`. New conditions appear in the selectors automatically.
+- Update `parametricCells.ts` and `networkConditions.ts` from `capcsp/network/parametric_cell.py` and `configs/experiments/layered/README.md`. New conditions appear in the selectors automatically.
 
 When an SFV rule gets a parameter, its defaults change or the content changes:
 

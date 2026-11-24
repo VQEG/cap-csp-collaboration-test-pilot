@@ -1,0 +1,68 @@
+{
+  "run_id": "layered-m08-b1",
+  "content": "../../content/sfv-portrait-hd-90s.json",
+  "network_backend": "transport_fikore",
+  "network": {
+    "congestion_control": "cubic",
+    "receive_window_bytes": 262144,
+    "tcp_connection_mode": "persistent",
+    "max_idle_tcp_connections_per_ue": 6,
+    "step_ms": 10,
+    "parametric_cell": {
+      "preset": "M08"
+    },
+    "study_ues": [
+      "studyVqeg"
+    ],
+    "ack_over_link": true,
+    "delay_budget_s": null,
+    "random_v": null,
+    "fikore_section_overrides": {
+      "Global": {
+        "seed": 20260927,
+        "run_id": "layered-m08-b1"
+      }
+    }
+  },
+  "condition": "M08",
+  "signaling_level": "L0",
+  "duration_s": 65,
+  "timingDefaults": {
+    "playbackTiming": {
+      "mode": "causal-simple",
+      "slotPreparationS": 0.01,
+      "appendDurationS": 0.005,
+      "startupDelayS": 0.005,
+      "observationIntervalS": 0.05
+    }
+  },
+  "sessions": [
+    {
+      "ue_id": 0,
+      "player_behavior": "simple",
+      "config": {
+        "sessionId": "m08-b1-ue0",
+        "seed": 17,
+        "scheduling": {
+          "maxConcurrentRequests": 2
+        },
+        "swipeTimesS": [
+          3.8,
+          8.5,
+          14.0,
+          19.2,
+          25.0,
+          30.5,
+          36.2,
+          41.8,
+          47.5,
+          53.0,
+          58.8
+        ]
+      },
+      "rule_config": {
+        "activeBufferTargetSegments": 2
+      }
+    }
+  ]
+}

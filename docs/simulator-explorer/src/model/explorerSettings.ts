@@ -1,3 +1,5 @@
+import type { ContentCatalogueId } from "@/data/contentCatalogue";
+import { CORE6_CONDITION_IDS, type ParametricCellValues } from "@/data/parametricCells";
 import { PLAYER_BEHAVIORS, type BehaviorMixId, type BehaviorParameterValues, type PlayerBehavior } from "@/data/playerBehaviors";
 
 // Settings chosen in the control panel and the experiment design card. They
@@ -6,9 +8,11 @@ import { PLAYER_BEHAVIORS, type BehaviorMixId, type BehaviorParameterValues, typ
 export type ImplementationState = "design" | "master";
 export type SignalingLevel = "L0" | "L1" | "L2" | "L3" | "L4";
 export type NetworkBackendKind = "transport_fikore" | "constant_rate" | "mock";
-export type TcpConnectionMode = "persistent" | "fresh";
+export type TcpConnectionMode = "persistent" | "fresh" | "multiplexed";
+export const TCP_CONNECTION_MODES: TcpConnectionMode[] = ["persistent", "fresh", "multiplexed"];
 export type ConfigOutputKind = "run" | "grid";
 export type SwipeModelKind = "seeded" | "sequence";
+export type GridSweepMode = "conditions" | "load_sweep";
 
 export const VIDEO_UE_COUNT_CHOICES = [1, 2, 3, 4, 6, 8];
 
@@ -26,6 +30,8 @@ export interface ExplorerSettings {
   networkBackend: NetworkBackendKind;
   /** FikoRE condition; only used with the transport_fikore backend. */
   conditionId: string;
+  /** Content catalogue used by the sessions. */
+  contentId: ContentCatalogueId;
   /** `downlink_rate_mbps` of the constant_rate backend, the same for every UE. */
   constantRateDownlinkMbps: string;
   /** Behaviour pattern over the UEs of the run, and of the cell shown in grid mode. */
@@ -37,9 +43,13 @@ export interface ExplorerSettings {
   watchDurationRangeS: [number, number];
   /** Session-relative swipe times of the sequence model, comma-separated. */
   swipeTimesS: string;
-  /** Changed condition parameters: condition id → parameter id → displayed value. */
-  conditionOverrides: Record<string, Record<string, number>>;
+  /** Changed parametric cell parameters for M01–M11 and CUSTOM. */
+  parametricOverrides: Record<string, Partial<ParametricCellValues>>;
   configOutputKind: ConfigOutputKind;
+  /** Grid condition source: explicit list of conditions or a load_rho sweep over the current parametric cell. */
+  gridSweepMode: GridSweepMode;
+  /** Comma-separated load_rho values used when gridSweepMode === "load_sweep". */
+  loadSweepValues: string;
   gridAxes: GridAxes;
   acksOverFikoreUplink: boolean;
   tcpConnectionMode: TcpConnectionMode;
@@ -52,20 +62,23 @@ export const DEFAULT_EXPLORER_SETTINGS: ExplorerSettings = {
   implementationState: "master",
   signalingLevel: "L2",
   networkBackend: "transport_fikore",
-  conditionId: "C2",
+  conditionId: "M04",
+  contentId: "portrait_hd_90s",
   constantRateDownlinkMbps: "1",
-  behaviorMix: "b1-b2",
-  videoUeCount: 2,
+  behaviorMix: "b1",
+  videoUeCount: 1,
   behaviorParameters: { simple: { ...PLAYER_BEHAVIORS.simple.defaults }, preload: { ...PLAYER_BEHAVIORS.preload.defaults } },
   swipeModel: "seeded",
   watchDurationRangeS: [2, 16],
   swipeTimesS: "4, 10",
-  conditionOverrides: {},
+  parametricOverrides: {},
   configOutputKind: "run",
-  gridAxes: { conditionIds: ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8a", "C8b"], signalingLevels: ["L0"], ueCounts: [2, 4], behaviorMixes: ["b1-b2"], replications: 5 },
+  gridSweepMode: "conditions",
+  loadSweepValues: "0, 0.25, 0.5, 0.75, 1.0",
+  gridAxes: { conditionIds: [...CORE6_CONDITION_IDS], signalingLevels: ["L0"], ueCounts: [1], behaviorMixes: ["b1", "b2"], replications: 5 },
   acksOverFikoreUplink: true,
   tcpConnectionMode: "persistent",
-  planDownlinkMbps: "25",
+  planDownlinkMbps: "",
   dummyCspControllerEnabled: true,
 };
 
