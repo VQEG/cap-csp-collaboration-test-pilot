@@ -8,7 +8,8 @@ import { PLAYER_BEHAVIORS, type BehaviorMixId, type BehaviorParameterValues, typ
 export type ImplementationState = "design" | "master";
 export type SignalingLevel = "L0" | "L1" | "L2" | "L3" | "L4";
 export type NetworkBackendKind = "transport_fikore" | "constant_rate" | "mock";
-export type TcpConnectionMode = "persistent" | "fresh";
+export type TcpConnectionMode = "persistent" | "fresh" | "multiplexed";
+export const TCP_CONNECTION_MODES: TcpConnectionMode[] = ["persistent", "fresh", "multiplexed"];
 export type ConfigOutputKind = "run" | "grid";
 export type SwipeModelKind = "seeded" | "sequence";
 export type GridSweepMode = "conditions" | "load_sweep";
@@ -42,8 +43,6 @@ export interface ExplorerSettings {
   watchDurationRangeS: [number, number];
   /** Session-relative swipe times of the sequence model, comma-separated. */
   swipeTimesS: string;
-  /** Changed legacy C1–C8b INI parameters: condition id → parameter id → displayed value. */
-  conditionOverrides: Record<string, Record<string, number>>;
   /** Changed parametric cell parameters for M01–M11 and CUSTOM. */
   parametricOverrides: Record<string, Partial<ParametricCellValues>>;
   configOutputKind: ConfigOutputKind;
@@ -72,7 +71,6 @@ export const DEFAULT_EXPLORER_SETTINGS: ExplorerSettings = {
   swipeModel: "seeded",
   watchDurationRangeS: [2, 16],
   swipeTimesS: "4, 10",
-  conditionOverrides: {},
   parametricOverrides: {},
   configOutputKind: "run",
   gridSweepMode: "conditions",

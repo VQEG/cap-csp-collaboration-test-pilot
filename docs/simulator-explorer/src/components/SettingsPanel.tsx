@@ -16,11 +16,10 @@ interface SettingsPanelProps {
   updateSetting: <K extends keyof ExplorerSettings>(key: K, value: ExplorerSettings[K]) => void;
 }
 
-const CONDITION_GROUPS: { family: "core6" | "layered_extended" | "custom" | "legacy"; label: string }[] = [
+const CONDITION_GROUPS: { family: "core6" | "layered_extended" | "custom"; label: string }[] = [
   { family: "core6", label: "Core-6 Test Plan (parametric)" },
   { family: "layered_extended", label: "Extended ablation (M02–M11)" },
   { family: "custom", label: "Custom parametric cell" },
-  { family: "legacy", label: "Legacy calibration pack (C1–C8b)" },
 ];
 
 export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
@@ -111,6 +110,7 @@ export function SettingsPanel({ settings, updateSetting }: SettingsPanelProps) {
           value={settings.tcpConnectionMode}
           options={[
             ["persistent", "persistent"],
+            ["multiplexed", "multiplexed"],
             ["fresh", "fresh"],
           ]}
           onChange={(value) => updateSetting("tcpConnectionMode", value)}

@@ -1,5 +1,5 @@
 // Player behaviours and their parameters, from the SFV rules and
-// configs/experiments/vqeg/*.json. SFV defaults are the values a rule uses
+// configs/experiments/layered/*.json. SFV defaults are the values a rule uses
 // when the key is missing.
 
 export type PlayerBehavior = "simple" | "preload";

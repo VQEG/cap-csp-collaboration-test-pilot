@@ -1,78 +1,75 @@
-"""Integrity, scheduler freedom, and configuration checks for the layered FikoRE pack."""
+"""Integrity, scheduler freedom, and configuration checks for the M01-M11 layered experiments."""
 
-import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
+from capcsp.network.parametric_cell import PARAMETRIC_CELL_PRESETS, synthesize_parametric_cell
 from capcsp.network.transport_fikore import TransportFikoreConfig
 from capcsp.scoring.p1204_1_pv import segment_video_quality_mos
 from fikore_transport.emulator import EmulatorConfig
 from fikore_transport.scenario import ScenarioDocument
 
 ROOT = Path(__file__).resolve().parents[1]
-LAYERED_PACK = ROOT / "configs" / "fikore" / "layered"
 FIKORE_ROOT = ROOT / "5g-network-emulator"
 EXTENDED_CONTENT = ROOT / "configs" / "content" / "sfv-portrait-hd-90s.json"
 LAYERED_EXPERIMENTS = ROOT / "configs" / "experiments" / "layered"
 
-EXPECTED_INIS = {
-    "m01_l1_base_good_static.ini",
-    "m02_l2_homo_rho050_med.ini",
-    "m03_l2_homo_rho075_med.ini",
-    "m04_l2_homo_rho100_med.ini",
-    "m05_l2_homo_rho100_high.ini",
-    "m06_l3_good_het_rho100_med.ini",
-    "m07_l3_mid_het_rho100_med.ini",
-    "m08_l3_edge_het_rho050_med.ini",
-    "m09_l3_edge_het_rho075_med.ini",
-    "m10_l4_veh_traverse_het_rho050.ini",
-    "m11_l4_ped_edge_het_rho050.ini",
-}
 
+def test_layered_experiments_synthesize_free_scheduler_scenarios(tmp_path: Path) -> None:
+    exp_files = sorted(LAYERED_EXPERIMENTS.glob("m*-b*.json"))
+    assert len(exp_files) == 22
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    seen_conditions: set[str] = set()
+    for exp_file in exp_files:
+        exp_cfg = json.loads(exp_file.read_text())
+        cond = exp_cfg["condition"]
+        seen_conditions.add(cond)
+        tf_cfg = TransportFikoreConfig.from_dict(exp_cfg["network"])
+        assert tf_cfg.fikore_base_ini is None
+        assert tf_cfg.parametric_cell is not None
+        assert tf_cfg.parametric_cell.preset == cond
+        assert tf_cfg.tcp_connection_mode == "persistent", (
+            f"{exp_file.name} must keep tcp_connection_mode='persistent' across B1 and B2"
+        )
 
+    assert seen_conditions == set(PARAMETRIC_CELL_PRESETS) - {"custom"}
 
-def test_layered_pack_manifest_and_free_scheduler_invariants() -> None:
-    assert {p.name for p in LAYERED_PACK.glob("*.ini")} == EXPECTED_INIS
-    manifest = json.loads((LAYERED_PACK / "manifest.json").read_text())
-    for relative, expected in manifest["assets"].items():
-        path = LAYERED_PACK / relative
-        assert path.is_file(), relative
-        assert _sha256(path) == expected, relative
-
-    for ini in sorted(LAYERED_PACK.glob("*.ini")):
-        raw = ini.read_text()
-        assert "rmax_mbps" not in raw, f"{ini.name} must not configure scheduler caps"
-        doc = ScenarioDocument.read(str(ini))
+    for cond in sorted(seen_conditions):
+        cell_cfg = TransportFikoreConfig.from_dict(
+            {"parametric_cell": {"preset": cond}}
+        ).parametric_cell
+        assert cell_cfg is not None
+        synthesized = synthesize_parametric_cell(
+            cell_cfg,
+            duration_s=20.0,
+            seed=20260927,
+            work_dir=tmp_path / cond,
+        )
+        raw = synthesized.ini_path.read_text()
+        assert "rmax_mbps" not in raw, f"{cond} must not configure scheduler caps"
+        doc = ScenarioDocument.read(str(synthesized.ini_path))
         assert doc.get("MACLayer", "metric_type") == "6"
         assert doc.get("MACLayer", "harq_model") == "legacy_bler"
         assert doc.get("PDCP_RLC", "order_pkts") == "true"
         assert float(doc.get("PDCP_RLC", "backhaul_d_var")) == pytest.approx(0.001)
         map_path = (FIKORE_ROOT / doc.get("Scenario", "map_file")).resolve()
-        assert map_path.is_file(), f"{ini.name}: {map_path}"
-        timeline = doc.get("Control", "timeline_file")
-        if timeline not in (None, "", "none"):
-            tl_path = (FIKORE_ROOT / timeline).resolve()
-            assert tl_path.is_file(), f"{ini.name}: {tl_path}"
-            assert "rmax_mbps" not in tl_path.read_text()
+        assert map_path.is_file(), f"{cond}: {map_path}"
+        if synthesized.timeline_path is not None:
+            assert synthesized.timeline_path.is_file()
+            assert "rmax_mbps" not in synthesized.timeline_path.read_text()
 
 
 def test_background_iperf_ues_validation_and_cosim_overlay(tmp_path: Path) -> None:
-    cfg = TransportFikoreConfig.from_dict(
-        {
-            "fikore_base_ini": "configs/fikore/layered/m04_l2_homo_rho100_med.ini",
-            "study_ues": ["studyVqeg"],
-            "background_iperf_ues": {"backgroundSfV": 4.0},
-            "ack_over_link": True,
-            "delay_budget_s": None,
-            "random_v": None,
-        }
+    cell_cfg = TransportFikoreConfig.from_dict(
+        {"parametric_cell": {"preset": "M04"}}
+    ).parametric_cell
+    assert cell_cfg is not None
+    synthesized = synthesize_parametric_cell(
+        cell_cfg, duration_s=10.0, seed=20260927, work_dir=tmp_path / "m04"
     )
-    assert cfg.background_iperf_ues == {"backgroundSfV": 4.0}
+    assert synthesized.background_iperf_ues == {"backgroundSfV": 4.0}
 
     with pytest.raises(ValueError):
         TransportFikoreConfig.from_dict(
@@ -82,7 +79,7 @@ def test_background_iperf_ues_validation_and_cosim_overlay(tmp_path: Path) -> No
     out_ini = tmp_path / "effective.ini"
     EmulatorConfig(
         binary="/bin/false",
-        base_ini=cfg.fikore_base_ini,
+        base_ini=str(synthesized.ini_path),
         socket_path=str(tmp_path / "control.sock"),
         duration_s=5.0,
         n_ues=None,
@@ -116,10 +113,3 @@ def test_extended_portrait_catalog_has_monotonic_p1204_ladder() -> None:
         for rep in reps
     ]
     assert all(b > a for a, b in zip(scores, scores[1:]))
-    exp_files = sorted(LAYERED_EXPERIMENTS.glob("m*-b*.json"))
-    assert len(exp_files) == 22
-    for exp_file in exp_files:
-        exp_cfg = json.loads(exp_file.read_text())
-        assert exp_cfg["network"]["tcp_connection_mode"] == "persistent", (
-            f"{exp_file.name} must keep tcp_connection_mode='persistent' across B1 and B2"
-        )

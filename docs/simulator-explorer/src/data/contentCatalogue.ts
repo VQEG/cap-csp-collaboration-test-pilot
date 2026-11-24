@@ -1,5 +1,5 @@
 // Content catalogues available in the repository:
-// - portrait_hd_90s: configs/content/sfv-portrait-hd-90s.json (18 × 8 s portrait Full HD ladder)
+// - portrait_hd_90s: configs/content/sfv-portrait-hd-90s.json (provisional 18 × 8 s portrait Full HD ladder)
 // - fixture: sfv-reference-implementation/fixtures/content/content.json (3 × 6 s smoke-test fixture)
 
 export type ContentCatalogueId = "portrait_hd_90s" | "fixture";

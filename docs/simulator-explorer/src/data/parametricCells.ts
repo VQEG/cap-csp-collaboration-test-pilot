@@ -121,13 +121,20 @@ export function parseLoadSweepValues(raw: string): number[] | string {
     if (!Number.isFinite(num) || num < 0 || num > 2.0) {
       return `Invalid load_rho "${part}": each value must be between 0.0 and 2.0`;
     }
-    if (!numbers.some((existing) => Math.abs(existing - num) < 1e-6)) {
-      numbers.push(Math.round(num * 1000) / 1000);
+    const rounded = Math.round(num * 1000) / 1000;
+    if (!numbers.includes(rounded)) {
+      numbers.push(rounded);
     }
   }
   return numbers;
 }
 
 export function loadSweepConditionSlug(rho: number): string {
-  return `rho-${String(Math.round(rho * 100)).padStart(3, "0")}`;
+  const permille = Math.round(rho * 1000);
+  if (permille % 10 === 0) {
+    return `rho-${String(permille / 10).padStart(3, "0")}`;
+  }
+  const wholeCent = Math.floor(permille / 10);
+  const tenthCent = permille % 10;
+  return `rho-${String(wholeCent).padStart(3, "0")}p${tenthCent}`;
 }

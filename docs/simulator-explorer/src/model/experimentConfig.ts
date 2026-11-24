@@ -1,5 +1,4 @@
 import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
-import { CONDITION_PARAMETER_BASE_VALUES, conditionParametersOf, iniValue } from "@/data/conditionParameters";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import {
   PARAMETRIC_PRESET_DEFAULTS,
@@ -41,18 +40,14 @@ export function sessionSeed(settings: ExplorerSettings, ueId: number, replicatio
 /** Simulated run length in seconds: the condition's (possibly changed) duration on FikoRE. */
 export function runDurationSeconds(settings: ExplorerSettings, conditionId = settings.conditionId): number {
   if (usesFikoreBackend(settings)) {
-    if (isParametricCondition(conditionId)) {
-      return resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]).duration_s;
-    }
-    return settings.conditionOverrides[conditionId]?.duration ?? NETWORK_CONDITIONS[conditionId].durationSeconds;
+    return resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]).duration_s;
   }
   if (usesConstantRateBackend(settings)) return 20;
   return 0.2;
 }
 
-/** Receive window sized to the cell BDP: 256 KiB for ≤40 MHz parametric cells, 1 MiB for wider/legacy cells. */
+/** Receive window sized to the cell BDP: 256 KiB for ≤40 MHz parametric cells, 1 MiB for ≥60 MHz cells. */
 export function receiveWindowBytesForCondition(settings: ExplorerSettings, conditionId = settings.conditionId): number {
-  if (!isParametricCondition(conditionId)) return 1048576;
   const bw = resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]).bandwidth_mhz;
   return bw >= 60 ? 1048576 : 262144;
 }
@@ -92,6 +87,14 @@ export function buildParametricCellPayload(
     for (const key of keys) {
       if (resolved[key] !== defaults[key]) payload[key] = resolved[key];
     }
+    // Preserve explicit distance/speed when study_position or study_mobility overrides the preset,
+    // preventing ParametricCellConfig.from_dict() from substituting zone/mobility defaults.
+    if (resolved.study_position !== defaults.study_position && resolved.study_position === "custom") {
+      payload.study_distance_m = resolved.study_distance_m;
+    }
+    if (resolved.study_mobility !== defaults.study_mobility) {
+      payload.study_speed_kmh = resolved.study_mobility === "static" ? 0 : resolved.study_speed_kmh;
+    }
     return payload;
   }
 
@@ -127,24 +130,6 @@ export function buildParametricCellPayload(
   return payload;
 }
 
-/** Condition parameters that differ from the legacy INI, split by where they go in the config. */
-export function conditionOverrideBlocks(settings: ExplorerSettings, conditionId: string) {
-  const changed = settings.conditionOverrides[conditionId] ?? {};
-  const baseValues = CONDITION_PARAMETER_BASE_VALUES[conditionId] ?? {};
-  const sectionOverrides: Record<string, JsonObject> = {};
-  const ueOverrides: Record<string, JsonObject> = {};
-  let durationS: number | undefined;
-  for (const parameter of conditionParametersOf(conditionId)) {
-    const value = changed[parameter.id];
-    if (value === undefined || !Number.isFinite(value) || value === baseValues[parameter.id]) continue;
-    const target = parameter.target;
-    if (target.kind === "experiment") durationS = value;
-    else if (target.kind === "section") (sectionOverrides[target.section] ??= {})[target.key] = iniValue(parameter, value);
-    else (ueOverrides[target.group] ??= {})[target.key] = iniValue(parameter, value);
-  }
-  return { durationS, sectionOverrides, ueOverrides };
-}
-
 interface FikoreSettingsMode {
   kind: "run" | "grid_base_conditions" | "grid_base_load_sweep";
 }
@@ -163,7 +148,7 @@ function fikoreNetworkSettings(settings: ExplorerSettings, conditionId: string, 
   };
 
   if (mode.kind === "grid_base_conditions") {
-    // Condition overlays supply either `parametric_cell` or `fikore_base_ini`, and `grid_specification.py` supplies `Global.seed`.
+    // Condition overlays supply `parametric_cell`, and `grid_specification.py` supplies `Global.seed`.
     return network;
   }
 
@@ -175,16 +160,8 @@ function fikoreNetworkSettings(settings: ExplorerSettings, conditionId: string, 
     return network;
   }
 
-  if (isParametricCondition(conditionId)) {
-    network.parametric_cell = buildParametricCellPayload(settings, conditionId);
-    network.fikore_section_overrides = { Global: { seed: NETWORK_SEED_BASE } };
-    return network;
-  }
-
-  const { sectionOverrides, ueOverrides } = conditionOverrideBlocks(settings, conditionId);
-  network.fikore_base_ini = `configs/fikore/${NETWORK_CONDITIONS[conditionId].fikoreIniFile}`;
-  network.fikore_section_overrides = { Global: { seed: NETWORK_SEED_BASE }, ...sectionOverrides };
-  if (Object.keys(ueOverrides).length) network.fikore_ue_overrides = ueOverrides;
+  network.parametric_cell = buildParametricCellPayload(settings, conditionId);
+  network.fikore_section_overrides = { Global: { seed: NETWORK_SEED_BASE } };
   return network;
 }
 
@@ -245,7 +222,7 @@ function session(settings: ExplorerSettings, ueId: number, behavior: PlayerBehav
 function runId(settings: ExplorerSettings): string {
   const levelSlug = settings.signalingLevel.toLowerCase();
   const prefix = usesFikoreBackend(settings)
-    ? `${isParametricCondition(settings.conditionId) ? "layered" : "vqeg"}-${settings.conditionId.toLowerCase()}`
+    ? `layered-${settings.conditionId.toLowerCase()}`
     : usesConstantRateBackend(settings)
       ? "constant-rate"
       : "mock";
@@ -301,32 +278,21 @@ export function buildRunConfig(settings: ExplorerSettings): JsonObject {
   );
 }
 
-/** The condition overlay of a grid: parametric_cell or legacy FikoRE INI, duration and changed parameters. */
+/** The condition overlay of a grid: parametric_cell, duration and receive window. */
 function gridConditionOverlay(settings: ExplorerSettings, conditionId: string): JsonObject {
-  if (isParametricCondition(conditionId)) {
-    const network: JsonObject = {
+  return {
+    condition: conditionId,
+    duration_s: runDurationSeconds(settings, conditionId),
+    network: {
       receive_window_bytes: receiveWindowBytesForCondition(settings, conditionId),
       parametric_cell: buildParametricCellPayload(settings, conditionId),
-    };
-    return {
-      condition: conditionId,
-      duration_s: runDurationSeconds(settings, conditionId),
-      network,
-    };
-  }
-  const { durationS, sectionOverrides, ueOverrides } = conditionOverrideBlocks(settings, conditionId);
-  const network: JsonObject = {
-    receive_window_bytes: 1048576,
-    fikore_base_ini: `configs/fikore/${NETWORK_CONDITIONS[conditionId].fikoreIniFile}`,
+    },
   };
-  if (Object.keys(sectionOverrides).length) network.fikore_section_overrides = sectionOverrides;
-  if (Object.keys(ueOverrides).length) network.fikore_ue_overrides = ueOverrides;
-  return { condition: conditionId, duration_s: durationS ?? NETWORK_CONDITIONS[conditionId].durationSeconds, network };
 }
 
 export function effectiveLoadSweepRhos(settings: ExplorerSettings): number[] {
   const parsed = parseLoadSweepValues(settings.loadSweepValues);
-  return typeof parsed === "string" ? [0, 0.25, 0.5, 0.75, 1.0] : parsed;
+  return typeof parsed === "string" ? [] : parsed;
 }
 
 export function usesParametricLoadSweep(settings: ExplorerSettings): boolean {
@@ -336,6 +302,35 @@ export function usesParametricLoadSweep(settings: ExplorerSettings): boolean {
     isParametricCondition(settings.conditionId) &&
     settings.gridSweepMode === "load_sweep"
   );
+}
+
+function checkCellTraverseBounds(settings: ExplorerSettings, conditionId: string): string | null {
+  const values = resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]);
+  if (values.study_mobility === "vehicular_traverse" && Math.abs(values.traverse_max_distance_m - values.traverse_min_distance_m) < 1.0) {
+    return `${conditionId}: traverse_min_distance_m and traverse_max_distance_m must differ by at least 1 m.`;
+  }
+  return null;
+}
+
+/** Return a validation error string when any active text/parametric input cannot produce a runnable config. */
+export function configValidationError(settings: ExplorerSettings): string | null {
+  if (usesParametricLoadSweep(settings)) {
+    const parsed = parseLoadSweepValues(settings.loadSweepValues);
+    if (typeof parsed === "string") return parsed;
+    const cellErr = checkCellTraverseBounds(settings, settings.conditionId);
+    if (cellErr) return cellErr;
+  } else if (usesFikoreBackend(settings)) {
+    const ids = settings.configOutputKind === "grid" ? effectiveGridAxes(settings).conditionIds : [settings.conditionId];
+    for (const id of ids) {
+      const cellErr = checkCellTraverseBounds(settings, id);
+      if (cellErr) return cellErr;
+    }
+  }
+  if (settings.networkBackend !== "mock" && settings.swipeModel === "sequence") {
+    const times = parseSwipeTimes(settings.swipeTimesS);
+    if (typeof times === "string") return times;
+  }
+  return null;
 }
 
 /** Selected grid axes, with empty selections replaced by the run's value. */
@@ -360,6 +355,7 @@ export function effectiveGridAxes(settings: ExplorerSettings) {
 
 export function gridCellCount(settings: ExplorerSettings): number {
   const axes = effectiveGridAxes(settings);
+  if (usesParametricLoadSweep(settings) && axes.conditionIds.length === 0) return 0;
   return Math.max(1, axes.conditionIds.length) * axes.signalingLevels.length * axes.ueCounts.length * axes.behaviorMixes.length * axes.replications;
 }
 

@@ -70,7 +70,7 @@ To compare several runs, run:
 uv run capcsp report output/runs/run-a output/runs/run-b -o report.md
 ```
 
-See [`docs/examples/vqeg-c1-b1-b2-run/`](docs/examples/vqeg-c1-b1-b2-run/README.md) for the output of a real run. Actual results should not be committed.
+See [`docs/examples/stall-example-b1-b2-run/`](docs/examples/stall-example-b1-b2-run/README.md) and [`docs/examples/swipe-during-dropout-b1-b2-run/`](docs/examples/swipe-during-dropout-b1-b2-run/README.md) for the output layout of real runs. Actual experiment results should not be committed.
 
 ### macOS
 
@@ -84,18 +84,21 @@ docker run --rm -v "$PWD/output:/pilot/output" capcsp \
 
 ## Configs
 
-The contributed FikoRE condition matrix is under `configs/experiments/vqeg/`. For example:
+Single-run parametric 5G experiments (`M01`–`M11`) live under `configs/experiments/layered/`:
 
 ```bash
-uv run capcsp run configs/experiments/vqeg/c1-b1-b2.json
+uv run capcsp run configs/experiments/layered/m04-b1.json
+uv run capcsp run configs/experiments/layered/m04-b2.json
 ```
 
-See `configs/experiments/vqeg/README.md` for all nine C1–C8a/C8b runs and their common transport assumptions.
+See [`configs/experiments/layered/README.md`](configs/experiments/layered/README.md) for the `M01`–`M11` presets, the `Core-6` subset (`M01`, `M04`, `M05`, `M07`, `M09`, `M10`), and their unconstrained Proportional Fair cell baseline.
 
 To run a whole grid of conditions, signaling levels, UE counts, behaviour mixes and replications, use a grid file:
 
 ```bash
-uv run capcsp grid configs/grids/vqeg-conditions.json --jobs 16
+uv run capcsp grid configs/grids/layered-core6.json --jobs 14
+uv run capcsp grid configs/grids/layered-m01-m11.json --jobs 14
+uv run capcsp grid configs/grids/parametric-load-sweep.json --jobs 14
 ```
 
 The grid runner shows the progress of the grid and of every running cell. It writes to `output/grids/<grid_id>`: one directory per cell, an `index.csv` with the status of every cell and one merged `kpis.csv`. If you start it again, it skips the cells that already finished with the same configuration. Add `--force` to run them again. Add `--list` to only list the cells. The grid format is described in [Experiments and Configuration](docs/experiments.md#experiment-grid).
@@ -106,7 +109,7 @@ Run the tests with `uv run pytest`, or with `docker run --rm capcsp pytest` to i
 
 ## Current Validation
 
-The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` and `constant_rate` backends and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting and persistent per-UE TCP connection reuse. Fresh TCP connections per object remain available as a comparison mode. The provisional FikoRE conditions C1–C8b run end to end. This is not yet the full pilot experiment matrix: content is still the three-video SFV test fixture, the final network-condition values are pending, and L1 to L4 are not connected.
+The harness runs Michi's SFV player (B1 and B2) with several UEs on the `mock` and `constant_rate` backends and on FikoRE through `TransportBackend`, including swipes, cancellations, byte accounting, and per-UE TCP connection modes (`persistent` HTTP/1.1-style pool, `multiplexed` RFC 9218 single-connection stream multiplexing, and `fresh` per-object connections). Parametric 5G cell presets `M01`–`M11` (`network.parametric_cell`) deterministically synthesize `fikore-effective.ini`, `fikore-timeline.ndjson`, and application-paced TCP background sessions (`backgroundSfV`) at run start from `Global.seed`. `configs/content/sfv-portrait-hd-90s.json` provides a provisional 18-video Full HD portrait ladder until the final pilot SFV content catalogue lands, and L1–L4 policy logic is not yet connected.
 
 ## Contributing
 

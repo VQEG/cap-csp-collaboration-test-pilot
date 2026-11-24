@@ -2,7 +2,10 @@
 
 Synthesizes a complete FikoRE `.ini` scenario, a deterministic `.ndjson` control timeline
 (session arrivals, departures, spatial coordinates, and optional study-UE trajectory), and
-application-paced TCP background rates from a compact declarative dictionary.
+application-paced TCP background rates from a compact declarative dictionary. Synthesis is
+purely deterministic from ``Global.seed`` (keyed via ``SHA-256("capcsp-parametric-cell::<seed>")``),
+so paired player configurations and re-runs with the same seed reproduce byte-identical `.ini`
+and `.ndjson` artifacts without checking static timeline files into git.
 
 Proportional-fair scheduling (`metric_type: 6`) runs unconstrained without per-UE `rmax` caps.
 """
@@ -584,8 +587,10 @@ class ParametricCellConfig:
         study_speed_kmh = _finite_number(merged["study_speed_kmh"], "study_speed_kmh")
         if study_speed_kmh < 0.0 or study_speed_kmh > 250.0:
             raise ValueError("parametric_cell.study_speed_kmh must be between 0 and 250 km/h")
-        if merged["study_mobility"] == "vehicular_traverse" and study_speed_kmh <= 0.0:
-            raise ValueError("parametric_cell.study_speed_kmh must be positive for vehicular_traverse")
+        if merged["study_mobility"] != "static" and study_speed_kmh <= 0.0:
+            raise ValueError(
+                f"parametric_cell.study_speed_kmh must be positive for {merged['study_mobility']}"
+            )
 
         trav_min = _finite_number(merged["traverse_min_distance_m"], "traverse_min_distance_m")
         trav_max = _finite_number(merged["traverse_max_distance_m"], "traverse_max_distance_m")
@@ -813,8 +818,6 @@ def _render_parametric_ini(
 
     bg_section = ""
     if n_pool > 0:
-        bg_mob_type = 1 if config.study_mobility == "pedestrian" else 0
-        bg_speed = config.study_speed_kmh if bg_mob_type == 1 else 0.0
         bg_section = f"""
 [UE]
 ue_id: backgroundSfV
@@ -839,11 +842,11 @@ ul_target: 0.050000
 dl_target: {config.bg_bitrate_mbps:.6f}
 var_perc: 0.050000
 pkt_size: 12000
-mobility_type: {bg_mob_type}
+mobility_type: 0
 pos_x: 151.255881
 pos_y: 0.000000
 random_init: false
-speed: {bg_speed:.6f}
+speed: 0.000000
 speed_var: 0.000000
 max_distance: 750.000000
 time_target: 6.000000

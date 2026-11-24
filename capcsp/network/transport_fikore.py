@@ -682,6 +682,7 @@ class TransportFikoreBackend(TransportBackend):
                 target_rates_mbps=bg_target_rates,
                 target_external_ues=bg_target_external_ues,
                 scheduled=scheduled_timeline,
+                rwnd_bytes=config.receive_window_bytes,
             )
         self.csp_telemetry = self.telemetry_sampler(
             ue_ids, interval_s=config.csp_telemetry_interval_s

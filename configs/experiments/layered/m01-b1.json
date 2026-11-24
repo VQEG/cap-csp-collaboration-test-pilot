@@ -8,7 +8,9 @@
     "tcp_connection_mode": "persistent",
     "max_idle_tcp_connections_per_ue": 6,
     "step_ms": 10,
-    "fikore_base_ini": "configs/fikore/layered/m01_l1_base_good_static.ini",
+    "parametric_cell": {
+      "preset": "M01"
+    },
     "study_ues": [
       "studyVqeg"
     ],

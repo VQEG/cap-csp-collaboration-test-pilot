@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,8 +8,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSepa
 import { GlossaryTerm as T, InlineCode as C } from "@/components/GlossaryTerm";
 import { MultipleChoice, NumberField, SegmentedChoice, SettingControl } from "@/components/SettingControls";
 import { CONTENT_CATALOGUES, type ContentCatalogueId } from "@/data/contentCatalogue";
-import { CONDITION_PARAMETER_BASE_VALUES, conditionParametersOf, type ConditionParameter } from "@/data/conditionParameters";
-import { LEGACY_CONDITION_IDS, NETWORK_CONDITIONS, effectiveConditionView } from "@/data/networkConditions";
+import { NETWORK_CONDITIONS, effectiveConditionView } from "@/data/networkConditions";
 import {
   ALL_LAYERED_CONDITION_IDS,
   CORE6_CONDITION_IDS,
@@ -19,7 +17,6 @@ import {
   VALID_CELL_BANDWIDTHS_MHZ,
   estimateMeanActiveBgUes,
   isCore6Condition,
-  isParametricCondition,
   parseLoadSweepValues,
   resolveParametricCellValues,
   type ArrivalModeKind,
@@ -54,11 +51,10 @@ interface SectionProps {
 const BEHAVIOR_ORDER: PlayerBehavior[] = ["simple", "preload"];
 const MIX_OPTIONS = Object.entries(BEHAVIOR_MIXES).map(([id, mix]) => [id, mix.label]) as [BehaviorMixId, string][];
 
-const CONDITION_SELECTOR_GROUPS: { family: "core6" | "layered_extended" | "custom" | "legacy"; label: string }[] = [
+const CONDITION_SELECTOR_GROUPS: { family: "core6" | "layered_extended" | "custom"; label: string }[] = [
   { family: "core6", label: "Core-6 Test Plan (parametric)" },
   { family: "layered_extended", label: "Extended ablation (M02–M11)" },
   { family: "custom", label: "Custom parametric cell" },
-  { family: "legacy", label: "Legacy calibration pack (C1–C8b)" },
 ];
 
 function Section({ title, badge, description, children }: { title: string; badge?: string; description: ReactNode; children: ReactNode }) {
@@ -84,59 +80,6 @@ function updateGridAxes(settings: ExplorerSettings, updateSetting: UpdateSetting
   updateSetting("gridAxes", { ...settings.gridAxes, ...changes });
 }
 
-function LegacyConditionParameterRow({ settings, updateSetting, parameter }: SectionProps & { parameter: ConditionParameter }) {
-  const conditionId = settings.conditionId;
-  const baseValue = CONDITION_PARAMETER_BASE_VALUES[conditionId][parameter.id];
-  const changedValues = settings.conditionOverrides[conditionId] ?? {};
-  const value = changedValues[parameter.id] ?? baseValue;
-  const changed = value !== baseValue;
-  const iniKey =
-    parameter.target.kind === "experiment"
-      ? "duration_s"
-      : parameter.target.kind === "section"
-        ? `${parameter.target.section}.${parameter.target.key}`
-        : `${parameter.target.group}.${parameter.target.key}`;
-
-  function setValue(next: number | undefined) {
-    const nextValues = { ...changedValues };
-    if (next === undefined || next === baseValue) delete nextValues[parameter.id];
-    else nextValues[parameter.id] = next;
-    const overrides = { ...settings.conditionOverrides, [conditionId]: nextValues };
-    if (!Object.keys(nextValues).length) delete overrides[conditionId];
-    updateSetting("conditionOverrides", overrides);
-  }
-
-  return (
-    <tr className="border-t border-border/60 align-middle">
-      <td className="py-1 pr-2">
-        <div className="text-xs" title={parameter.hint}>
-          {parameter.label}
-          {parameter.unit && <span className="text-muted-foreground"> ({parameter.unit})</span>}
-        </div>
-        <div className="font-mono text-[10px] text-muted-foreground">{iniKey}</div>
-      </td>
-      <td className="w-[104px] py-1">
-        <NumberField
-          ariaLabel={`${parameter.label} of ${conditionId}`}
-          value={value}
-          step={parameter.step}
-          min={parameter.id === "studyPositionX" || parameter.id === "txPower" ? undefined : 0}
-          integer={parameter.integer}
-          changed={changed}
-          onChange={setValue}
-        />
-      </td>
-      <td className="w-7 py-1 pl-1">
-        {changed && (
-          <Button variant="ghost" size="icon-xs" aria-label={`Reset ${parameter.label}`} title={`Reset to ${baseValue}`} onClick={() => setValue(undefined)}>
-            <RotateCcw />
-          </Button>
-        )}
-      </td>
-    </tr>
-  );
-}
-
 function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
   const conditionId = settings.conditionId;
   const defaults = PARAMETRIC_PRESET_DEFAULTS[conditionId];
@@ -145,12 +88,17 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
   const loadSweep = usesParametricLoadSweep(settings);
   const sweepParsed = parseLoadSweepValues(settings.loadSweepValues);
   const lambdaBg = estimateMeanActiveBgUes(values);
+  const traverseSpanError =
+    values.study_mobility === "vehicular_traverse" && Math.abs(values.traverse_max_distance_m - values.traverse_min_distance_m) < 1.0;
 
   function setChanges(changes: Partial<ParametricCellValues>) {
     const merged: Partial<ParametricCellValues> = { ...currentOverrides, ...changes };
-    // Prune keys equal to the preset defaults so JSON stays minimal
+    // Prune keys equal to the preset defaults unless another override depends on them
     for (const key of Object.keys(merged) as (keyof ParametricCellValues)[]) {
-      if (merged[key] === defaults[key]) delete merged[key];
+      if (merged[key] !== defaults[key]) continue;
+      if (key === "study_distance_m" && merged.study_position === "custom" && defaults.study_position !== "custom") continue;
+      if (key === "study_speed_kmh" && merged.study_mobility !== undefined && merged.study_mobility !== defaults.study_mobility) continue;
+      delete merged[key];
     }
     const nextOverrides = { ...settings.parametricOverrides, [conditionId]: merged };
     if (!Object.keys(merged).length) delete nextOverrides[conditionId];
@@ -158,7 +106,7 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
   }
 
   function setStudyZone(zone: StudyPositionZone) {
-    if (zone === "custom") setChanges({ study_position: "custom" });
+    if (zone === "custom") setChanges({ study_position: "custom", study_distance_m: values.study_distance_m });
     else setChanges({ study_position: zone, study_distance_m: STUDY_ZONE_DISTANCES_M[zone] });
   }
 
@@ -203,11 +151,12 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
             onChange={setStudyZone}
           />
         </SettingControl>
-        <SettingControl title="Distance x (m)" hint={<C>study_distance_m</C>}>
+        <SettingControl title="Distance x (m)" hint={<><C>study_distance_m</C> (10–850)</>}>
           <NumberField
             ariaLabel="Study UE distance in meters"
             value={values.study_distance_m}
             min={10}
+            max={850}
             step={10}
             changed={values.study_distance_m !== defaults.study_distance_m}
             onChange={(study_distance_m) => setChanges({ study_position: "custom", study_distance_m })}
@@ -227,12 +176,17 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
             onChange={setMobility}
           />
         </SettingControl>
-        <SettingControl title="Speed (km/h)" hint={<C>study_speed_kmh</C>}>
+        <SettingControl
+          title="Speed (km/h)"
+          hint={<><C>study_speed_kmh</C>{values.study_mobility === "static" ? " (0)" : " (0.1–250)"}</>}
+        >
           <NumberField
             ariaLabel="Study UE speed in km/h"
-            value={values.study_speed_kmh}
-            min={0}
-            step={5}
+            value={values.study_mobility === "static" ? 0 : values.study_speed_kmh}
+            disabled={values.study_mobility === "static"}
+            min={values.study_mobility === "static" ? 0 : 0.1}
+            max={values.study_mobility === "static" ? 0 : 250}
+            step={values.study_mobility === "pedestrian" ? 0.5 : 5}
             changed={values.study_speed_kmh !== defaults.study_speed_kmh}
             onChange={(study_speed_kmh) => setChanges({ study_speed_kmh })}
           />
@@ -241,21 +195,32 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
 
       {values.study_mobility === "vehicular_traverse" && (
         <div className="grid gap-2.5 sm:grid-cols-2">
-          <SettingControl title="Traverse min x (m)" hint={<C>traverse_min_distance_m</C>}>
+          <SettingControl title="Traverse min x (m)" hint={<><C>traverse_min_distance_m</C> (10–850)</>}>
             <NumberField
               ariaLabel="Traverse minimum distance"
               value={values.traverse_min_distance_m}
               min={10}
+              max={850}
               step={25}
               changed={values.traverse_min_distance_m !== defaults.traverse_min_distance_m}
               onChange={(traverse_min_distance_m) => setChanges({ traverse_min_distance_m })}
             />
           </SettingControl>
-          <SettingControl title="Traverse max x (m)" hint={<C>traverse_max_distance_m</C>}>
+          <SettingControl
+            title="Traverse max x (m)"
+            hint={
+              traverseSpanError ? (
+                <span className="text-destructive">Min and max traverse distances must differ by ≥ 1 m</span>
+              ) : (
+                <><C>traverse_max_distance_m</C> (10–850)</>
+              )
+            }
+          >
             <NumberField
               ariaLabel="Traverse maximum distance"
               value={values.traverse_max_distance_m}
-              min={50}
+              min={10}
+              max={850}
               step={25}
               changed={values.traverse_max_distance_m !== defaults.traverse_max_distance_m}
               onChange={(traverse_max_distance_m) => setChanges({ traverse_max_distance_m })}
@@ -280,6 +245,7 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
         >
           <Input
             aria-label="Comma-separated load_rho sweep values"
+            aria-invalid={typeof sweepParsed === "string"}
             value={settings.loadSweepValues}
             className="h-8 font-mono text-xs"
             onChange={(event) => updateSetting("loadSweepValues", event.target.value)}
@@ -291,7 +257,7 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
             title="Normalized cell load (ρ)"
             hint={
               <>
-                <C>load_rho</C> · ~{lambdaBg} active TCP BG UEs
+                <C>load_rho</C> (0–2) · ~{lambdaBg} active TCP BG UEs
               </>
             }
           >
@@ -299,21 +265,23 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
               ariaLabel="Normalized cell load rho"
               value={values.load_rho}
               min={0}
+              max={2}
               step={0.1}
               changed={values.load_rho !== defaults.load_rho}
               onChange={(load_rho) =>
                 setChanges({
-                  load_rho: Math.min(2, load_rho),
+                  load_rho,
                   ...(load_rho > 0 && values.bg_spatial === "none" ? { bg_spatial: "cell_disk" } : {}),
                 })
               }
             />
           </SettingControl>
-          <SettingControl title="BG rate per UE (Mbps)" hint={<C>bg_bitrate_mbps</C>}>
+          <SettingControl title="BG rate per UE (Mbps)" hint={<><C>bg_bitrate_mbps</C> (0.1–100)</>}>
             <NumberField
               ariaLabel="Background bitrate per UE in Mbps"
               value={values.bg_bitrate_mbps}
               min={0.1}
+              max={100}
               step={0.5}
               changed={values.bg_bitrate_mbps !== defaults.bg_bitrate_mbps}
               onChange={(bg_bitrate_mbps) => setChanges({ bg_bitrate_mbps })}
@@ -325,11 +293,12 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
       {(loadSweep || values.load_rho > 0) && (
         <>
           {loadSweep && (
-            <SettingControl title="BG rate per UE (Mbps)" hint={<C>bg_bitrate_mbps</C>}>
+            <SettingControl title="BG rate per UE (Mbps)" hint={<><C>bg_bitrate_mbps</C> (0.1–100)</>}>
               <NumberField
                 ariaLabel="Background bitrate per UE in Mbps"
                 value={values.bg_bitrate_mbps}
                 min={0.1}
+                max={100}
                 step={0.5}
                 changed={values.bg_bitrate_mbps !== defaults.bg_bitrate_mbps}
                 onChange={(bg_bitrate_mbps) => setChanges({ bg_bitrate_mbps })}
@@ -347,14 +316,16 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
                 onChange={(bg_spatial: Exclude<BgSpatialKind, "none">) => setChanges({ bg_spatial })}
               />
             </SettingControl>
-            <SettingControl title="Max disk radius (m)" hint={<C>bg_max_distance_m</C>}>
+            <SettingControl title="Max disk radius (m)" hint={<><C>bg_max_distance_m</C> (120–700)</>}>
               <NumberField
                 ariaLabel="Maximum background disk radius"
                 value={values.bg_max_distance_m}
+                disabled={values.bg_spatial === "homogeneous_ring"}
                 min={120}
+                max={700}
                 step={30}
                 changed={values.bg_max_distance_m !== defaults.bg_max_distance_m}
-                onChange={(bg_max_distance_m) => setChanges({ bg_max_distance_m: Math.min(700, bg_max_distance_m) })}
+                onChange={(bg_max_distance_m) => setChanges({ bg_max_distance_m })}
               />
             </SettingControl>
           </div>
@@ -370,11 +341,12 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
                 onChange={(arrival_mode: ArrivalModeKind) => setChanges({ arrival_mode })}
               />
             </SettingControl>
-            <SettingControl title="Mean hold τ (s)" hint={<C>mean_hold_s</C>}>
+            <SettingControl title="Mean hold τ (s)" hint={<><C>mean_hold_s</C> (0.5–300)</>}>
               <NumberField
                 ariaLabel="Mean session hold duration in seconds"
                 value={values.mean_hold_s}
                 min={0.5}
+                max={300}
                 step={1}
                 changed={values.mean_hold_s !== defaults.mean_hold_s}
                 onChange={(mean_hold_s) => setChanges({ mean_hold_s })}
@@ -384,21 +356,23 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
 
           {values.arrival_mode === "mmpp" && (
             <div className="grid gap-2.5 sm:grid-cols-2">
-              <SettingControl title="Burst modulation (±)" hint={<C>burst_amplitude</C>}>
+              <SettingControl title="Burst modulation (±)" hint={<><C>burst_amplitude</C> (0–0.95)</>}>
                 <NumberField
                   ariaLabel="MMPP burst modulation amplitude"
                   value={values.burst_amplitude}
                   min={0}
+                  max={0.95}
                   step={0.05}
                   changed={values.burst_amplitude !== defaults.burst_amplitude}
-                  onChange={(burst_amplitude) => setChanges({ burst_amplitude: Math.min(0.95, burst_amplitude) })}
+                  onChange={(burst_amplitude) => setChanges({ burst_amplitude })}
                 />
               </SettingControl>
-              <SettingControl title="Burst regime mean (s)" hint={<C>burst_regime_s</C>}>
+              <SettingControl title="Burst regime mean (s)" hint={<><C>burst_regime_s</C> (1–120)</>}>
                 <NumberField
                   ariaLabel="MMPP burst regime mean duration"
                   value={values.burst_regime_s}
                   min={1}
+                  max={120}
                   step={2}
                   changed={values.burst_regime_s !== defaults.burst_regime_s}
                   onChange={(burst_regime_s) => setChanges({ burst_regime_s })}
@@ -455,11 +429,8 @@ function ConditionSection({ settings, updateSetting }: SectionProps) {
     );
   }
 
-  const parametric = isParametricCondition(settings.conditionId);
   const condition = effectiveConditionView(settings.conditionId, settings.parametricOverrides[settings.conditionId]);
   const changedParametricIds = Object.keys(settings.parametricOverrides);
-  const changedLegacyIds = Object.keys(settings.conditionOverrides);
-  const allChangedIds = [...changedParametricIds, ...changedLegacyIds];
 
   function selectGridPreset(ids: readonly string[]) {
     updateSetting("gridSweepMode", "conditions");
@@ -471,32 +442,24 @@ function ConditionSection({ settings, updateSetting }: SectionProps) {
       title="Conditions (C)"
       badge={isCore6Condition(settings.conditionId) ? "Core-6" : settings.conditionId === "CUSTOM" ? "parametric" : undefined}
       description={
-        parametric ? (
-          <>
-            Parametric 5G cell (<T id="parametric_cell" asCode>network.parametric_cell</T>): synthesizes FikoRE INI, Poisson/MMPP session arrivals, spatial
-            positions and trajectories from <C>Global.seed</C>.
-          </>
-        ) : (
-          <>
-            Legacy FikoRE scenario (INI and timeline). Changed values become <C>fikore_section_overrides</C> or <C>fikore_ue_overrides</C>.
-          </>
-        )
+        <>
+          Parametric 5G cell (<T id="parametric_cell" asCode>network.parametric_cell</T>): deterministically synthesizes <C>fikore-effective.ini</C>, Poisson/MMPP
+          session arrivals, spatial positions and trajectories from <C>Global.seed</C>.
+        </>
       }
     >
       {grid && (
         <div className="space-y-2">
-          {parametric && (
-            <SettingControl title="Grid condition mode">
-              <SegmentedChoice
-                value={settings.gridSweepMode}
-                options={[
-                  ["conditions", "selected conditions"],
-                  ["load_sweep", "sweep load_rho"],
-                ]}
-                onChange={(mode) => updateSetting("gridSweepMode", mode)}
-              />
-            </SettingControl>
-          )}
+          <SettingControl title="Grid condition mode">
+            <SegmentedChoice
+              value={settings.gridSweepMode}
+              options={[
+                ["conditions", "selected conditions"],
+                ["load_sweep", "sweep load_rho"],
+              ]}
+              onChange={(mode) => updateSetting("gridSweepMode", mode)}
+            />
+          </SettingControl>
           {!usesParametricLoadSweep(settings) && (
             <SettingControl
               title="Conditions in the grid"
@@ -507,9 +470,6 @@ function ConditionSection({ settings, updateSetting }: SectionProps) {
                   </Button>
                   <Button variant="outline" size="xs" onClick={() => selectGridPreset(ALL_LAYERED_CONDITION_IDS)}>
                     All M01–M11
-                  </Button>
-                  <Button variant="outline" size="xs" onClick={() => selectGridPreset(LEGACY_CONDITION_IDS)}>
-                    Legacy C1–C8b
                   </Button>
                 </span>
               }
@@ -550,7 +510,7 @@ function ConditionSection({ settings, updateSetting }: SectionProps) {
                 {Object.entries(NETWORK_CONDITIONS)
                   .filter(([, entry]) => entry.family === group.family)
                   .map(([id, entry]) => {
-                    const modified = Boolean(settings.conditionOverrides[id] || settings.parametricOverrides[id]);
+                    const modified = Boolean(settings.parametricOverrides[id]);
                     return (
                       <SelectItem key={id} value={id}>
                         {id} · {entry.name}
@@ -564,29 +524,12 @@ function ConditionSection({ settings, updateSetting }: SectionProps) {
         </Select>
       </SettingControl>
 
-      {parametric ? (
-        <ParametricCellEditor settings={settings} updateSetting={updateSetting} />
-      ) : (
-        <table className="w-full">
-          <tbody>
-            {conditionParametersOf(settings.conditionId).map((parameter) => (
-              <LegacyConditionParameterRow key={`${settings.conditionId}-${parameter.id}`} settings={settings} updateSetting={updateSetting} parameter={parameter} />
-            ))}
-          </tbody>
-        </table>
-      )}
+      <ParametricCellEditor settings={settings} updateSetting={updateSetting} />
 
-      {allChangedIds.length > 0 && (
+      {changedParametricIds.length > 0 && (
         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>Changed: {allChangedIds.join(", ")}</span>
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={() => {
-              updateSetting("conditionOverrides", {});
-              updateSetting("parametricOverrides", {});
-            }}
-          >
+          <span>Changed: {changedParametricIds.join(", ")}</span>
+          <Button variant="outline" size="xs" onClick={() => updateSetting("parametricOverrides", {})}>
             Reset all
           </Button>
         </div>
@@ -756,7 +699,13 @@ function SwipeSection({ settings, updateSetting }: SectionProps) {
         </SettingControl>
       ) : (
         <SettingControl title="Swipe times (s, session-relative)" hint={typeof sequence === "string" ? <span className="text-destructive">{sequence}</span> : "The same times for every UE"}>
-          <Input value={settings.swipeTimesS} className="h-8 font-mono text-xs" aria-label="Swipe times" onChange={(event) => updateSetting("swipeTimesS", event.target.value)} />
+          <Input
+            value={settings.swipeTimesS}
+            aria-invalid={typeof sequence === "string"}
+            className="h-8 font-mono text-xs"
+            aria-label="Swipe times"
+            onChange={(event) => updateSetting("swipeTimesS", event.target.value)}
+          />
         </SettingControl>
       )}
       <div>
@@ -810,17 +759,18 @@ function ContentSection({ settings, updateSetting }: SectionProps) {
   return (
     <Section
       title="Content"
+      badge={settings.contentId === "portrait_hd_90s" ? "provisional" : undefined}
       description={
         <>
-          Select the content catalogue written to <C>content</C>: the 18-video Full HD ladder (<C>sfv-portrait-hd-90s.json</C>) or the 3-video smoke-test
-          fixture.
+          Select the content catalogue written to <C>content</C>: the provisional 18-video Full HD ladder (<C>sfv-portrait-hd-90s.json</C>, used until the final
+          pilot SFV catalogue lands) or the 3-video smoke-test fixture.
         </>
       }
     >
       <SettingControl title="Catalogue" hint={<C>{catalogue.filePath}</C>}>
         <SegmentedChoice
           value={settings.contentId}
-          options={(Object.keys(CONTENT_CATALOGUES) as ContentCatalogueId[]).map((id) => [id, id === "portrait_hd_90s" ? "18×8s Full HD" : "3×6s fixture"])}
+          options={(Object.keys(CONTENT_CATALOGUES) as ContentCatalogueId[]).map((id) => [id, id === "portrait_hd_90s" ? "18×8s Full HD (provisional)" : "3×6s fixture"])}
           onChange={(contentId) => updateSetting("contentId", contentId)}
         />
       </SettingControl>

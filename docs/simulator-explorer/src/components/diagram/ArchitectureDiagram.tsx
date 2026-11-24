@@ -11,7 +11,6 @@ import {
   type DiagramGroupFrame,
 } from "@/components/diagram/diagramLayout";
 import { effectiveConditionView } from "@/data/networkConditions";
-import { isParametricCondition } from "@/data/parametricCells";
 import { PLAYER_BEHAVIORS, behaviorsInMix, type PlayerBehavior } from "@/data/playerBehaviors";
 import { cn } from "@/lib/utils";
 import type { ComponentTopology, DiagramEdgeId, DiagramNodeId } from "@/model/componentTopology";
@@ -51,7 +50,6 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
   const level = signalingLevelNumber(settings.signalingLevel);
   const state = settings.implementationState;
   const condition = effectiveConditionView(settings.conditionId, settings.parametricOverrides[settings.conditionId]);
-  const parametric = isParametricCondition(settings.conditionId);
   const rwndLabel = receiveWindowBytesForCondition(settings) >= 1048576 ? "1 MiB" : "256 KiB";
   const { activeEdges, activeNodes } = topology;
   const nodeProps = (id: DiagramNodeId) => ({ box: NODE_BOXES[id], active: activeNodes[id], highlighted: highlightedNodes.includes(id) });
@@ -190,13 +188,13 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
             {...nodeProps("fikore")}
             repository="fikore"
             title={<><T id="FikoRE" /> · {settings.conditionId} {condition.name}</>}
-            codePath={parametric ? "capcsp/network/parametric_cell.py" : `configs/fikore/${condition.fikoreIniFile}`}
+            codePath="capcsp/network/parametric_cell.py"
           >
             <NodeDetailList
               items={[
                 <>{condition.downlinkMbpsBand[0]}–{condition.downlinkMbpsBand[1]} Mbps · RTT {condition.rttMsBand[0]}–{condition.rttMsBand[1]} ms · loss {condition.lossPercentBand[0]}–{condition.lossPercentBand[1]} %</>,
                 <>Cause: {condition.dominantCause}</>,
-                <><T id="PFScheduler">PF scheduler</T> · 1 ms TTI · {parametric ? `~${condition.backgroundUeCount} active TCP BG UEs` : `${condition.backgroundUeCount} background UEs`}</>,
+                <><T id="PFScheduler">PF scheduler</T> · 1 ms TTI · ~{condition.backgroundUeCount} active TCP BG UEs</>,
                 condition.timelineFile && <>Timeline <C>{condition.timelineFile}</C></>,
               ]}
             />

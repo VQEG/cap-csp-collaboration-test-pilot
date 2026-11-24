@@ -8,7 +8,9 @@
     "tcp_connection_mode": "persistent",
     "max_idle_tcp_connections_per_ue": 6,
     "step_ms": 10,
-    "fikore_base_ini": "configs/fikore/layered/m03_l2_homo_rho075_med.ini",
+    "parametric_cell": {
+      "preset": "M03"
+    },
     "study_ues": [
       "studyVqeg"
     ],
@@ -20,9 +22,6 @@
         "seed": 20260927,
         "run_id": "layered-m03-b1"
       }
-    },
-    "background_iperf_ues": {
-      "backgroundSfV": 4.0
     }
   },
   "condition": "M03",

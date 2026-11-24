@@ -4,7 +4,7 @@ Each run produces one structured session record per video UE. Scoring is compute
 
 ## Run Output
 
-`capcsp run` writes these files to the output directory, which git ignores. Real runs are available in [`examples/vqeg-c1-b1-b2-run/`](examples/vqeg-c1-b1-b2-run/README.md) and, with stalls, in [`examples/stall-example-b1-b2-run/`](examples/stall-example-b1-b2-run/README.md).
+`capcsp run` writes these files to the output directory, which git ignores. Example output folders are available in [`examples/stall-example-b1-b2-run/`](examples/stall-example-b1-b2-run/README.md) and [`examples/swipe-during-dropout-b1-b2-run/`](examples/swipe-during-dropout-b1-b2-run/README.md).
 
 - `sessions/ue-<id>.json`: full player result per UE: `events`, `requests`, `ruleState`, `cache` and `sessionRecord`
 - `run-manifest.json`: configuration, source revisions, timing, byte accounting, quality model versions in `scoring`, and collaboration metadata (`shared_state_log`, `csp_control_log` or null, `clock_mode`, `cap_application`)
@@ -14,21 +14,21 @@ Each run produces one structured session record per video UE. Scoring is compute
 - `csp-control.jsonl`: present when `signaling_level` is L3+ and `csp_controller` is `"dummy"`; control proposals from `CSPController`
 - `kpis.csv` and `report.md`: KPIs per UE, including the combined P.1203 scores; the report also lists scores per video and the model versions
 - `player.log`: error output of the player process
-- `fikore-effective.ini` and `fikore.log`: scenario and log of the FikoRE backend
+- `fikore-effective.ini`, `fikore.log`, and (when synthesized by `parametric_cell`) `fikore-timeline.ndjson`: scenario, log, and replayed control timeline of the FikoRE backend
 
 ## Session Record Format
 
 Session records serve as the primary dataset for evaluation. All metrics include explicit units in their field names. The record is the `sessionRecord` field of `sessions/ue-<id>.json`, with schema version 2.
 
-This excerpt comes from UE 0 of the example run. It shows one of the three videos and omits some fields:
+This excerpt illustrates one video entry and session summary (some fields omitted):
 
 ```json
 {
   "schema_version": 2,
-  "run_id": "vqeg-c1-b1-b2",
-  "session_id": "generic-ue0",
+  "run_id": "layered-m01-b1",
+  "session_id": "m01-b1-ue0",
   "ue_id": 0,
-  "condition": "C1",
+  "condition": "M01",
   "network_backend": "transport_fikore",
   "signaling_level": "L0",
   "player_behavior": "simple",

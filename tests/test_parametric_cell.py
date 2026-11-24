@@ -101,10 +101,20 @@ def test_transport_fikore_config_validates_parametric_cell() -> None:
     with pytest.raises(ValueError, match="not both"):
         TransportFikoreConfig.from_dict(
             {
-                "fikore_base_ini": "configs/fikore/c1_healthy_5g.ini",
+                "fikore_base_ini": "5g-network-emulator/config/control_demo.ini",
                 "parametric_cell": {"preset": "M01"},
             }
         )
+
+
+def test_pedestrian_mobility_moves_study_ue_only(tmp_path: Path) -> None:
+    cfg = ParametricCellConfig.from_dict({"preset": "M11"})
+    out = synthesize_parametric_cell(cfg, duration_s=15.0, seed=20260927, work_dir=tmp_path / "m11")
+    doc = ScenarioDocument.read(str(out.ini_path))
+    assert doc.get_ue("studyVqeg", "mobility_type") == "1"
+    assert float(doc.get_ue("studyVqeg", "speed")) == pytest.approx(3.6)
+    assert doc.get_ue("backgroundSfV", "mobility_type") == "0"
+    assert float(doc.get_ue("backgroundSfV", "speed")) == pytest.approx(0.0)
 
 
 @pytest.mark.parametrize(
@@ -115,6 +125,8 @@ def test_transport_fikore_config_validates_parametric_cell() -> None:
         {"load_rho": -0.1},
         {"bg_bitrate_mbps": 0.0},
         {"study_mobility": "teleport"},
+        {"study_mobility": "pedestrian", "study_speed_kmh": 0.0},
+        {"study_mobility": "vehicular_traverse", "study_speed_kmh": 0.0},
         {"unknown_knob": 1},
     ],
 )
@@ -158,8 +170,8 @@ def test_core6_and_load_sweep_grids_expand_cleanly() -> None:
     assert rhos == [0.0, 0.25, 0.5, 0.75, 1.0]
 
 
-def test_mixed_parametric_and_legacy_grid_overlays_resolve_cleanly(tmp_path: Path) -> None:
-    """Verify the exact grid overlay shape emitted by simulator-explorer when mixing M04, CUSTOM, and legacy C2."""
+def test_mixed_parametric_and_raw_ini_grid_overlays_resolve_cleanly(tmp_path: Path) -> None:
+    """Verify grid overlay merging when mixing M04, CUSTOM parametric_cell, and raw fikore_base_ini."""
     import json
     from capcsp.runner.run import load_config
 
@@ -243,12 +255,12 @@ def test_mixed_parametric_and_legacy_grid_overlays_resolve_cleanly(tmp_path: Pat
                     },
                 },
             },
-            "C2": {
-                "condition": "C2",
-                "duration_s": 120,
+            "RAW_INI": {
+                "condition": "RAW_INI",
+                "duration_s": 30,
                 "network": {
                     "receive_window_bytes": 1048576,
-                    "fikore_base_ini": "configs/fikore/c2_plan_capped.ini",
+                    "fikore_base_ini": "5g-network-emulator/config/control_demo.ini",
                 },
             },
         },
@@ -276,7 +288,7 @@ def test_mixed_parametric_and_legacy_grid_overlays_resolve_cleanly(tmp_path: Pat
         cell_path.write_text(json.dumps(cell.experiment_config))
         loaded = load_config(cell_path)
         tf_cfg = TransportFikoreConfig.from_dict(loaded["network"])
-        if cell.condition == "C2":
+        if cell.condition == "RAW_INI":
             assert tf_cfg.fikore_base_ini is not None
             assert tf_cfg.parametric_cell is None
         else:

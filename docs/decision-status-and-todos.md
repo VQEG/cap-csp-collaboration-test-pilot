@@ -6,8 +6,8 @@ When we settle an open point, update the relevant specification and tick it off 
 
 ## Current Blockers
 
-- Final network conditions: the FikoRE condition pack C1–C8b in `configs/fikore/` is calibrated and runs end to end, but its values are provisional. We are waiting on SFV-specific bandwidth, RTT and loss values before we treat any condition as final.
-- Player and video definitions: Michi's group defines the content catalogue, the quality ladder and the exact B1/B2 rules. Until then, runs use the three-video SFV test fixture, which is too short for the longer C6–C8 timelines.
+- Final network conditions: the parametric single-cell 5G presets `M01`–`M11` (`Core-6` = `M01`, `M04`, `M05`, `M07`, `M09`, `M10`) synthesized by `capcsp/network/parametric_cell.py` replace the retired legacy point conditions and run end to end over unconstrained Proportional Fair scheduling with application-paced TCP competing UEs, pending final group sign-off on any additional throttling/backhaul profiles.
+- Player and video definitions: Michi's group defines the final content catalogue, quality ladder and exact B1/B2 rules. Until then, `65 s` FikoRE runs use the **provisional** synthetic 18-video Full HD portrait catalogue (`configs/content/sfv-portrait-hd-90s.json`), while short smoke tests use the three-video SFV fixture.
 
 ## Player and Video Definitions
 
@@ -40,22 +40,18 @@ Multi-video dash.js player for the real-HTTP validation (later milestone):
 Owner: Pablo
 
 - [x] Build the `fikore-control-1` adapter and the `transport_fikore` backend ([FikoRE Co-simulation](fikore-cosim.md)).
-- [x] Build and validate the transport models: TCP with Reno, CUBIC and Prague, cancellation, seeds, per-tag accounting and telemetry ([Network Backend API](network-backend-api.md#transport-models)).
-- [x] Update the FikoRE PHY and MAC models.
-- [x] Add the condition pack C1–C8b with timelines, and run B1/B2 on all nine conditions (PR #6).
-- [x] Add FikoRE reports and plots per condition (PR #7).
-- [ ] Find out why the two study UEs make almost no progress in C4 against 64 saturated background UEs with the 30 ms packet budget ([validation evidence](../configs/experiments/vqeg/validation.md)). C4 is not usable as a policy benchmark until this is resolved.
-- [ ] Model core-network delay on the Link, including the ACK return path, instead of holding requests before submission ([Network Backend API](network-backend-api.md#latency-decomposition)). Keep this open until `backhaul_d` is complemented or replaced by a real core-network rate/queue model that can also represent a satellite link. This also replaces the temporary 15 Mbps grant cap in C7.
+- [x] Build and validate the transport models: TCP with Reno, CUBIC (RFC 9438 + RFC 9406 HyStart++ + RFC 8985 RACK-TLP + RFC 7661 cwnd validation) and Prague, `persistent` / `multiplexed` (RFC 9218) / `fresh` connection modes, cancellation, seeds, per-tag accounting and telemetry ([Network Backend API](network-backend-api.md#transport-models)).
+- [x] Update the FikoRE PHY, MAC, and simulated PDCP in-order / FIFO backhaul delivery models.
+- [x] Replace static legacy point conditions with deterministic runtime-synthesized parametric 5G cell presets `M01`–`M11` (`Core-6` + ablation) and application-paced TCP competing UEs (`capcsp/network/parametric_cell.py`, [`configs/experiments/layered/README.md`](../configs/experiments/layered/README.md)).
+- [ ] Model core-network rate/queue shaping on the Link or backhaul if satellite or core-bottleneck scenarios are added later ([Network Backend API](network-backend-api.md#latency-decomposition)).
 - [ ] Calibrate transport profiles and compare the offline model with real HTTP traffic.
 
 ## Network Conditions
 
 Owners: Karan (SFV-specific target values) and Pablo (FikoRE realization).
 
-- [x] Realize C1–C8 in FikoRE as calibration bands, with C8 split into C8a and C8b ([condition pack](../configs/fikore/README.md)).
-- [ ] Karan: Supply SFV-specific C1–C5 profiles with bandwidth, RTT, and loss values ([meeting notes](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.a7zfcry4xais#heading=h.b2prnlqzgt0a), [research plan](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.vv9m6x6z2j60#heading=h.l92euqunbl3l)).
-- [ ] Pablo: Recalibrate the condition pack once the final values are agreed.
-- [ ] All: Decide whether to add a condition for the video throttling of US operators (about 2–2.5 Mbps), as suggested in a review comment.
+- [x] Realize parametric single-cell 5G presets `M01`–`M11` (`Core-6` screening subset + continuous `load_rho` sweeps) in `capcsp/network/parametric_cell.py` ([parametric conditions README](../configs/experiments/layered/README.md)).
+- [ ] Confirm with Karan and the working group whether any additional operator-throttling (~2–2.5 Mbps) or non-terrestrial profile is needed alongside `M01`–`M11` ([meeting notes](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.a7zfcry4xais#heading=h.b2prnlqzgt0a), [research plan](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.vv9m6x6z2j60#heading=h.l92euqunbl3l)).
 - [ ] TBD: Choose synthetic or FikoRE-recorded traces for the `trace` backend and create them ([Experiments](experiments.md#trace-backend)).
 - [ ] TBD: Match `synthetic_delay_ms` to the non-radio delay measured with live FikoRE ([Network Backend API](network-backend-api.md#latency-decomposition)).
 

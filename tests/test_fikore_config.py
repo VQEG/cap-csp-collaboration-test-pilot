@@ -18,7 +18,7 @@ from fikore_transport.scenario import ScenarioDocument
 def test_relative_base_ini_is_resolved_from_repository_root() -> None:
     config = TransportFikoreConfig.from_dict(
         {
-            "fikore_base_ini": "configs/fikore/c1_healthy_5g.ini",
+            "fikore_base_ini": "5g-network-emulator/config/control_demo.ini",
             "study_ues": ["studyVqeg"],
             "delay_budget_s": None,
             "random_v": None,
@@ -26,12 +26,40 @@ def test_relative_base_ini_is_resolved_from_repository_root() -> None:
         }
     )
     assert config.fikore_base_ini == str(
-        (REPO_ROOT / "configs/fikore/c1_healthy_5g.ini").resolve()
+        (REPO_ROOT / "5g-network-emulator/config/control_demo.ini").resolve()
     )
     assert config.study_ues == ["studyVqeg"]
     assert config.delay_budget_s is None
     assert config.random_v is None
     assert config.ack_over_link is True
+
+
+def test_multiplexed_connection_mode_runs_over_loopback(tmp_path: Path) -> None:
+    from capcsp.network.transport_fikore import TransportFikoreBackend
+    from fikore_transport.backend import DownloadCompleted
+
+    cfg = TransportFikoreConfig.from_dict(
+        {
+            "link": "loopback",
+            "tcp_connection_mode": "multiplexed",
+            "receive_window_bytes": 262144,
+        }
+    )
+    backend = TransportFikoreBackend(cfg, ue_ids=[0], duration_s=2.0, output_dir=tmp_path)
+    try:
+        backend.submit_request(0, "seg-a", 32 * 1024, urgency=1, incremental=False)
+        backend.submit_request(0, "seg-b", 32 * 1024, urgency=4, incremental=True)
+        completed: list[str] = []
+        while True:
+            step = backend.advance()
+            for ev in step.events:
+                if isinstance(ev, DownloadCompleted):
+                    completed.append(ev.request_id)
+            if len(completed) == 2 or step.is_final:
+                break
+        assert completed == ["seg-a", "seg-b"]
+    finally:
+        backend.close()
 
 
 def test_timeline_loader_rounds_expands_and_preserves_fifo(

@@ -432,7 +432,7 @@ export const GLOSSARY = {
     name: "tcp_connection_mode",
     kind: "config key",
     summary:
-      "`persistent` reuses up to `max_idle_tcp_connections_per_ue` warm connections. `fresh` opens a new connection per object, with slow start each time; it is the comparison baseline.",
+      "`persistent` reuses up to `max_idle_tcp_connections_per_ue` warm HTTP/1.1-style connections. `multiplexed` shares a single RFC 9218 prioritized connection per UE (HTTP/2 / HTTP/3 style). `fresh` opens a new connection per object, with slow start each time.",
   },
   plan_downlink_mbps_by_ue: {
     name: "plan_downlink_mbps_by_ue",

@@ -7,7 +7,13 @@
     "tcp_connection_mode": "persistent",
     "max_idle_tcp_connections_per_ue": 6,
     "step_ms": 10,
-    "fikore_base_ini": "configs/fikore/c6_mobility_dropout.ini",
+    "parametric_cell": {
+      "preset": "M01",
+      "bandwidth_mhz": 100,
+      "study_position": "mid",
+      "backhaul_delay_ms": 25.0,
+      "backhaul_jitter_ms": 20.0
+    },
     "study_ues": [
       "studyVqeg"
     ],

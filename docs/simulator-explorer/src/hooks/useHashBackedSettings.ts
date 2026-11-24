@@ -4,7 +4,7 @@ import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import { isParametricCondition } from "@/data/parametricCells";
 import { BEHAVIOR_MIXES } from "@/data/playerBehaviors";
-import { DEFAULT_EXPLORER_SETTINGS, NETWORK_BACKEND_KINDS, type ExplorerSettings } from "@/model/explorerSettings";
+import { DEFAULT_EXPLORER_SETTINGS, NETWORK_BACKEND_KINDS, TCP_CONNECTION_MODES, type ExplorerSettings } from "@/model/explorerSettings";
 
 /** An object or array setting from its JSON form; the default when it does not parse or has another shape. */
 function parseJsonSetting(raw: string, defaultValue: object): unknown {
@@ -46,6 +46,7 @@ function readSettingsFromHash(): ExplorerSettings {
   if (!NETWORK_CONDITIONS[settings.conditionId]) settings.conditionId = DEFAULT_EXPLORER_SETTINGS.conditionId;
   if (!CONTENT_CATALOGUES[settings.contentId]) settings.contentId = DEFAULT_EXPLORER_SETTINGS.contentId;
   if (!NETWORK_BACKEND_KINDS.includes(settings.networkBackend)) settings.networkBackend = DEFAULT_EXPLORER_SETTINGS.networkBackend;
+  if (!TCP_CONNECTION_MODES.includes(settings.tcpConnectionMode)) settings.tcpConnectionMode = DEFAULT_EXPLORER_SETTINGS.tcpConnectionMode;
   if (!IMPLEMENTATION_STATES[settings.implementationState]) settings.implementationState = DEFAULT_EXPLORER_SETTINGS.implementationState;
   if (settings.gridSweepMode !== "conditions" && settings.gridSweepMode !== "load_sweep") {
     settings.gridSweepMode = "conditions";

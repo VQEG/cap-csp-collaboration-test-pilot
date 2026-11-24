@@ -18,15 +18,21 @@ export function SetupNotesCard({ settings }: { settings: ExplorerSettings }) {
     settings.networkBackend === "mock" && "The mock backend is for tests. It has no delay and no telemetry source. Only the plan rate can reach the player.",
     fikore && isParametricCondition(settings.conditionId) && (
       <>
-        Parametric conditions (<C>M01</C>–<C>M11</C> and <C>CUSTOM</C>) synthesize <C>fikore-effective.ini</C>, <C>fikore-timeline.ndjson</C> and application-paced
-        TCP background flows at run start from <C>Global.seed</C> (<T id="parametric_cell" asCode>network.parametric_cell</T>), so each replication in{" "}
-        <C>capcsp grid</C> samples an independent Poisson/MMPP arrival and spatial realization.
+        Parametric conditions (<C>M01</C>–<C>M11</C> and <C>CUSTOM</C>) deterministically synthesize <C>fikore-effective.ini</C>, <C>fikore-timeline.ndjson</C>{" "}
+        and application-paced TCP background flows at run start from <C>Global.seed</C> (<T id="parametric_cell" asCode>network.parametric_cell</T>).
       </>
     ),
-    fikore && settings.conditionId === "C2" && "C2 applies a 25 Mbps grant cap as the per-UE plan. At L1 the plan rate tells the player this limit in advance.",
-    fikore && settings.conditionId === "C7" && "C7's 15 Mbps cap is a proxy for a backhaul bottleneck, not a plan rate. It should be replaced once FikoRE has a backhaul shaper.",
+    settings.contentId === "portrait_hd_90s" && (
+      <>
+        <C>sfv-portrait-hd-90s.json</C> is a provisional synthetic 18×8 s Full HD portrait ladder used to sustain multi-swipe runs until the pilot's final SFV
+        catalogue lands.
+      </>
+    ),
     fikore && !settings.acksOverFikoreUplink && "Without ACKs over the uplink, ACKs return after 1 ms and the measured RTT is lower than the condition's target.",
     fikore && settings.tcpConnectionMode === "fresh" && "Fresh mode opens a new TCP connection per object, with slow start each time. It is the comparison baseline.",
+    fikore &&
+      settings.tcpConnectionMode === "multiplexed" &&
+      "Multiplexed mode shares a single RFC 9218 prioritized TCP connection per UE (HTTP/2 / HTTP/3 style), avoiding per-request connection setup and head-of-line pool contention.",
     level >= 1 && level <= 2 && "The B1 and B2 rules do not use CSP fields yet. A level only changes results once a policy reads them.",
     level === 3 && (
       <>
