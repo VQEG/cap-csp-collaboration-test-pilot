@@ -11,6 +11,9 @@ from typing import Any, Literal
 from capcsp.scoring.p1203 import p1203_integration_scores
 from capcsp.scoring.p1204_1_pv import segment_video_quality_mos
 from capcsp.scoring.records import per_second_scores, played_segments_of_video, stalling_events_of_video
+from capcsp.scoring.sfv_nguyen_tran import COEFFICIENTS as SFV_SWIPE_COEFFICIENTS
+from capcsp.scoring.sfv_nguyen_tran import REFERENCE as SFV_SWIPE_REFERENCE
+from capcsp.scoring.sfv_nguyen_tran import sfv_nguyen_tran_scores
 
 
 @dataclass(frozen=True)
@@ -53,7 +56,11 @@ def _model_package_version(package: str) -> dict[str, Any]:
 
 
 def _score_session_record(record: dict[str, Any], dataset: dict[str, Any], settings: ScoringSettings) -> None:
-    """Add `p1204_1_segment_scores` and `p1203_output` to the videos and summary of a session record."""
+    """Add the scores to a session record.
+
+    Adds `p1204_1_segment_scores` and `p1203_output` to the videos, and `p1203_output` and
+    `sfv_nguyen_tran_output` to the session summary.
+    """
     video_content_by_id = {video["videoId"]: video for video in dataset["videos"]}
     scored_videos: list[tuple[float, dict[str, Any]]] = []
 
@@ -95,6 +102,7 @@ def _score_session_record(record: dict[str, Any], dataset: dict[str, Any], setti
             scored_videos.append((sum(duration_s for duration_s, _ in segment_scores), scores))
 
     record["session_summary"]["p1203_output"] = combine_video_scores(scored_videos)
+    record["session_summary"]["sfv_nguyen_tran_output"] = sfv_nguyen_tran_scores(record["videos"])
 
 
 def combine_video_scores(scored_videos: list[tuple[float, dict[str, Any]]]) -> dict[str, float] | None:
@@ -117,5 +125,6 @@ def score_run(run_dir: Path, dataset: dict[str, Any], settings: ScoringSettings)
     return {
         "integration_model": {"standard": "ITU-T P.1203.3", **_model_package_version("itu-p1203")},
         "video_model": {"standard": "ITU-T P.1204.1 Mode 0 (AVQBits|M0)", **_model_package_version("mode0-retraining")},
+        "sfv_swipe_model": {"reference": SFV_SWIPE_REFERENCE, "coefficients": dict(SFV_SWIPE_COEFFICIENTS)},
         "settings": asdict(settings),
     }

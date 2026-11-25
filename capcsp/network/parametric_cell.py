@@ -7,7 +7,8 @@ purely deterministic from ``Global.seed`` (keyed via ``SHA-256("capcsp-parametri
 so paired player configurations and re-runs with the same seed reproduce byte-identical `.ini`
 and `.ndjson` artifacts without checking static timeline files into git.
 
-Proportional-fair scheduling (`metric_type: 6`) runs unconstrained without per-UE `rmax` caps.
+Proportional-fair scheduling (`metric_type: 6`) runs unconstrained without per-UE `rmax` caps,
+unless the optional ``study_dl_rmax_mbps`` knob installs one static downlink cap on the study UE.
 """
 
 from __future__ import annotations
@@ -31,11 +32,21 @@ STUDY_ZONE_DISTANCES_M: dict[str, float] = {
 
 VALID_BANDWIDTHS_MHZ = (10, 20, 40, 60, 80, 100)
 VALID_STUDY_POSITIONS = ("good", "mid", "edge", "custom")
-VALID_STUDY_MOBILITIES = ("static", "pedestrian", "vehicular_traverse")
+VALID_STUDY_MOBILITIES = ("static", "urban_bus", "vehicular_traverse")
 VALID_BG_SPATIAL = ("none", "homogeneous_ring", "cell_disk")
 VALID_ARRIVAL_MODES = ("poisson", "mmpp")
 
 CORE6_PRESET_IDS: tuple[str, ...] = ("M01", "M04", "M05", "M07", "M09", "M10")
+
+# Deterministic urban bus stop-and-go cycle: cruise at `study_speed_kmh`, then dwell at a stop.
+BUS_DRIVE_PHASE_S = 15.0
+BUS_STOP_DWELL_S = 10.0
+BUS_CYCLE_S = BUS_DRIVE_PHASE_S + BUS_STOP_DWELL_S
+# Interval between study-UE position waypoints in the synthesized control timeline.
+STUDY_WAYPOINT_PERIOD_TTI = 250
+
+DEFAULT_URBAN_BUS_SPEED_KMH = 25.0
+DEFAULT_VEHICULAR_TRAVERSE_SPEED_KMH = 73.26
 
 # Calibrated UMa n78 (3.5 GHz, 20 MHz, numerology 1, TDD 7/3/54) points on
 # include/maps_scenarios/macroscopic_fading_map_URBAN_MACROCELL_3.5.json:
@@ -399,6 +410,7 @@ _DEFAULT_CUSTOM_SPEC: dict[str, Any] = {
     "study_speed_kmh": 0.0,
     "traverse_min_distance_m": STUDY_ZONE_DISTANCES_M["good"],
     "traverse_max_distance_m": 660.0,
+    "study_dl_rmax_mbps": None,
     "load_rho": 0.50,
     "bg_spatial": "cell_disk",
     "bg_max_distance_m": 630.0,
@@ -491,10 +503,12 @@ PARAMETRIC_CELL_PRESETS: dict[str, dict[str, Any]] = {
     "M11": {
         **_DEFAULT_CUSTOM_SPEC,
         "preset": "M11",
-        "study_position": "edge",
-        "study_distance_m": STUDY_ZONE_DISTANCES_M["edge"],
-        "study_mobility": "pedestrian",
-        "study_speed_kmh": 3.6,
+        "study_position": "custom",
+        "study_distance_m": 220.0,
+        "study_mobility": "urban_bus",
+        "study_speed_kmh": DEFAULT_URBAN_BUS_SPEED_KMH,
+        "traverse_min_distance_m": 220.0,
+        "traverse_max_distance_m": 650.0,
         "load_rho": 0.50,
         "bg_spatial": "cell_disk",
     },
@@ -520,6 +534,8 @@ class ParametricCellConfig:
     study_speed_kmh: float = 0.0
     traverse_min_distance_m: float = STUDY_ZONE_DISTANCES_M["good"]
     traverse_max_distance_m: float = 660.0
+    study_dl_rmax_mbps: float | None = None
+    """Optional static downlink rate cap of the study UE in Mbps (`None` = uncapped)."""
     load_rho: float = 0.50
     bg_spatial: str = "cell_disk"
     bg_max_distance_m: float = 630.0
@@ -559,10 +575,10 @@ class ParametricCellConfig:
             mob = values["study_mobility"]
             if mob == "static":
                 merged["study_speed_kmh"] = 0.0
-            elif mob == "pedestrian":
-                merged["study_speed_kmh"] = 3.6
+            elif mob == "urban_bus":
+                merged["study_speed_kmh"] = DEFAULT_URBAN_BUS_SPEED_KMH
             elif mob == "vehicular_traverse":
-                merged["study_speed_kmh"] = 73.26
+                merged["study_speed_kmh"] = DEFAULT_VEHICULAR_TRAVERSE_SPEED_KMH
 
         load_rho = _finite_number(merged["load_rho"], "load_rho")
         if load_rho > 0.0 and merged["bg_spatial"] == "none" and "bg_spatial" not in values:
@@ -596,8 +612,14 @@ class ParametricCellConfig:
         trav_max = _finite_number(merged["traverse_max_distance_m"], "traverse_max_distance_m")
         if not (10.0 <= trav_min <= 850.0 and 10.0 <= trav_max <= 850.0):
             raise ValueError("parametric_cell traverse distances must be between 10 and 850 m")
-        if merged["study_mobility"] == "vehicular_traverse" and abs(trav_max - trav_min) < 1.0:
+        if merged["study_mobility"] in ("vehicular_traverse", "urban_bus") and abs(trav_max - trav_min) < 1.0:
             raise ValueError("parametric_cell traverse_min_distance_m and traverse_max_distance_m must differ")
+
+        study_dl_rmax_mbps: float | None = None
+        if merged.get("study_dl_rmax_mbps") is not None:
+            study_dl_rmax_mbps = _finite_number(merged["study_dl_rmax_mbps"], "study_dl_rmax_mbps")
+            if not 0.1 <= study_dl_rmax_mbps <= 1000.0:
+                raise ValueError("parametric_cell.study_dl_rmax_mbps must be between 0.1 and 1000.0 Mbps when set")
 
         if not 0.0 <= load_rho <= 2.0:
             raise ValueError("parametric_cell.load_rho must be between 0.0 and 2.0")
@@ -636,6 +658,7 @@ class ParametricCellConfig:
             study_speed_kmh=study_speed_kmh,
             traverse_min_distance_m=trav_min,
             traverse_max_distance_m=trav_max,
+            study_dl_rmax_mbps=study_dl_rmax_mbps,
             load_rho=load_rho,
             bg_spatial=merged["bg_spatial"],
             bg_max_distance_m=bg_max_distance_m,
@@ -765,34 +788,65 @@ def _generate_sessions(
     return sessions
 
 
-def _study_trajectory_commands(
+def _triangle_position_m(distance_m: float, d_min: float, d_max: float) -> float:
+    """Reflect a cumulative travelled `distance_m` onto the corridor `[d_min, d_max]`.
+
+    The UE starts at `d_min`, moves to `d_max`, and returns, as a triangle wave of the travelled
+    distance. Works for `d_min > d_max` (the corridor is then traversed in the other direction).
+    """
+    span_m = abs(d_max - d_min)
+    phase = (distance_m % (2.0 * span_m)) / span_m
+    tri = phase if phase <= 1.0 else (2.0 - phase)
+    return d_min + tri * (d_max - d_min)
+
+
+def _bus_driving_time_s(t_s: float) -> tuple[float, bool]:
+    """Return cumulative driving time `u(t)` and whether the bus is moving at `t_s`."""
+    full_cycles, within_s = divmod(t_s, BUS_CYCLE_S)
+    if within_s < BUS_DRIVE_PHASE_S:
+        return full_cycles * BUS_DRIVE_PHASE_S + within_s, True
+    return (full_cycles + 1.0) * BUS_DRIVE_PHASE_S, False
+
+
+def _build_study_mobility_events(
     config: ParametricCellConfig,
     *,
     duration_s: float,
 ) -> dict[int, list[dict[str, Any]]]:
-    """Build 250 ms waypoint updates along x when `study_mobility == 'vehicular_traverse'`."""
+    """Build 250 ms study-UE waypoint updates along x for the scripted mobility modes.
+
+    - `vehicular_traverse`: continuous triangle-wave traversal of `[d_min, d_max]` at constant speed.
+    - `urban_bus`: the same corridor driven in stop-and-go cycles of `BUS_DRIVE_PHASE_S` cruising
+      at `study_speed_kmh` followed by `BUS_STOP_DWELL_S` standing still (`speed_kmh = 0`).
+    """
     by_tti: dict[int, list[dict[str, Any]]] = {}
-    if config.study_mobility != "vehicular_traverse":
+    if config.study_mobility not in ("vehicular_traverse", "urban_bus"):
         return by_tti
 
     horizon_tti = int(round(duration_s * 1000.0))
     d_min = config.traverse_min_distance_m
     d_max = config.traverse_max_distance_m
-    span_m = abs(d_max - d_min)
     speed_ms = config.study_speed_kmh / 3.6
-    half_period_s = span_m / speed_ms
-    for tti in range(0, horizon_tti, 250):
+    for tti in range(0, horizon_tti, STUDY_WAYPOINT_PERIOD_TTI):
         t_s = tti / 1000.0
-        phase = (t_s % (2.0 * half_period_s)) / half_period_s
-        tri = phase if phase <= 1.0 else (2.0 - phase)
-        x_m = round(d_min + tri * (d_max - d_min), 3)
+        if config.study_mobility == "vehicular_traverse":
+            # Time-domain triangle wave; kept literal so that M10 artifacts stay byte-identical.
+            half_period_s = abs(d_max - d_min) / speed_ms
+            phase = (t_s % (2.0 * half_period_s)) / half_period_s
+            tri = phase if phase <= 1.0 else (2.0 - phase)
+            x_m = round(d_min + tri * (d_max - d_min), 3)
+            speed_kmh = round(config.study_speed_kmh, 2)
+        else:
+            driving_s, is_driving = _bus_driving_time_s(t_s)
+            x_m = round(_triangle_position_m(driving_s * speed_ms, d_min, d_max), 3)
+            speed_kmh = round(config.study_speed_kmh, 2) if is_driving else 0.0
         by_tti.setdefault(tti, []).append(
             {
                 "target": "ue/studyVqeg",
                 "set": {
                     "mobility.pos_x_m": x_m,
                     "mobility.pos_y_m": 0.0,
-                    "mobility.speed_kmh": round(config.study_speed_kmh, 2),
+                    "mobility.speed_kmh": speed_kmh,
                 },
             }
         )
@@ -807,14 +861,11 @@ def _render_parametric_ini(
     n_pool: int,
     timeline_path: Path | None,
 ) -> str:
-    if config.study_mobility == "pedestrian":
-        mob_type = 1
-        speed_kmh = config.study_speed_kmh
-        speed_var = min(0.5, 0.15 * speed_kmh)
-    else:
-        mob_type = 0
-        speed_kmh = 0.0
-        speed_var = 0.0
+    # Position and instantaneous speed of moving study UEs are driven by the 250 ms control
+    # timeline, so the static `[UE]` header always uses `mobility_type: 0`.
+    mob_type = 0
+    speed_kmh = 0.0
+    speed_var = 0.0
 
     bg_section = ""
     if n_pool > 0:
@@ -1033,7 +1084,14 @@ def synthesize_parametric_cell(
             rng=rng,
         )
 
-    by_tti = _study_trajectory_commands(config, duration_s=horizon_s)
+    by_tti = _build_study_mobility_events(config, duration_s=horizon_s)
+    if config.study_dl_rmax_mbps is not None:
+        by_tti.setdefault(0, []).append(
+            {
+                "target": "ue/studyVqeg",
+                "set": {"dl.rmax_mbps": round(config.study_dl_rmax_mbps, 4)},
+            }
+        )
     if n_pool > 0:
         active_at_zero = {sess["slot"]: sess for sess in sessions if sess["start_tti"] == 0}
         for slot in range(n_pool):

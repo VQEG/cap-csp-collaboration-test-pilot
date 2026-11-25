@@ -1,5 +1,5 @@
 import { SIGNALING_LEVELS } from "@/data/signalingLevels";
-import { backendHasCspTelemetrySource, signalingLevelNumber, usesConstantRateBackend, type ExplorerSettings } from "@/model/explorerSettings";
+import { backendHasCspTelemetrySource, hasPlanRate, signalingLevelNumber, usesConstantRateBackend, usesFikoreBackend, type ExplorerSettings } from "@/model/explorerSettings";
 
 // Banner text: what the chosen level does in the chosen state, in plain words.
 
@@ -18,7 +18,9 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
   const level = signalingLevelNumber(settings.signalingLevel);
   const hasTelemetrySource = backendHasCspTelemetrySource(settings);
   const constantRate = usesConstantRateBackend(settings);
-  const planRateConfigured = settings.planDownlinkMbps !== "";
+  // An explicit plan rate, or the static `study_dl_rmax_mbps` cap of the current condition on FikoRE.
+  const planRateConfigured = hasPlanRate(settings);
+  const planFromStaticCap = planRateConfigured && settings.planDownlinkMbps === "" && usesFikoreBackend(settings);
 
   if (settings.implementationState === "design") {
     if (level === 3 && constantRate)
@@ -56,12 +58,15 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       return {
         kind: "partial",
         title: "Implemented, needs a plan rate",
-        explanation: "The player gets the plan rate from `plan_downlink_mbps_by_ue` in the config. No plan rate is set yet.",
+        explanation:
+          "The player gets the plan rate from `plan_downlink_mbps_by_ue` in the config, or, on FikoRE, from the static cap `parametric_cell.study_dl_rmax_mbps` of the condition. Neither is set yet, so B1 and B2 behave as at L0.",
       };
     return {
       kind: "ok",
       title: "Implemented",
-      explanation: "At the start of the run, the player gets its plan rate (`plan_downlink_mbps`) from the config. This works with every backend. B1 and B2 store the value but do not act on it yet.",
+      explanation: `At the start of the run, the player gets its plan rate (\`plan_downlink_mbps\`)${
+        planFromStaticCap ? " from the static cap `study_dl_rmax_mbps` of the condition, as no explicit plan rate is set" : " from the config"
+      }. This works with every backend. B1 and B2 use it to cap their selected ABR bitrate at \`plan_downlink_mbps * planSafetyFactor\`.`,
     };
   }
   if (level === 2) {
@@ -69,13 +74,14 @@ export function describeImplementationStatus(settings: ExplorerSettings): Implem
       return {
         kind: "partial",
         title: `Live fields empty on ${settings.networkBackend}`,
-        explanation: "The player gets the plan rate, if one is set. Live network measurements come only from the FikoRE backend.",
+        explanation:
+          "The player gets the plan rate, if one is set; B1 and B2 cap their selected ABR bitrate with it, as at L1. Live network measurements come only from the FikoRE backend.",
       };
     return {
       kind: "ok",
       title: "Implemented",
       explanation:
-        "Every second (`csp_telemetry_interval_s`), the player gets live measurements from FikoRE: achieved throughput, RTT and loss, plus the plan rate. B1 and B2 store them but do not act on them yet.",
+        "Every second (`csp_telemetry_interval_s`), the player gets live measurements from FikoRE: achieved throughput, RTT and loss, plus the plan rate. B1 and B2 cap their selected ABR bitrate with the plan rate, if one is set, as at L1. The live measurements are recorded and delivered, but they do not change the rule selection yet.",
     };
   }
   if (level === 3) {

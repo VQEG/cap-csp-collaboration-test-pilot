@@ -5751,6 +5751,14 @@
         "O46": 2.2871360718365192,
         "O35": 3.7942954090768444,
         "O23": 2.2284406148321554
+      },
+      "sfv_nguyen_tran_output": {
+        "mos": 4.261,
+        "raw_mos": 4.261,
+        "raw_unclamped_mos": 4.261,
+        "mid_video_swipes": 1,
+        "delayed_mid_video_swipes": 1,
+        "weighted_swipe_delay_s": 0.29
       }
     }
   }

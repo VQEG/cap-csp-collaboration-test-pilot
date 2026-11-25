@@ -15,10 +15,13 @@ import {
   PARAMETRIC_PRESET_DEFAULTS,
   STUDY_ZONE_DISTANCES_M,
   VALID_CELL_BANDWIDTHS_MHZ,
+  defaultStudySpeedKmh,
   estimateMeanActiveBgUes,
   isCore6Condition,
+  isValidStudyDlRmaxMbps,
   parseLoadSweepValues,
   resolveParametricCellValues,
+  usesTraverseCorridor,
   type ArrivalModeKind,
   type BgSpatialKind,
   type CellBandwidthMhz,
@@ -89,7 +92,8 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
   const sweepParsed = parseLoadSweepValues(settings.loadSweepValues);
   const lambdaBg = estimateMeanActiveBgUes(values);
   const traverseSpanError =
-    values.study_mobility === "vehicular_traverse" && Math.abs(values.traverse_max_distance_m - values.traverse_min_distance_m) < 1.0;
+    usesTraverseCorridor(values.study_mobility) && Math.abs(values.traverse_max_distance_m - values.traverse_min_distance_m) < 1.0;
+  const capValid = isValidStudyDlRmaxMbps(values.study_dl_rmax_mbps);
 
   function setChanges(changes: Partial<ParametricCellValues>) {
     const merged: Partial<ParametricCellValues> = { ...currentOverrides, ...changes };
@@ -111,8 +115,16 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
   }
 
   function setMobility(mobility: StudyMobilityKind) {
-    const defaultSpeed = mobility === "static" ? 0 : mobility === "pedestrian" ? 3.6 : 73.26;
-    setChanges({ study_mobility: mobility, study_speed_kmh: defaultSpeed });
+    setChanges({ study_mobility: mobility, study_speed_kmh: defaultStudySpeedKmh(mobility) });
+  }
+
+  /** Set the static study-UE cap (null = uncapped) and keep the plan rate in step with it. */
+  function setStudyCap(cap: number | null) {
+    setChanges({ study_dl_rmax_mbps: cap });
+    const previousCap = values.study_dl_rmax_mbps;
+    const plan = settings.planDownlinkMbps;
+    const planFollowsCap = plan === "" || (previousCap !== null && Number(plan) === previousCap);
+    if (planFollowsCap) updateSetting("planDownlinkMbps", cap === null ? "" : String(cap));
   }
 
   return (
@@ -170,7 +182,7 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
             value={values.study_mobility}
             options={[
               ["static", "static"],
-              ["pedestrian", "pedestrian"],
+              ["urban_bus", "urban bus"],
               ["vehicular_traverse", "vehicular"],
             ]}
             onChange={setMobility}
@@ -186,14 +198,14 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
             disabled={values.study_mobility === "static"}
             min={values.study_mobility === "static" ? 0 : 0.1}
             max={values.study_mobility === "static" ? 0 : 250}
-            step={values.study_mobility === "pedestrian" ? 0.5 : 5}
+            step={values.study_mobility === "urban_bus" ? 1 : 5}
             changed={values.study_speed_kmh !== defaults.study_speed_kmh}
             onChange={(study_speed_kmh) => setChanges({ study_speed_kmh })}
           />
         </SettingControl>
       </div>
 
-      {values.study_mobility === "vehicular_traverse" && (
+      {usesTraverseCorridor(values.study_mobility) && (
         <div className="grid gap-2.5 sm:grid-cols-2">
           <SettingControl title="Traverse min x (m)" hint={<><C>traverse_min_distance_m</C> (10–850)</>}>
             <NumberField
@@ -228,6 +240,38 @@ function ParametricCellEditor({ settings, updateSetting }: SectionProps) {
           </SettingControl>
         </div>
       )}
+
+      <SettingControl
+        title="Study UE downlink cap (Mbps)"
+        hint={
+          capValid ? (
+            <>
+              <C>study_dl_rmax_mbps</C>: empty or 0 = uncapped, otherwise 0.1–1000 · also the plan rate from L1
+            </>
+          ) : (
+            <span className="text-destructive">The cap must be empty, 0, or between 0.1 and 1000 Mbps</span>
+          )
+        }
+      >
+        <Input
+          type="number"
+          inputMode="decimal"
+          aria-label="Study UE static downlink cap in Mbps"
+          aria-invalid={!capValid}
+          min={0}
+          max={1000}
+          step={0.5}
+          placeholder="uncapped"
+          value={values.study_dl_rmax_mbps ?? ""}
+          className={cn("h-7 px-2 text-right font-mono text-xs", values.study_dl_rmax_mbps !== defaults.study_dl_rmax_mbps && "border-primary bg-primary/5")}
+          onChange={(event) => {
+            const text = event.target.value.trim();
+            const next = Number(text);
+            if (text === "" || next === 0) setStudyCap(null);
+            else if (Number.isFinite(next)) setStudyCap(next);
+          }}
+        />
+      </SettingControl>
 
       {loadSweep ? (
         <SettingControl

@@ -138,7 +138,11 @@ export function ArchitectureDiagram({ settings, topology, highlightedEdges, high
                 {behaviors.length > 1 && "B2 "}preloads {parameter("preload", "preloadSegmentsPerVideo")} segments of each next video, at most {parameter("preload", "maxPreloadSegments")}
               </>
             ),
-            state === "design" ? <>A policy for L1+ would read <T id="CspFields" asCode /> here (not written yet)</> : <>Reads no <T id="CspFields" asCode /> yet; decisions as at L0</>,
+            state === "design" ? <>A policy for L1+ would read <T id="CspFields" asCode /> here (not written yet)</> : level === 0 ? (
+              <>Gets no <T id="CspFields" asCode />; decisions from its own download history</>
+            ) : (
+              <>Caps its ABR bitrate at <C>plan_downlink_mbps * planSafetyFactor</C> when a plan rate is set; the live <T id="CspFields" asCode /> do not change the choice yet</>
+            ),
           ]}
         />
       </DiagramNode>

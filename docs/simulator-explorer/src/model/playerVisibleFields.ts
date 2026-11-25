@@ -1,6 +1,6 @@
 import { bandMidpoint, effectiveConditionView } from "@/data/networkConditions";
 import type { GlossaryTermId } from "@/data/glossary";
-import { backendHasCspTelemetrySource, signalingLevelNumber, type ExplorerSettings } from "@/model/explorerSettings";
+import { backendHasCspTelemetrySource, effectivePlanDownlinkMbps, signalingLevelNumber, type ExplorerSettings } from "@/model/explorerSettings";
 
 // CspFields rows for UE 0: where each value comes from and whether the player
 // can see it. Values are midpoints of the calibration bands, not run data.
@@ -19,12 +19,12 @@ export function computePlayerVisibleFields(settings: ExplorerSettings): PlayerVi
   const level = signalingLevelNumber(settings.signalingLevel);
   const hasTelemetrySource = backendHasCspTelemetrySource(settings);
   const condition = effectiveConditionView(settings.conditionId, settings.parametricOverrides[settings.conditionId]);
-  const planValue = settings.planDownlinkMbps === "" ? null : Number(settings.planDownlinkMbps);
+  const planValue = effectivePlanDownlinkMbps(settings);
   const rttMidpoint = bandMidpoint(condition.rttMsBand);
   const throughputShare = Math.round((bandMidpoint(condition.downlinkMbpsBand) / Math.max(1, settings.videoUeCount / 2)) * 10) / 10;
 
   const rows: Omit<PlayerVisibleFieldRow, "visibility">[] = [
-    { field: "plan_downlink_mbps", source: "config: plan_downlink_mbps_by_ue", minimumLevel: 1, exampleValue: planValue },
+    { field: "plan_downlink_mbps", source: "config: plan_downlink_mbps_by_ue, or the static study_dl_rmax_mbps cap on FikoRE", minimumLevel: 1, exampleValue: planValue },
     { field: "achieved_throughput_mbps", source: "telemetry sample: throughput_mbps (1 s mean)", minimumLevel: 2, exampleValue: hasTelemetrySource ? throughputShare : null },
     {
       field: "rtt_ms",
