@@ -1,5 +1,5 @@
 import type { ContentCatalogueId } from "@/data/contentCatalogue";
-import { CORE6_CONDITION_IDS, type ParametricCellValues } from "@/data/parametricCells";
+import { CORE6_CONDITION_IDS, resolveParametricCellValues, type ParametricCellValues } from "@/data/parametricCells";
 import { PLAYER_BEHAVIORS, type BehaviorMixId, type BehaviorParameterValues, type PlayerBehavior } from "@/data/playerBehaviors";
 
 // Settings chosen in the control panel and the experiment design card. They
@@ -94,6 +94,27 @@ export function usesFikoreBackend(settings: ExplorerSettings): boolean {
 
 export function usesConstantRateBackend(settings: ExplorerSettings): boolean {
   return settings.networkBackend === "constant_rate";
+}
+
+/**
+ * The plan rate in Mbps that the run provides to the player from L1, or null when there is none.
+ * An explicit `plan_downlink_mbps_by_ue` wins. Without it, a `transport_fikore` run whose current
+ * parametric condition sets `study_dl_rmax_mbps` uses that static cap as the plan rate
+ * (`derive_plan_downlink_mbps` in `capcsp/runner/run.py`).
+ */
+export function effectivePlanDownlinkMbps(settings: ExplorerSettings): number | null {
+  if (settings.planDownlinkMbps !== "") {
+    const explicit = Number(settings.planDownlinkMbps);
+    return Number.isFinite(explicit) && explicit > 0 ? explicit : null;
+  }
+  if (!usesFikoreBackend(settings)) return null;
+  const cap = resolveParametricCellValues(settings.conditionId, settings.parametricOverrides[settings.conditionId]).study_dl_rmax_mbps;
+  return cap !== null && cap > 0 ? cap : null;
+}
+
+/** Whether the config states or implies a plan rate (explicit, or derived from a static study-UE cap). */
+export function hasPlanRate(settings: ExplorerSettings): boolean {
+  return effectivePlanDownlinkMbps(settings) !== null;
 }
 
 /** Only transport_fikore has a CSP telemetry source; mock and constant_rate write no telemetry. */

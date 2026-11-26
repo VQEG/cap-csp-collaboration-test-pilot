@@ -1,6 +1,7 @@
 import {
   backendAcceptsUeControl,
   backendHasCspTelemetrySource,
+  hasPlanRate,
   signalingLevelNumber,
   usesConstantRateBackend,
   usesFikoreBackend,
@@ -59,7 +60,7 @@ export function computeComponentTopology(settings: ExplorerSettings): ComponentT
   const hasSharedStateTable = true;
   const constantRate = usesConstantRateBackend(settings);
   const backendEmitsTelemetry = backendHasCspTelemetrySource(settings); // mock and constant_rate have no CSP telemetry source
-  const planRateConfigured = settings.planDownlinkMbps !== "";
+  const planRateConfigured = hasPlanRate(settings);
   const dummyControllerRuns = state === "master" && level >= 3 && settings.dummyCspControllerEnabled;
 
   // Telemetry is written at every level (audit) and the plan rate at run start

@@ -39,9 +39,9 @@ Data, in `src/data/`:
 
 Logic, in `src/model/` (each function takes the `ExplorerSettings`):
 
-- `explorerSettings.ts`: settings type and defaults, and which backend has a telemetry source or accepts `set_ue_control`
+- `explorerSettings.ts`: settings type and defaults, which backend has a telemetry source or accepts `set_ue_control`, and the effective plan rate (`effectivePlanDownlinkMbps`: an explicit `plan_downlink_mbps_by_ue` value, or on FikoRE the static `study_dl_rmax_mbps` cap of the current condition, as `derive_plan_downlink_mbps` in `capcsp/runner/run.py` does)
 - `componentTopology.ts`: which diagram arrows and boxes are active
-- `implementationStatus.ts`: banner text, is this level implemented in this state
+- `implementationStatus.ts`: banner text, is this level implemented in this state; at L1 and above it states that B1 and B2 cap their ABR bitrate at `plan_downlink_mbps * planSafetyFactor`, while L2 live measurements do not change the rule selection yet
 - `networkStepWalkthrough.tsx`: ordered steps of one `NetworkStep`, with the arrows and boxes to highlight
 - `playerVisibleFields.ts`: `CspFields` rows, their source and whether they are visible, filtered or null; values are midpoints of the calibration bands, not run data
 - `experimentConfig.ts`: the run and grid JSON, including the `network` settings per backend and the condition overrides; keep its keys in sync with `configs/experiments/`, `capcsp/runner/run.py` and `capcsp/runner/grid_specification.py`
@@ -69,9 +69,9 @@ When L4 is implemented:
 
 - Enable `capacityTrace` for that state in `componentTopology.ts` and describe the trace source (exogenous or demand-coupled) in `implementationStatus.ts`.
 
-When B1/B2 or a new policy reads CSP fields:
+When B1/B2 or a new policy reads the live L2 CSP fields (today only `plan_downlink_mbps` is read, as an ABR bitrate cap):
 
-- Remove the "rules do not use them yet" texts in `implementationStatus.ts`, the rule box and `SetupNotesCard.tsx`, and add the policy to the Player behavior control.
+- Remove the "live measurements do not change the rule selection yet" texts in `implementationStatus.ts`, the rule box, `SetupNotesCard.tsx` and the glossary, and add the policy to the Player behavior control.
 
 When a backend is added or its settings change:
 

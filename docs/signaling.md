@@ -12,7 +12,7 @@ The harness writes all CSP fields and CAP reports to the shared table at every l
 - **L3**: as L2. In addition, a `CSPController` may read CAP reports and act on the CSP.
 - **L4**: the CAP receives a capacity oracle trace. The harness does not implement L4 yet.
 
-The B1 and B2 policies do not use CSP fields yet, and no controller acts on the CSP yet. Both are tracked in [Decision Status and Action Items](decision-status-and-todos.md).
+At `L1` and above, `B1` and `B2` use one CSP field: when `plan_downlink_mbps` is set and positive, they cap their ABR bitrate ceiling at `plan_downlink_mbps * planSafetyFactor`. `planSafetyFactor` defaults to the safety factor of the throughput estimator. The cap only lowers the throughput estimate (it sets the estimate only on a cold start when `usePlanOnColdStart` is true), and without a plan rate the policies behave as at `L0`. A `transport_fikore` run with `parametric_cell.study_dl_rmax_mbps` derives the plan rate from that static cap automatically, unless `plan_downlink_mbps_by_ue` sets it explicitly. The `L2` live telemetry fields (`achieved_throughput_mbps`, `rtt_ms`, `loss_rate`, `congestion_rate`) reach the player but are not consumed by the `B1` and `B2` rules yet, and no active `L3` controller acts on the CSP yet. Both are tracked in [Decision Status and Action Items](decision-status-and-todos.md).
 
 Unavailable measurements default to `None`. Backends must not fabricate synthetic values for missing metrics.
 

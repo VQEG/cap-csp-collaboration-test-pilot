@@ -27,7 +27,7 @@ The player then plays, stalls or swipes to the next video, and we collect that i
 
 Depending on the signaling level (L0 to L4), the player also receives network information, such as the plan rate or live throughput. Each run writes session records, key numbers and a report, so that runs with and without information exchange can be compared.
 
-The harness implements L0–L3 **information wiring** (shared state table, collaboration snapshots, dummy `CSPController`) without changing SFV B1/B2 behaviour at L0. Design: [docs/collaboration.md](docs/collaboration.md).
+The harness implements L0–L3 **information wiring** (shared state table, collaboration snapshots, dummy `CSPController`) without changing SFV B1/B2 behaviour at L0. At `L1` and above, the provisioned rate `plan_downlink_mbps` also caps the eligible ABR representation bitrate of `B1` and `B2` (the plan can come from a static `parametric_cell.study_dl_rmax_mbps` cap; paired `L0`/`L1` example configs are in [`configs/experiments/l1-cap/`](configs/experiments/l1-cap/)). Still open: `L2` policies that consume live telemetry (throughput, RTT, loss, congestion) and an active `L3` controller that acts on the CSP. Design: [docs/collaboration.md](docs/collaboration.md).
 
 ## Documentation
 

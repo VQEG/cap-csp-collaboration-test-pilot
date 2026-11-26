@@ -6,6 +6,7 @@ import {
   estimateMeanActiveBgUes,
   isParametricCondition,
   resolveParametricCellValues,
+  usesTraverseCorridor,
   type ParametricCellValues,
 } from "@/data/parametricCells";
 
@@ -140,12 +141,13 @@ export const NETWORK_CONDITIONS: Record<string, NetworkCondition> = {
     durationSeconds: 65,
   },
   M11: {
-    name: "Pedestrian edge (3.6 km/h)",
+    name: "Urban bus stop-and-go (25 km/h)",
     family: "layered_extended",
-    downlinkMbpsBand: [3.2, 8.1],
+    // 3 seeds x 60 s backlogged TCP (1 s windows after 5 s warm-up): mean 15.63, P10 9.15 Mbps
+    downlinkMbpsBand: [9.1, 22.2],
     rttMsBand: [165, 240],
     lossPercentBand: [0.3, 1.2],
-    dominantCause: "edge pedestrian walk (study UE only) + 50% disk load (1.001 RBG/Mbps)",
+    dominantCause: "urban bus 220↔650 m, 15 s drive / 10 s stop (study UE only) + 50% disk load (0.345 RBG/Mbps)",
     backgroundUeCount: 3,
     timelineFile: "fikore-timeline.ndjson",
     durationSeconds: 65,
@@ -182,12 +184,13 @@ export function effectiveConditionView(
   const bwFactor = values.bandwidth_mhz / 20;
   const dist = values.study_distance_m;
   const soloCap20 = dist <= 220 ? 62 : dist <= 450 ? 21 : 6.2;
-  const soloCap = soloCap20 * bwFactor;
+  const radioCap = soloCap20 * bwFactor;
+  const soloCap = values.study_dl_rmax_mbps === null ? radioCap : Math.min(radioCap, values.study_dl_rmax_mbps);
   const residualShare = values.bg_spatial === "homogeneous_ring"
     ? Math.max(0.06, 1 - 0.88 * Math.min(1.08, values.load_rho))
     : Math.max(0.18, 1 - 0.65 * Math.min(1.15, values.load_rho));
   const meanTp = Math.max(0.8, soloCap * residualShare);
-  const spread = values.arrival_mode === "mmpp" || values.study_mobility === "vehicular_traverse" ? 0.55 : 0.25;
+  const spread = values.arrival_mode === "mmpp" || usesTraverseCorridor(values.study_mobility) ? 0.55 : 0.25;
   const lowTp = Math.max(0.5, Math.round(meanTp * (1 - spread) * 10) / 10);
   const highTp = Math.max(lowTp + 0.5, Math.round(Math.min(soloCap, meanTp * (1 + spread)) * 10) / 10);
   const baseRtt = 2 * values.backhaul_delay_ms + 14;
@@ -199,7 +202,10 @@ export function effectiveConditionView(
     lossPercentBand: values.load_rho <= 0 ? [0, 0.05] : [0.2, Math.round(Math.min(4, 1.8 * values.load_rho) * 10) / 10],
     backgroundUeCount: Math.round(lambdaBg),
     durationSeconds: values.duration_s,
-    timelineFile: values.load_rho > 0 || values.study_mobility === "vehicular_traverse" ? "fikore-timeline.ndjson" : null,
-    dominantCause: `${values.bandwidth_mhz} MHz · d=${Math.round(dist)} m (${values.study_mobility}) · ρ=${values.load_rho.toFixed(2)} (${values.bg_spatial}, ${values.arrival_mode})`,
+    timelineFile:
+      values.load_rho > 0 || usesTraverseCorridor(values.study_mobility) || values.study_dl_rmax_mbps !== null ? "fikore-timeline.ndjson" : null,
+    dominantCause: `${values.bandwidth_mhz} MHz · d=${Math.round(dist)} m (${values.study_mobility}) · ρ=${values.load_rho.toFixed(2)} (${values.bg_spatial}, ${values.arrival_mode})${
+      values.study_dl_rmax_mbps === null ? "" : ` · cap ${values.study_dl_rmax_mbps} Mbps`
+    }`,
   };
 }

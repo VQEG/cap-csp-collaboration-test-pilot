@@ -24,7 +24,26 @@ SUMMARY_FIELDS = (
 )
 
 # Decimal places per unit suffix
-ROUNDING = {"_s": 3, "_ms": 2, "_mbps": 3, "_ratio": 4, "_o46": 3, "_o35": 3, "_o23": 3}
+ROUNDING = {
+    "_s": 3,
+    "_ms": 2,
+    "_mbps": 3,
+    "_kbps": 1,
+    "_ratio": 4,
+    "_o46": 3,
+    "_o35": 3,
+    "_o23": 3,
+    "_mos": 3,
+    "_efficiency": 4,
+    "_fairness": 4,
+}
+
+# Tolerance in seconds for a video that was played in full
+FULL_PLAY_TOLERANCE_S = 1e-3
+
+# Lowest and highest value of a MOS scale
+MOS_MIN = 1.0
+MOS_MAX = 5.0
 
 
 def _round(key: str, value: Any) -> Any:
@@ -38,6 +57,46 @@ def _round(key: str, value: Any) -> Any:
 
 def _mean(values: list[float]) -> float | None:
     return statistics.fmean(values) if values else None
+
+
+def _is_mid_video_swipe(video: dict[str, Any]) -> bool:
+    """Return True if the user swiped away before the video finished playing."""
+    if not video.get("swiped_away"):
+        return False
+    duration_s = video.get("video_duration_s")
+    return duration_s is None or float(video.get("watch_duration_s") or 0.0) < float(duration_s) - FULL_PLAY_TOLERANCE_S
+
+
+def _played_bitrate_mean_kbps(videos: list[dict[str, Any]]) -> float | None:
+    """Return the mean bitrate of the played media, weighted by the played duration of each interval."""
+    intervals = [interval for video in videos for interval in video.get("representation_intervals") or []]
+    total_s = sum(interval.get("played_duration_s") or 0.0 for interval in intervals)
+    if total_s <= 0:
+        return None
+    weighted_kbps = sum(
+        (interval.get("bitrate_kbps") or 0.0) * (interval.get("played_duration_s") or 0.0) for interval in intervals
+    )
+    return weighted_kbps / total_s
+
+
+def _sfv_session_kpis(record: dict[str, Any], summary: dict[str, Any]) -> dict[str, Any]:
+    """Return the per-video aggregates and the swipe-delay score of one session record."""
+    videos = record.get("videos") or []
+    bytes_wasted_swipe = sum((video.get("data_wastage_by_reason") or {}).get("swipe", 0) for video in videos)
+    bytes_delivered = summary.get("bytes_delivered")
+    return {
+        "mid_video_swipes": sum(1 for video in videos if _is_mid_video_swipe(video)),
+        "time_to_first_byte_mean_s": _mean(
+            [video["time_to_first_byte_s"] for video in videos if video.get("time_to_first_byte_s") is not None]
+        ),
+        "played_bitrate_mean_kbps": _played_bitrate_mean_kbps(videos),
+        "bytes_media_delivered": summary.get("bytes_media_delivered"),
+        "bytes_wasted_swipe": bytes_wasted_swipe,
+        "prefetch_efficiency": (
+            1.0 - bytes_wasted_swipe / bytes_delivered if bytes_delivered is not None and bytes_delivered > 0 else None
+        ),
+        "sfv_nt_mos": (summary.get("sfv_nguyen_tran_output") or {}).get("mos"),
+    }
 
 
 def active_intervals(requests: list[dict[str, Any]], end_s: float) -> list[tuple[float, float]]:
@@ -117,6 +176,7 @@ def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
         row["p1203_o46"] = session_scores.get("O46")
         row["p1203_o35"] = session_scores.get("O35")
         row["p1203_o23"] = session_scores.get("O23")
+        row.update(_sfv_session_kpis(record, summary))
         row["active_download_time_s"] = active_s
         row["goodput_mbps"] = (
             sum(request.get("bytesDelivered", 0) for request in requests) * 8 / active_s / 1e6
@@ -129,6 +189,55 @@ def collect_kpis(run_dir: Path) -> list[dict[str, Any]]:
         row["rtt_mean_ms"] = _mean([s["rtt_ms"] for s in active_samples if s.get("rtt_ms") is not None])
         rows.append({key: _round(key, value) for key, value in row.items()})
     return rows
+
+
+def hossfeld_fairness(mos_values: list[float]) -> float | None:
+    """Return the Hoßfeld QoE fairness `1 - 2 * sigma(MOS) / (5 - 1)` with the population standard deviation.
+
+    1 means that all UEs have the same MOS, 0 the largest possible spread. None without values.
+    """
+    if not mos_values:
+        return None
+    if len(mos_values) == 1:
+        return 1.0
+    return 1.0 - 2.0 * statistics.pstdev(mos_values) / (MOS_MAX - MOS_MIN)
+
+
+def jain_fairness(values: list[float]) -> float | None:
+    """Return Jain's fairness index `(sum x)^2 / (K * sum x^2)` of non-negative values.
+
+    1 means equal shares, 1 / K that one UE gets everything. None without values or if all are 0.
+    """
+    total = sum(values)
+    if not values or total <= 0:
+        return None
+    return total**2 / (len(values) * sum(value**2 for value in values))
+
+
+def _valid(rows: list[dict[str, Any]], key: str, *, non_negative: bool = False) -> list[float]:
+    values = [row[key] for row in rows if isinstance(row.get(key), (int, float))]
+    return [value for value in values if value >= 0] if non_negative else values
+
+
+def collect_cell_fairness(rows: list[dict[str, Any]]) -> dict[str, float | int | None]:
+    """Return the fairness across the UEs of a cell from the rows of `collect_kpis`.
+
+    - `hossfeld_p1203_o46`, `hossfeld_sfv_nt_mos`: Hoßfeld QoE fairness of the session MOS values
+    - `jain_goodput_mbps`, `jain_throughput_mbps`: Jain's index of the goodput and the throughput
+
+    A metric is None if no UE has a valid value.
+    """
+    fairness: dict[str, float | int | None] = {
+        "hossfeld_p1203_o46": hossfeld_fairness(_valid(rows, "p1203_o46")),
+        "hossfeld_sfv_nt_mos": hossfeld_fairness(_valid(rows, "sfv_nt_mos")),
+        "jain_goodput_mbps": jain_fairness(_valid(rows, "goodput_mbps", non_negative=True)),
+        "jain_throughput_mbps": jain_fairness(_valid(rows, "throughput_mbps", non_negative=True)),
+    }
+    rounded: dict[str, float | int | None] = {
+        key: None if value is None else round(value, 4) for key, value in fairness.items()
+    }
+    rounded["ue_count"] = len(rows)
+    return rounded
 
 
 def collect_video_scores(run_dir: Path) -> list[dict[str, Any]]:

@@ -54,12 +54,13 @@ On FikoRE (`network_backend: "transport_fikore"`), conditions are defined declar
 }
 ```
 
-Eleven presets (`M01`–`M11`, with `Core-6` = `M01`, `M04`, `M05`, `M07`, `M09`, `M10`) and `"preset": "custom"` share a single unconstrained Proportional Fair (`metric_type: 6`, no `rmax_mbps` caps) 3.5 GHz Urban Macro (`UMa` n78, `20 MHz` default, configurable `10`–`100 MHz`) cell with in-order PDCP delivery (`order_pkts: true`) and per-class FIFO backhaul delivery, varying four orthogonal axes:
+Eleven presets (`M01`–`M11`, with `Core-6` = `M01`, `M04`, `M05`, `M07`, `M09`, `M10`) and `"preset": "custom"` share a single Proportional Fair (`metric_type: 6`, no `rmax_mbps` cap unless `study_dl_rmax_mbps` is set) 3.5 GHz Urban Macro (`UMa` n78, `20 MHz` default, configurable `10`–`100 MHz`) cell with in-order PDCP delivery (`order_pkts: true`) and per-class FIFO backhaul delivery, varying four orthogonal axes:
 
 - **Normalized competing cell load (`load_rho`)**: `0.0`–`2.0`, translated analytically from calibrated RB shares into active competing SFV-like TCP flows (`bg_bitrate_mbps`, `4.0 Mbps` by default).
 - **Spatial geometry (`study_position`, `study_distance_m`, `bg_spatial`, `bg_max_distance_m`)**: study UE at `good` (`151.3 m`), `mid` (`350 m`), `edge` (`650 m`), or `custom` (`10`–`850 m`); competing UEs on a `homogeneous_ring` or uniform-area `cell_disk` (`120`–`700 m`).
 - **Temporal arrivals (`arrival_mode`, `mean_hold_s`, `burst_amplitude`, `burst_regime_s`)**: stationary `poisson` (`M/M/inf`) or 2-state `mmpp` burst waves.
-- **Study-UE mobility (`study_mobility`, `study_speed_kmh`, `traverse_min_distance_m`, `traverse_max_distance_m`)**: `static`, cell-edge `pedestrian` (`3.6 km/h`, study UE only), or `vehicular_traverse` (`73.26 km/h` radial center–edge–center traversal).
+- **Study-UE mobility (`study_mobility`, `study_speed_kmh`, `traverse_min_distance_m`, `traverse_max_distance_m`)**: `static`, `urban_bus` (`25 km/h` stop-and-go along the `220`–`650 m` corridor: `15 s` driving, then `10 s` standing at a stop, study UE only), or `vehicular_traverse` (`73.26 km/h` radial center–edge–center traversal). Both moving modes are driven by a `250 ms` position timeline, so the static `[UE]` header of the synthesized INI stays at `mobility_type: 0`.
+- **Static downlink cap (`study_dl_rmax_mbps`, optional)**: `null` (default, uncapped) or `0.1`–`1000.0` Mbps. The synthesizer emits one `dl.rmax_mbps` control command for `ue/studyVqeg` at TTI 0, so FikoRE's token-bucket scheduler cap applies to every study UE for the whole run. Without an explicit `plan_downlink_mbps_by_ue`, `capcsp run` uses the cap as the plan rate of every UE on `transport_fikore`. The same config at `"signaling_level": "L0"` hides the plan from the player and at `"L1"` shows it, so a pair of runs isolates the effect of knowing the cap (see `configs/experiments/l1-cap/`).
 
 FikoRE imposes no transport window on injected traffic. TCP conditions record the congestion controller, receive window, MSS, ECN, ACK path and connection mode (`persistent` bounded HTTP/1.1-style pool per UE, `multiplexed` RFC 9218 single-connection stream multiplexing, or `fresh` per-object baseline with slow start on every request). The ideal diagnostic transport instead records its fixed shared per-UE window and recovery setting.
 
@@ -205,5 +206,6 @@ Every run writes `run-manifest.json` with:
 - the revisions of `capcsp`, FikoRE and the SFV reference implementation, and whether their trees had local changes
 - the full experiment configuration, including the backend, its transport settings, the `NetworkStep` interval and the session seeds
 - the wall-clock time, the simulated time and the byte accounting, including whether all bytes were conserved
+- the quality models in `scoring` and the QoE and rate fairness across the UEs in `cell_fairness`
 
 FikoRE runs also write the effective INI as `fikore-effective.ini`.

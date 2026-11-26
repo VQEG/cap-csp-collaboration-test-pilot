@@ -3,9 +3,11 @@ import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import {
   PARAMETRIC_PRESET_DEFAULTS,
   isParametricCondition,
+  isValidStudyDlRmaxMbps,
   loadSweepConditionSlug,
   parseLoadSweepValues,
   resolveParametricCellValues,
+  usesTraverseCorridor,
   type ParametricCellValues,
 } from "@/data/parametricCells";
 import { BEHAVIOR_MIXES, BEHAVIOR_PARAMETERS, PLAYER_BEHAVIORS, behaviorOfUe, type PlayerBehavior } from "@/data/playerBehaviors";
@@ -73,6 +75,7 @@ export function buildParametricCellPayload(
       "study_speed_kmh",
       "traverse_min_distance_m",
       "traverse_max_distance_m",
+      "study_dl_rmax_mbps",
       "load_rho",
       "bg_spatial",
       "bg_max_distance_m",
@@ -107,10 +110,11 @@ export function buildParametricCellPayload(
   if (resolved.study_position === "custom") payload.study_distance_m = resolved.study_distance_m;
   payload.study_mobility = resolved.study_mobility;
   if (resolved.study_mobility !== "static") payload.study_speed_kmh = resolved.study_speed_kmh;
-  if (resolved.study_mobility === "vehicular_traverse") {
+  if (usesTraverseCorridor(resolved.study_mobility)) {
     payload.traverse_min_distance_m = resolved.traverse_min_distance_m;
     payload.traverse_max_distance_m = resolved.traverse_max_distance_m;
   }
+  if (resolved.study_dl_rmax_mbps !== null) payload.study_dl_rmax_mbps = resolved.study_dl_rmax_mbps;
   if (!options.omitLoadRho) payload.load_rho = resolved.load_rho;
   if (options.omitLoadRho || resolved.load_rho > 0) {
     payload.bg_spatial = bgSpatial;
@@ -237,6 +241,11 @@ interface ExperimentShape {
   fikoreMode: FikoreSettingsMode;
 }
 
+/** The plan rate implied by a static study-UE cap of the condition, or null when it is uncapped. */
+export function capPlanMbps(settings: ExplorerSettings, conditionId: string): number | null {
+  return resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]).study_dl_rmax_mbps;
+}
+
 function experimentConfig(settings: ExplorerSettings, shape: ExperimentShape, identifier: string): JsonObject {
   const fikore = usesFikoreBackend(settings);
   const levels = shape.signalingLevels.map(signalingLevelNumber);
@@ -249,8 +258,10 @@ function experimentConfig(settings: ExplorerSettings, shape: ExperimentShape, id
     clock_mode: "simulation",
     content: CONTENT_CATALOGUES[settings.contentId].pathFromConfigsChild,
   };
-  if (Math.max(...levels) >= 1 && settings.planDownlinkMbps !== "") {
-    config.plan_downlink_mbps_by_ue = Object.fromEntries(shape.ueIdsWithPlanRate.map((ueId) => [String(ueId), Number(settings.planDownlinkMbps)]));
+  // Without an explicit plan rate, run.py derives the plan from `parametric_cell.study_dl_rmax_mbps`; mirror that here so the config shows it.
+  const planRate = settings.planDownlinkMbps !== "" ? Number(settings.planDownlinkMbps) : fikore ? capPlanMbps(settings, shape.conditionId) : null;
+  if (Math.max(...levels) >= 1 && planRate !== null) {
+    config.plan_downlink_mbps_by_ue = Object.fromEntries(shape.ueIdsWithPlanRate.map((ueId) => [String(ueId), planRate]));
   }
   if (Math.max(...levels) >= 3) config.csp_controller = settings.dummyCspControllerEnabled ? "dummy" : null;
   config.duration_s = runDurationSeconds(settings, shape.conditionId);
@@ -306,8 +317,11 @@ export function usesParametricLoadSweep(settings: ExplorerSettings): boolean {
 
 function checkCellTraverseBounds(settings: ExplorerSettings, conditionId: string): string | null {
   const values = resolveParametricCellValues(conditionId, settings.parametricOverrides[conditionId]);
-  if (values.study_mobility === "vehicular_traverse" && Math.abs(values.traverse_max_distance_m - values.traverse_min_distance_m) < 1.0) {
+  if (usesTraverseCorridor(values.study_mobility) && Math.abs(values.traverse_max_distance_m - values.traverse_min_distance_m) < 1.0) {
     return `${conditionId}: traverse_min_distance_m and traverse_max_distance_m must differ by at least 1 m.`;
+  }
+  if (!isValidStudyDlRmaxMbps(values.study_dl_rmax_mbps)) {
+    return `${conditionId}: study_dl_rmax_mbps must be between 0.1 and 1000 Mbps when set.`;
   }
   return null;
 }

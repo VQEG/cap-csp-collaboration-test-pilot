@@ -2,7 +2,7 @@
 
 Output directory layout:
 
-- run-manifest.json: configuration, revisions, timing and byte accounting
+- run-manifest.json: configuration, revisions, timing, byte accounting, scoring models and cell fairness
 - sessions/ue-<id>.json: full player result per UE, including the scored session record
 - network-steps.jsonl: every NetworkStep with the player's response
 - telemetry.jsonl: CSP telemetry samples, every csp_telemetry_interval_s (1 s by default)
@@ -22,9 +22,11 @@ from typing import Any, Callable
 
 from capcsp.network.constant_rate import ConstantRateBackend
 from capcsp.network.mock import MockNetworkBackend
+from capcsp.network.parametric_cell import ParametricCellConfig
 from capcsp.network.transport_fikore import TransportFikoreBackend, TransportFikoreConfig
 from capcsp.collaboration.factory import build_collaboration_stack
 from capcsp.player.bridge import NodePlayerBridge, run_sessions
+from capcsp.runner.kpis import collect_cell_fairness, collect_kpis
 from capcsp.scoring.session_scoring import ScoringSettings, score_run
 from capcsp.shared_state.signaling import parse_signaling_level
 from capcsp.shared_state.table import InMemorySharedStateTable
@@ -87,6 +89,55 @@ def create_backend(config: dict[str, Any], output_dir: Path) -> Any:
         duration_s=config["duration_s"],
         output_dir=output_dir,
     )
+
+
+def derive_plan_downlink_mbps(config: dict[str, Any], ue_ids: set[int]) -> dict[int, float] | None:
+    """Return the downlink plan per UE that `config` states explicitly or implies.
+
+    An explicit `plan_downlink_mbps_by_ue` always wins. Without it, a parametric cell on
+    `transport_fikore` that installs a static study-UE cap (`study_dl_rmax_mbps`) implies that
+    cap as the plan of every study UE. The plan only reaches the player at signaling L1 and
+    above, so L0 and L1 runs of one config differ in visibility only, not in network behavior.
+    """
+    explicit = config.get("plan_downlink_mbps_by_ue")
+    if explicit is not None:
+        if not isinstance(explicit, dict):
+            raise ValueError("plan_downlink_mbps_by_ue must be a dict when set")
+        return {int(k): float(v) for k, v in explicit.items()}
+    if config.get("network_backend") != "transport_fikore":
+        return None
+    raw_cell = (config.get("network") or {}).get("parametric_cell")
+    if raw_cell is None:
+        return None
+    cell = raw_cell if isinstance(raw_cell, ParametricCellConfig) else ParametricCellConfig.from_dict(raw_cell)
+    if cell.study_dl_rmax_mbps is None:
+        return None
+    return {ue_id: cell.study_dl_rmax_mbps for ue_id in sorted(ue_ids)}
+
+
+def write_plan_downlink_fields(
+    table: InMemorySharedStateTable,
+    plan_downlink: dict[int, float] | None,
+    ue_ids: set[int],
+    signaling_level: str,
+) -> None:
+    """Seed the shared state table with the plan rate of every UE; nothing is written at L0."""
+    if not plan_downlink or parse_signaling_level(signaling_level) < 1:
+        return
+    for ue_id, plan_mbps in plan_downlink.items():
+        if ue_id not in ue_ids:
+            continue
+        table.write_csp_fields(
+            ue_id,
+            CspFields(
+                updated_at_s=0.0,
+                plan_downlink_mbps=plan_mbps,
+                achieved_throughput_mbps=None,
+                rtt_ms=None,
+                loss_rate=None,
+                congestion_rate=None,
+            ),
+        )
 
 
 def git_revision(path: Path) -> dict[str, Any]:
@@ -175,26 +226,8 @@ def run_experiment(
     backend = create_backend(config, output_dir)
     collaboration = None
     try:
-        plan_downlink = config.get("plan_downlink_mbps_by_ue")
-        if plan_downlink is not None:
-            if not isinstance(plan_downlink, dict):
-                raise ValueError("plan_downlink_mbps_by_ue must be a dict when set")
-            plan_downlink = {int(k): float(v) for k, v in plan_downlink.items()}
-        if plan_downlink and parse_signaling_level(config["signaling_level"]) >= 1:
-            for ue_id, plan_mbps in plan_downlink.items():
-                if ue_id not in ue_ids:
-                    continue
-                shared_table.write_csp_fields(
-                    ue_id,
-                    CspFields(
-                        updated_at_s=0.0,
-                        plan_downlink_mbps=plan_mbps,
-                        achieved_throughput_mbps=None,
-                        rtt_ms=None,
-                        loss_rate=None,
-                        congestion_rate=None,
-                    ),
-                )
+        plan_downlink = derive_plan_downlink_mbps(config, ue_ids)
+        write_plan_downlink_fields(shared_table, plan_downlink, ue_ids, config["signaling_level"])
         with NodePlayerBridge(player_config, log_path=output_dir / "player.log") as bridge:
             collaboration = build_collaboration_stack(
                 config,
@@ -237,5 +270,6 @@ def run_experiment(
     manifest["scoring"] = score_run(
         output_dir, player_config["dataset"], ScoringSettings.from_dict(config.get("scoring", {}))
     )
+    manifest["cell_fairness"] = collect_cell_fairness(collect_kpis(output_dir))
     write_json(output_dir / "run-manifest.json", manifest)
     return manifest

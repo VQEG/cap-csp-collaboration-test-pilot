@@ -6,7 +6,7 @@ When we settle an open point, update the relevant specification and tick it off 
 
 ## Current Blockers
 
-- Final network conditions: the parametric single-cell 5G presets `M01`–`M11` (`Core-6` = `M01`, `M04`, `M05`, `M07`, `M09`, `M10`) synthesized by `capcsp/network/parametric_cell.py` replace the retired legacy point conditions and run end to end over unconstrained Proportional Fair scheduling with application-paced TCP competing UEs, pending final group sign-off on any additional throttling/backhaul profiles.
+- Final network conditions: the parametric single-cell 5G presets `M01`–`M11` (`Core-6` = `M01`, `M04`, `M05`, `M07`, `M09`, `M10`; `M11` is the deterministic `urban_bus` stop-and-go condition that replaced the pedestrian preset) synthesized by `capcsp/network/parametric_cell.py` replace the retired legacy point conditions and run end to end over unconstrained Proportional Fair scheduling with application-paced TCP competing UEs, pending final group sign-off on any additional throttling/backhaul profiles.
 - Player and video definitions: Michi's group defines the final content catalogue, quality ladder and exact B1/B2 rules. Until then, `65 s` FikoRE runs use the **provisional** synthetic 18-video Full HD portrait catalogue (`configs/content/sfv-portrait-hd-90s.json`), while short smoke tests use the three-video SFV fixture.
 
 ## Player and Video Definitions
@@ -51,6 +51,9 @@ Owner: Pablo
 Owners: Karan (SFV-specific target values) and Pablo (FikoRE realization).
 
 - [x] Realize parametric single-cell 5G presets `M01`–`M11` (`Core-6` screening subset + continuous `load_rho` sweeps) in `capcsp/network/parametric_cell.py` ([parametric conditions README](../configs/experiments/layered/README.md)).
+- [x] Replace the `M11` pedestrian preset with the deterministic `urban_bus` stop-and-go trajectory (`25 km/h`, `220–650 m` corridor, `15 s` driving and `10 s` standing at a stop per `25 s` cycle).
+- [x] Add the static study-UE downlink cap `parametric_cell.study_dl_rmax_mbps` (a `dl.rmax_mbps` command at TTI `0`), which also provides the `L1` plan rate ([parametric conditions README](../configs/experiments/layered/README.md#static-downlink-cap-and-l1-plan-coupling), example configs in `configs/experiments/l1-cap/`).
+- [ ] Recalibrate the `M11` RTT and loss bands of the Simulator Explorer, and the RB cost of `M10` and `M11`, for the bus trajectory with the full 20-seed grid.
 - [ ] Confirm with Karan and the working group whether any additional operator-throttling (~2–2.5 Mbps) or non-terrestrial profile is needed alongside `M01`–`M11` ([meeting notes](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.a7zfcry4xais#heading=h.b2prnlqzgt0a), [research plan](https://docs.google.com/document/d/1JH8LQ5bbNjfzoaymn4FptL_odv6txNAn-5TOC6kdAFE/edit?tab=t.vv9m6x6z2j60#heading=h.l92euqunbl3l)).
 - [ ] TBD: Choose synthetic or FikoRE-recorded traces for the `trace` backend and create them ([Experiments](experiments.md#trace-backend)).
 - [ ] TBD: Match `synthetic_delay_ms` to the non-radio delay measured with live FikoRE ([Network Backend API](network-backend-api.md#latency-decomposition)).
@@ -68,7 +71,9 @@ Owner: Werner
 - [ ] Add swipe profiles as a grid axis once they are defined.
 - [x] Use the seeded `userModel` of SFV as a simple user model, with 2–16 s between swipes ([Experiments](experiments.md#experiment-grid)).
 - [x] Wire CAP reports and the shared state table into the runner ([Signaling](signaling.md)).
-- [ ] Call effective `set_ue_control()` and feed CSP fields into SFV policies so that L1–L3 change player behaviour ([Signaling](signaling.md)).
+- [x] Feed `L1` `plan_downlink_mbps` into the SFV `B1` and `B2` rules: they cap their eligible ABR bitrate at `plan_downlink_mbps * planSafetyFactor` ([Signaling](signaling.md#signaling-levels)).
+- [ ] Feed the `L2` live telemetry fields (`achieved_throughput_mbps`, `rtt_ms`, `loss_rate`, `congestion_rate`) into SFV policies so that `L2` changes player behaviour beyond `L1` ([Signaling](signaling.md)).
+- [ ] Call effective `set_ue_control()` from an active `L3` controller so that `L3` changes the network side ([Signaling](signaling.md)).
 - [ ] Build the real-HTTP path: an origin server, with traffic through FikoRE in emulated mode ([Network Backend API](network-backend-api.md#real-http-validation-architecture)).
 - [ ] Decide whether to unify the naming in `sessions/ue-<id>.json`: the SFV result object uses camelCase (`sessionRecord`, `terminationReason`), while the record inside it uses snake_case (`session_id`, `representation_intervals`).
 
@@ -97,7 +102,8 @@ Owners: Werner, Markus, Federica
 - [x] Count the wait after a swipe as initial loading delay.
 - [x] Score each video with P.1203, and weight the session mean by played duration.
 - [x] Score videos shorter than 1 minute, although P.1203 is specified from 1 minute.
+- [x] Add Sara's swipe-delay model of Nguyen and Tran ([arXiv:2603.18575](https://arxiv.org/abs/2603.18575)) as `sfv_nt_mos` next to P.1203 (`capcsp/scoring/sfv_nguyen_tran.py`, [Results and Scoring](results-and-scoring.md#swipe-delay-model)).
 - [ ] Replace the assumed constant good audio quality (O21 5.0) with real audio scores for future encodings; this needs audio in the content, the player and the session record ([Results and Scoring](results-and-scoring.md#qoe-estimation-models)).
 - [x] Use the frame rate of each representation from the content file.
-- [ ] Add the Hoßfeld QoE-fairness and Jain throughput-fairness metrics ([Results and Scoring](results-and-scoring.md#aggregate-evaluation-formulas)).
-- [ ] Add the KPIs from the results specification that `capcsp` does not compute yet to `kpis.csv` and the report: per-video metrics such as time to first byte, watch duration and swipe-away, and the fairness metrics above ([Results and Scoring](results-and-scoring.md#session-record-format)).
+- [x] Add the Hoßfeld QoE-fairness and Jain throughput-fairness metrics ([Results and Scoring](results-and-scoring.md#aggregate-evaluation-formulas)).
+- [x] Add the KPIs from the results specification that `capcsp` did not compute yet to `kpis.csv` and the report: `time_to_first_byte_mean_s`, `played_bitrate_mean_kbps`, `prefetch_efficiency`, mid-video swipes and the fairness metrics above ([Results and Scoring](results-and-scoring.md#session-record-format)).

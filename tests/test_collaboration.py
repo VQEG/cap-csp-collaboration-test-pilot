@@ -19,6 +19,7 @@ from capcsp.collaboration.snapshot import build_collaboration_payload
 from capcsp.collaboration.telemetry import CspTelemetryWriter, NoCspTelemetry
 from capcsp.network.api import NetworkTelemetry, NetworkTelemetryReceived
 from capcsp.collaboration.adapters.fikore_control import FikoreControlAdapter
+from capcsp.runner.run import derive_plan_downlink_mbps, write_plan_downlink_fields
 from capcsp.shared_state.table import InMemorySharedStateTable
 from capcsp.collaboration.types import CspControlIntent
 from capcsp.shared_state.types import CapReport, CspFields
@@ -207,3 +208,65 @@ def test_fikore_control_adapter_calls_set_ue_control() -> None:
     adapter = FikoreControlAdapter(backend)
     adapter.apply(0, CspControlIntent(priority=9.0))
     backend.set_ue_control.assert_called_once()
+
+
+def _capped_fikore_config(**overrides: object) -> dict:
+    config: dict = {
+        "network_backend": "transport_fikore",
+        "network": {"parametric_cell": {"preset": "M01", "study_dl_rmax_mbps": 2.5}},
+        "signaling_level": "L0",
+    }
+    config.update(overrides)
+    return config
+
+
+def test_plan_is_derived_from_the_study_cap_on_transport_fikore() -> None:
+    assert derive_plan_downlink_mbps(_capped_fikore_config(), {1, 0}) == {0: 2.5, 1: 2.5}
+
+
+def test_explicit_plan_wins_over_the_study_cap() -> None:
+    config = _capped_fikore_config(plan_downlink_mbps_by_ue={"0": 50, "1": 20.5})
+    assert derive_plan_downlink_mbps(config, {0, 1}) == {0: 50.0, 1: 20.5}
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        {"network_backend": "transport_fikore", "network": {"parametric_cell": {"preset": "M01"}}},
+        {"network_backend": "transport_fikore", "network": {"fikore_base_ini": "x.ini"}},
+        {"network_backend": "transport_fikore", "network": {}},
+        {"network_backend": "constant_rate", "network": {"parametric_cell": {"study_dl_rmax_mbps": 2.5}}},
+        {"network_backend": "mock", "network": {}},
+    ],
+)
+def test_no_plan_is_derived_without_a_study_cap_on_transport_fikore(config: dict) -> None:
+    assert derive_plan_downlink_mbps(config, {0}) is None
+
+
+def test_non_dict_explicit_plan_is_rejected() -> None:
+    with pytest.raises(ValueError, match="plan_downlink_mbps_by_ue"):
+        derive_plan_downlink_mbps(_capped_fikore_config(plan_downlink_mbps_by_ue=[2.5]), {0})
+
+
+@pytest.mark.parametrize(("level", "visible"), [("L0", False), ("L1", True), ("L2", True)])
+def test_derived_cap_plan_is_hidden_at_l0_and_visible_from_l1(tmp_path: Path, level: str, visible: bool) -> None:
+    config = _capped_fikore_config(signaling_level=level)
+    plan = derive_plan_downlink_mbps(config, {0})
+    table = InMemorySharedStateTable(signaling_level=level, log_path=tmp_path / f"{level}.jsonl")
+    write_plan_downlink_fields(table, plan, {0}, level)
+    fields = table.read_csp_fields(0)
+    payload = build_collaboration_payload(ue_ids={0}, table=table, signaling_level=level)
+    if visible:
+        assert fields is not None and fields.plan_downlink_mbps == 2.5
+        assert payload["csp_by_ue"]["0"]["plan_downlink_mbps"] == 2.5
+    else:
+        assert fields is None
+        assert payload["csp_by_ue"] == {}
+    table.close()
+
+
+def test_plan_fields_skip_unknown_ues(tmp_path: Path) -> None:
+    table = InMemorySharedStateTable(signaling_level="L1", log_path=None)
+    write_plan_downlink_fields(table, {0: 2.5, 7: 2.5}, {0}, "L1")
+    assert table.read_csp_fields(0) is not None
+    assert table.read_csp_fields(7) is None

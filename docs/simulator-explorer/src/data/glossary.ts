@@ -81,7 +81,7 @@ export const GLOSSARY = {
     repository: "sfv",
     definedIn: "sfv-reference-implementation/src/rules/SFVMultiVideoPrefetchRule.js",
     summary:
-      "Player behavior B2. Does what B1 does, then preloads up to `preload_segments_per_video` segments of the next videos in the playlist, capped by `max_preload_segments`. Reads no CSP fields yet.",
+      "Player behavior B2. Does what B1 does, then preloads up to `preload_segments_per_video` segments of the next videos in the playlist, capped by `max_preload_segments`. From L1 it caps its selected ABR bitrate at `plan_downlink_mbps * planSafetyFactor`; it does not read the L2 live fields yet.",
   },
   Runner: {
     name: "Runner",
@@ -259,7 +259,7 @@ export const GLOSSARY = {
     name: "plan_downlink_mbps",
     kind: "field",
     summary:
-      "Provisioned subscriber downlink rate (tariff). Comes from `plan_downlink_mbps_by_ue` in the config, not from the network. It is written to the table at run start from L1, so it also works on backends without telemetry (mock, constant_rate).",
+      "Provisioned subscriber downlink rate (tariff). Comes from `plan_downlink_mbps_by_ue` in the config, not from the network. On a capped `parametric_cell` (`study_dl_rmax_mbps`) it defaults to the cap, so L0 and L1 runs differ only in whether the player sees it. It is written to the table at run start from L1, so it also works on backends without telemetry (mock, constant_rate). From L1, B1 and B2 cap their ABR bitrate ceiling at `plan_downlink_mbps * planSafetyFactor`.",
   },
   achieved_throughput_mbps: {
     name: "achieved_throughput_mbps",
@@ -348,7 +348,7 @@ export const GLOSSARY = {
     repository: "sfv",
     definedIn: "SFVSimulationController",
     summary:
-      "Stores the CSP fields of one UE in the SFV engine, without triggering a new decision. Rules can read them with `getCspFields()`; B1 and B2 do not yet.",
+      "Stores the CSP fields of one UE in the SFV engine, without triggering a new decision. Rules can read them with `getCspFields()`; B1 and B2 read only `plan_downlink_mbps` (as an ABR bitrate cap), not the live L2 fields.",
   },
   drainCapReports: {
     name: "drainCapReports(time, { final })",
@@ -437,7 +437,7 @@ export const GLOSSARY = {
   plan_downlink_mbps_by_ue: {
     name: "plan_downlink_mbps_by_ue",
     kind: "config key",
-    summary: "Map from UE id to plan rate in Mbps. Source of `plan_downlink_mbps`.",
+    summary: "Map from UE id to plan rate in Mbps. Source of `plan_downlink_mbps`. Without it, a `transport_fikore` run whose `parametric_cell` sets `study_dl_rmax_mbps` uses that cap as the plan of every UE.",
   },
   csp_controller: {
     name: "csp_controller",
@@ -480,7 +480,7 @@ export const GLOSSARY = {
     repository: "harness",
     definedIn: "capcsp/network/parametric_cell.py",
     summary:
-      "Declarative 5G single-cell model in `network`. Synthesizes `fikore-effective.ini`, `fikore-timeline.ndjson` (Poisson or MMPP session arrivals, spatial coordinates, and trajectories) and application-paced TCP background flows from `Global.seed`, so each grid replication draws an independent arrival realization.",
+      "Declarative 5G single-cell model in `network`. Synthesizes `fikore-effective.ini`, `fikore-timeline.ndjson` (Poisson or MMPP session arrivals, spatial coordinates, and trajectories) and application-paced TCP background flows from `Global.seed`, so each grid replication draws an independent arrival realization. `study_mobility` is `static`, `urban_bus` (25 km/h stop-and-go: 15 s driving, 10 s standing at a stop) or `vehicular_traverse`; `study_dl_rmax_mbps` optionally installs a static downlink cap on the study UE.",
   },
 
   // Output files

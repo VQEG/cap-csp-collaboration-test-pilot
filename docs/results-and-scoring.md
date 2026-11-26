@@ -7,12 +7,12 @@ Each run produces one structured session record per video UE. Scoring is compute
 `capcsp run` writes these files to the output directory, which git ignores. Example output folders are available in [`examples/stall-example-b1-b2-run/`](examples/stall-example-b1-b2-run/README.md) and [`examples/swipe-during-dropout-b1-b2-run/`](examples/swipe-during-dropout-b1-b2-run/README.md).
 
 - `sessions/ue-<id>.json`: full player result per UE: `events`, `requests`, `ruleState`, `cache` and `sessionRecord`
-- `run-manifest.json`: configuration, source revisions, timing, byte accounting, quality model versions in `scoring`, and collaboration metadata (`shared_state_log`, `csp_control_log` or null, `clock_mode`, `cap_application`)
+- `run-manifest.json`: configuration, source revisions, timing, byte accounting, quality model versions in `scoring`, `cell_fairness`, and collaboration metadata (`shared_state_log`, `csp_control_log` or null, `clock_mode`, `cap_application`)
 - `network-steps.jsonl`: every network step with the player's response (download events only, plus `collaboration`)
 - `telemetry.jsonl`: CSP telemetry samples per UE, one every `csp_telemetry_interval_s` (1 s by default) plus a final partial one; the same samples are written to the shared table, and they are the KPI input
 - `shared-state.jsonl`: append-only audit of shared table writes (CSP and CAP fields per UE)
 - `csp-control.jsonl`: present when `signaling_level` is L3+ and `csp_controller` is `"dummy"`; control proposals from `CSPController`
-- `kpis.csv` and `report.md`: KPIs per UE, including the combined P.1203 scores; the report also lists scores per video and the model versions
+- `kpis.csv` and `report.md`: KPIs per UE, including the combined P.1203 scores and the swipe-delay score; the report also lists the cell fairness, scores per video and the model versions
 - `player.log`: error output of the player process
 - `fikore-effective.ini`, `fikore.log`, and (when synthesized by `parametric_cell`) `fikore-timeline.ndjson`: scenario, log, and replayed control timeline of the FikoRE backend
 
@@ -104,8 +104,7 @@ Scoring adds these fields after the simulation. See [QoE Estimation Models](#qoe
 - `videos[].p1204_1_segment_scores`: played segments with their model inputs and `video_quality_mos`; `frame_rate_fps` is the frame rate used for the segment and `frame_rate_from_content` says whether it came from the content file or the fallback
 - `videos[].p1203_output`: `O46`, `O35`, `O23` and the per-second `O22` of the video, or `null` if less than 0.5 s was played
 - `session_summary.p1203_output`: means of `O46`, `O35` and `O23` over the scored videos, weighted by played duration, or `null` if no video was scored
-
-Prefetch efficiency is planned and not produced yet.
+- `session_summary.sfv_nguyen_tran_output`: swipe-delay QoE of the session, or `null` if it has no videos. See [Swipe-Delay Model](#swipe-delay-model).
 
 ## KPI Table
 
@@ -143,6 +142,16 @@ Quality, from `session_summary.p1203_output`, on a scale of 1 to 5. See [QoE Est
 - `p1203_o46`: final audiovisual score
 - `p1203_o35`: audiovisual score without the effect of stalls
 - `p1203_o23`: stalling indication, where 5 means no effect of stalls
+- `sfv_nt_mos`: swipe-delay score of Nguyen and Tran, from `session_summary.sfv_nguyen_tran_output.mos`
+
+Swipes and prefetching, from `videos[]` of the session record:
+
+- `mid_video_swipes`: videos swiped away before their end. A swipe after a full playback does not count.
+- `time_to_first_byte_mean_s`: mean of `time_to_first_byte_s` over the videos that have one
+- `played_bitrate_mean_kbps`: mean `bitrate_kbps` of the `representation_intervals`, weighted by `played_duration_s`, or empty if nothing was played
+- `bytes_media_delivered`: delivered media bytes of the session
+- `bytes_wasted_swipe`: sum of `data_wastage_by_reason.swipe` over the videos
+- `prefetch_efficiency`: see [Prefetch Efficiency](#prefetch-efficiency)
 
 Network:
 
@@ -186,29 +195,35 @@ Time to first byte uses the earliest request of the video that received a byte. 
 
 ## Aggregate Evaluation Formulas
 
-These formulas are planned and not implemented yet.
+The per-UE inputs are columns of `kpis.csv`. `capcsp/runner/kpis.py` computes the formulas.
 
 ### Prefetch Efficiency
 
-$$\text{Efficiency} = 1 - \frac{\text{bytes\_wasted\_prefetch}}{\text{bytes\_delivered}}$$
+$$\text{Efficiency} = 1 - \frac{\text{bytes\_wasted\_swipe}}{\text{bytes\_delivered}}$$
 
-Yields `null` when no bytes were delivered. The session record does not separate prefetch waste yet.
+`prefetch_efficiency` in `kpis.csv`. It is `null` when no bytes were delivered. The session record only separates the bytes wasted by swipes, so other wastage reasons do not lower the efficiency.
 
-### QoE Fairness (Hoßfeld Index)
+### Cell Fairness
 
-Computed across mean session O46 scores for all $K$ video UEs in a cell:
+`cell_fairness` in `run-manifest.json` holds the fairness across the $K$ video UEs of the run, together with `ue_count`. A value is `null` if no UE has a valid input. For $K = 1$, the Hoßfeld index is 1, and Jain's index is 1 if the rate is positive.
 
-$$F = 1 - \frac{2 \cdot \sigma(O_{46})}{5 - 1}$$
+**QoE fairness (Hoßfeld index).** For the session MOS values of the UEs:
 
-where $\sigma(O_{46})$ is the population standard deviation of session MOS values.
+$$F = 1 - \frac{2 \cdot \sigma(\text{MOS})}{5 - 1}$$
 
-### Throughput Fairness (Jain's Index)
+where $\sigma$ is the population standard deviation. $F$ is 1 if all UEs have the same MOS and 0 for the largest possible spread. UEs without a value are left out.
 
-Computed across mean achieved throughput $x_k$ for each UE $k \in \{1, \dots, K\}$:
+- `hossfeld_p1203_o46`: over `p1203_o46`
+- `hossfeld_sfv_nt_mos`: over `sfv_nt_mos`
+
+**Rate fairness (Jain's index).** For the rate $x_k$ of each UE $k \in \{1, \dots, K\}$:
 
 $$J = \frac{\left(\sum_{k=1}^K x_k\right)^2}{K \cdot \sum_{k=1}^K x_k^2}$$
 
-Yields `null` when aggregate throughput is zero.
+$J$ is 1 for equal rates and $1/K$ if one UE gets everything. It is `null` when the rates sum to zero.
+
+- `jain_goodput_mbps`: over `goodput_mbps`
+- `jain_throughput_mbps`: over `throughput_mbps`
 
 ## QoE Estimation Models
 
@@ -236,6 +251,24 @@ P.1203 is only valid for media of 1 minute or longer. Shorter videos are scored 
 Audio is an assumption, not a measured input, and must be addressed for future encodings. It is assumed to be of constant good quality. This raises the audiovisual score: at O21 5.0, an O22 of 3.5 gives an O35 of 4.6. Scores do not reflect real audio quality or audio delivery.
 
 Reports must state model versions. Short-Video Streaming Challenge metrics may be reported as supplementary comparative benchmarks.
+
+## Swipe-Delay Model
+
+`capcsp/scoring/sfv_nguyen_tran.py` scores the delays between swipes and the start of the next video with Eq. 1 and the coefficients of Table IV of Nguyen and Tran ([arXiv:2603.18575](https://arxiv.org/abs/2603.18575)), following the prototype of Sara Baldoni:
+
+$$\text{MOS} = \alpha + \beta B + \gamma N_d, \qquad B = \sum_{i} d_i \, e^{\lambda t_i / T}$$
+
+with $\alpha = 4.52$, $\beta = -0.10$, $\gamma = -0.23$ and $\lambda = 0.55$. $d_i$ is the `swipe_to_playback_delay_s` of video $i + 1$, the delay after the swipe from video $i$, and 0 after the last video. $t_i$ is the cumulative watch time up to video $i$, $T$ the total watch time, and $N_d$ the number of non-zero delays. Null delays count as 0. The result is clamped to 1 to 5.
+
+The SFV player sets `swiped_away` also when the user swipes after a video played in full, but the model is defined for swipes that interrupt a video. A swipe is a mid-video swipe if the video has `swiped_away` and the `watch_duration_s` is more than 1 ms shorter than the `video_duration_s`, or the duration is unknown. `session_summary.sfv_nguyen_tran_output` holds:
+
+- `mos`: score that only counts the delays after mid-video swipes. This is the score in `sfv_nt_mos`.
+- `raw_mos`, `raw_unclamped_mos`: score that counts all delays, as in the prototype script, with and without clamping to 1 to 5. Use it to compare with the prototype.
+- `mid_video_swipes`: number of mid-video swipes
+- `delayed_mid_video_swipes`: mid-video swipes followed by a non-zero delay ($N_d$ of `mos`)
+- `weighted_swipe_delay_s`: $B$ of `mos`
+
+The model ignores the initial loading delay and stalls. It is a supplementary score next to P.1203, and its coefficients and reference are in `scoring.sfv_swipe_model` of the manifest.
 
 ## Diagnostic Event Logs
 

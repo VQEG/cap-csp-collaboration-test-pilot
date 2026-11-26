@@ -137,6 +137,15 @@
       "version": "0.1.0",
       "commit": "e4ebd2ed2cd6b93295d50c71af773f0dfb2745a0"
     },
+    "sfv_swipe_model": {
+      "reference": "Nguyen & Tran (arXiv:2603.18575)",
+      "coefficients": {
+        "alpha": 4.52,
+        "beta": -0.1,
+        "gamma": -0.23,
+        "lambda": 0.55
+      }
+    },
     "settings": {
       "device": "mobile",
       "display_width": 1080,
@@ -144,5 +153,12 @@
       "fallback_frame_rate_fps": 30.0,
       "audio_o21": 5.0
     }
+  },
+  "cell_fairness": {
+    "hossfeld_p1203_o46": 0.8478,
+    "hossfeld_sfv_nt_mos": 0.9565,
+    "jain_goodput_mbps": 1.0,
+    "jain_throughput_mbps": 0.9997,
+    "ue_count": 2
   }
 }

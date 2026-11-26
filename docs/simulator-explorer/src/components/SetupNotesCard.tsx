@@ -33,7 +33,7 @@ export function SetupNotesCard({ settings }: { settings: ExplorerSettings }) {
     fikore &&
       settings.tcpConnectionMode === "multiplexed" &&
       "Multiplexed mode shares a single RFC 9218 prioritized TCP connection per UE (HTTP/2 / HTTP/3 style), avoiding per-request connection setup and head-of-line pool contention.",
-    level >= 1 && level <= 2 && "The B1 and B2 rules do not use CSP fields yet. A level only changes results once a policy reads them.",
+    level >= 1 && level <= 2 && "From L1, the B1 and B2 rules cap their ABR bitrate at plan_downlink_mbps * planSafetyFactor when a plan rate is set. They do not use the L2 live measurements yet, so L2 differs from L1 only in what is recorded and delivered.",
     level === 3 && (
       <>
         L3 needs a controller design: inputs, mapping to priority and rate caps, interval, damping and persistence. FikoRE only honours priority with the <T id="PFScheduler">PF scheduler</T> (metric_type 6).

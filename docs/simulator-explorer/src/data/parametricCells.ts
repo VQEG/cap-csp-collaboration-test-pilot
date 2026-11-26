@@ -2,7 +2,7 @@
 // capcsp/network/parametric_cell.py.
 
 export type StudyPositionZone = "good" | "mid" | "edge" | "custom";
-export type StudyMobilityKind = "static" | "pedestrian" | "vehicular_traverse";
+export type StudyMobilityKind = "static" | "urban_bus" | "vehicular_traverse";
 export type BgSpatialKind = "none" | "homogeneous_ring" | "cell_disk";
 export type ArrivalModeKind = "poisson" | "mmpp";
 
@@ -24,6 +24,8 @@ export interface ParametricCellValues {
   study_speed_kmh: number;
   traverse_min_distance_m: number;
   traverse_max_distance_m: number;
+  /** Static downlink rate cap of the study UE in Mbps; `null` = uncapped. */
+  study_dl_rmax_mbps: number | null;
   load_rho: number;
   bg_spatial: BgSpatialKind;
   bg_max_distance_m: number;
@@ -48,6 +50,7 @@ const BASE_CUSTOM_CELL: ParametricCellValues = {
   study_speed_kmh: 0,
   traverse_min_distance_m: 151.26,
   traverse_max_distance_m: 660,
+  study_dl_rmax_mbps: null,
   load_rho: 0.5,
   bg_spatial: "cell_disk",
   bg_max_distance_m: 630,
@@ -71,9 +74,25 @@ export const PARAMETRIC_PRESET_DEFAULTS: Record<string, ParametricCellValues> = 
   M08: { ...BASE_CUSTOM_CELL, study_position: "edge", study_distance_m: 650.0, load_rho: 0.5, bg_spatial: "cell_disk" },
   M09: { ...BASE_CUSTOM_CELL, study_position: "edge", study_distance_m: 650.0, load_rho: 0.75, bg_spatial: "cell_disk" },
   M10: { ...BASE_CUSTOM_CELL, study_position: "good", study_distance_m: 151.26, study_mobility: "vehicular_traverse", study_speed_kmh: 73.26, load_rho: 0.5, bg_spatial: "cell_disk" },
-  M11: { ...BASE_CUSTOM_CELL, study_position: "edge", study_distance_m: 650.0, study_mobility: "pedestrian", study_speed_kmh: 3.6, load_rho: 0.5, bg_spatial: "cell_disk" },
+  M11: { ...BASE_CUSTOM_CELL, study_position: "custom", study_distance_m: 220.0, study_mobility: "urban_bus", study_speed_kmh: 25.0, traverse_min_distance_m: 220.0, traverse_max_distance_m: 650.0, load_rho: 0.5, bg_spatial: "cell_disk" },
   CUSTOM: { ...BASE_CUSTOM_CELL },
 };
+
+/** Default `study_speed_kmh` of a mobility kind, as in `ParametricCellConfig.from_dict`. */
+export function defaultStudySpeedKmh(mobility: StudyMobilityKind): number {
+  if (mobility === "static") return 0;
+  return mobility === "urban_bus" ? 25.0 : 73.26;
+}
+
+/** Mobility kinds that move along the `traverse_min_distance_m`–`traverse_max_distance_m` corridor. */
+export function usesTraverseCorridor(mobility: StudyMobilityKind): boolean {
+  return mobility === "urban_bus" || mobility === "vehicular_traverse";
+}
+
+/** Whether a `study_dl_rmax_mbps` value is accepted: `null` (uncapped) or 0.1–1000 Mbps. */
+export function isValidStudyDlRmaxMbps(value: number | null): boolean {
+  return value === null || (Number.isFinite(value) && value >= 0.1 && value <= 1000);
+}
 
 export function isParametricCondition(conditionId: string): boolean {
   return conditionId in PARAMETRIC_PRESET_DEFAULTS;
