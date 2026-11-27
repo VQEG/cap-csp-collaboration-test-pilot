@@ -1,0 +1,144 @@
+{
+  "grid_id": "aomctc-encoding-conditions",
+  "base": {
+    "run_id": "aomctc-encoding-conditions-base",
+    "content": "../content/aomctc-a2-2k-long/x264-segment-2s.json",
+    "network_backend": "transport_fikore",
+    "network": {
+      "congestion_control": "cubic",
+      "receive_window_bytes": 262144,
+      "tcp_connection_mode": "persistent",
+      "max_idle_tcp_connections_per_ue": 6,
+      "step_ms": 10,
+      "study_ues": [
+        "studyVqeg"
+      ],
+      "ack_over_link": true,
+      "delay_budget_s": null,
+      "random_v": null
+    },
+    "condition": "M01",
+    "signaling_level": "L0",
+    "clock_mode": "simulation",
+    "duration_s": 65,
+    "timingDefaults": {
+      "playbackTiming": {
+        "mode": "causal-simple",
+        "slotPreparationS": 0.01,
+        "appendDurationS": 0.005,
+        "startupDelayS": 0.005,
+        "observationIntervalS": 0.05
+      }
+    },
+    "sessions": [
+      {
+        "ue_id": 0,
+        "player_behavior": "simple",
+        "config": {
+          "sessionId": "ue0",
+          "seed": 1000,
+          "scheduling": {
+            "maxConcurrentRequests": 2
+          },
+          "userModel": {
+            "type": "seeded",
+            "watchDurationRangeS": [
+              2,
+              16
+            ]
+          }
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2
+        }
+      },
+      {
+        "ue_id": 1,
+        "player_behavior": "preload",
+        "config": {
+          "sessionId": "ue1",
+          "seed": 1001,
+          "scheduling": {
+            "maxConcurrentRequests": 3
+          },
+          "userModel": {
+            "type": "seeded",
+            "watchDurationRangeS": [
+              2,
+              16
+            ]
+          }
+        },
+        "rule_config": {
+          "activeBufferTargetSegments": 2,
+          "max_preload_segments": 4,
+          "preload_segments_per_video": 2
+        }
+      }
+    ]
+  },
+  "conditions": {
+    "M01": {
+      "condition": "M01",
+      "network": {
+        "parametric_cell": {
+          "preset": "M01"
+        }
+      }
+    },
+    "M05": {
+      "condition": "M05",
+      "network": {
+        "parametric_cell": {
+          "preset": "M05"
+        }
+      }
+    },
+    "M09": {
+      "condition": "M09",
+      "network": {
+        "parametric_cell": {
+          "preset": "M09"
+        }
+      }
+    }
+  },
+  "content_catalogues": {
+    "x264-seg1s": "../content/aomctc-a2-2k-long/x264-segment-1s.json",
+    "x264-seg2s": "../content/aomctc-a2-2k-long/x264-segment-2s.json",
+    "x264-seg4s": "../content/aomctc-a2-2k-long/x264-segment-4s.json",
+    "x264-seg5s": "../content/aomctc-a2-2k-long/x264-segment-5s.json",
+    "x265-seg1s": "../content/aomctc-a2-2k-long/x265-segment-1s.json",
+    "x265-seg2s": "../content/aomctc-a2-2k-long/x265-segment-2s.json",
+    "x265-seg4s": "../content/aomctc-a2-2k-long/x265-segment-4s.json",
+    "x265-seg5s": "../content/aomctc-a2-2k-long/x265-segment-5s.json",
+    "vp9-seg1s": "../content/aomctc-a2-2k-long/vp9-segment-1s.json",
+    "vp9-seg2s": "../content/aomctc-a2-2k-long/vp9-segment-2s.json",
+    "vp9-seg4s": "../content/aomctc-a2-2k-long/vp9-segment-4s.json",
+    "vp9-seg5s": "../content/aomctc-a2-2k-long/vp9-segment-5s.json",
+    "libaom-seg1s": "../content/aomctc-a2-2k-long/libaom-segment-1s.json",
+    "libaom-seg2s": "../content/aomctc-a2-2k-long/libaom-segment-2s.json",
+    "libaom-seg4s": "../content/aomctc-a2-2k-long/libaom-segment-4s.json",
+    "libaom-seg5s": "../content/aomctc-a2-2k-long/libaom-segment-5s.json",
+    "svtav1-seg1s": "../content/aomctc-a2-2k-long/svtav1-segment-1s.json",
+    "svtav1-seg2s": "../content/aomctc-a2-2k-long/svtav1-segment-2s.json",
+    "svtav1-seg4s": "../content/aomctc-a2-2k-long/svtav1-segment-4s.json",
+    "svtav1-seg5s": "../content/aomctc-a2-2k-long/svtav1-segment-5s.json"
+  },
+  "signaling_levels": [
+    "L0"
+  ],
+  "ue_counts": [
+    1
+  ],
+  "behavior_mixes": {
+    "b1": [
+      "simple"
+    ],
+    "b2": [
+      "preload"
+    ]
+  },
+  "replications": 3,
+  "network_seed_base": 20260927
+}

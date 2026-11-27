@@ -96,14 +96,15 @@ videos:
 
 Milestone 1 generates synthetic segment sizes based on target bitrates, segment durations, and seeded random variations, persisting the table before execution. Real video encodes can replace synthetic data without modifying player or backend APIs.
 
-The YAML above shows the fields only. The runner reads the SFV `content.json` format of the `sfv-reference-implementation` submodule. Two catalogues are currently checked in:
+The YAML above shows the fields only. The runner reads the SFV `content.json` format of the `sfv-reference-implementation` submodule. These catalogues are currently checked in:
 
 - `sfv-reference-implementation/fixtures/content/content.json`: three 6 s smoke-test videos (`180`–`650 kbps`).
 - `configs/content/sfv-portrait-hd-90s.json`: a **provisional** synthetic 18-video (`8 s` each, `4 × 2 s` segments, 6-rung portrait Full HD `270×480`–`1080×1920` ladder at `300`–`8000 kbps`) catalogue used to sustain `65 s` multi-swipe runs without feed exhaustion while Michi's group finalizes the pilot catalogue; see [Decision Status and Action Items](decision-status-and-todos.md#player-and-video-definitions).
+- `configs/content/aomctc-a2-2k-long/<encoder>-segment-<n>s.json`: per-title ladders from real encodes of the 17 long AOM CTC a2_2k clips (5–19 s, 161 s per feed), one catalogue per encoder (x264, x265, VP9, libaom and SVT-AV1) and segment duration (1, 2, 4 and 5 s). Each video has up to five rungs, one per VMAF v1 5H target from 50 to 90. The representation sizes are measured; only their split into segments is synthetic. See the [catalogue README](../configs/content/aomctc-a2-2k-long/README.md).
 
 ## Experiment Grid
 
-A grid file expands into one experiment configuration per cell. `capcsp grid` runs the cells in parallel. Examples: `configs/grids/layered-core6.json`, `configs/grids/layered-m01-m11.json`, and `configs/grids/parametric-load-sweep.json`.
+A grid file expands into one experiment configuration per cell. `capcsp grid` runs the cells in parallel. Examples: `configs/grids/layered-core6.json`, `configs/grids/layered-m01-m11.json`, `configs/grids/parametric-load-sweep.json`, and `configs/grids/aomctc-encoding-conditions.json` (encoders and segment durations as an axis).
 
 ```json
 {
@@ -125,15 +126,16 @@ The keys:
 
 - `base`: a normal experiment configuration, as a path relative to the grid file or inline as an object. Every cell starts from it. The [simulator explorer](simulator-explorer/README.md) writes grid files with an inline base.
 - `conditions`: named partial configurations. Each is merged over the base: objects merge key by key, other values replace. Without `conditions`, the grid uses the base condition.
+- `content_catalogues`: optional named content catalogues, as paths relative to the grid file, for example `{"svtav1-seg2s": "../content/aomctc-a2-2k-long/svtav1-segment-2s.json"}`. Each replaces the `content` of the base. Without this axis, all cells use the content of the base.
 - `signaling_levels`: the signaling levels. All UEs of a cell share one level.
 - `ue_counts`: the number of video UEs per cell.
 - `behavior_mixes`: named behaviour patterns. A pattern repeats over the UEs of a cell, so `["simple", "preload"]` gives B1, B2, B1, B2 for four UEs. Each behaviour takes its session settings from the first base session with that behaviour.
 - `replications`: the number of replications. Replication r sets the FikoRE seed to `network_seed_base + r` and the seed of UE k to `1000 r + k`. Cells of the same replication therefore see the same radio and the same users, so they can be compared in pairs.
 
-Each cell is named `<grid_id>-<condition>-<level>-<n>ue-<mix>-r<replication>`. The output directory, by default `output/grids/<grid_id>`, holds one directory per cell, `index.csv` and `kpis.csv`:
+Each cell is named `<grid_id>-<condition>-<level>-<n>ue-<mix>-r<replication>`, or `<grid_id>-<condition>-<catalogue>-<level>-<n>ue-<mix>-r<replication>` when the grid has `content_catalogues`. The output directory, by default `output/grids/<grid_id>`, holds one directory per cell, `index.csv` and `kpis.csv`:
 
 - `index.csv` lists every cell with its axis values, a hash of its configuration, its status and its wall-clock time.
-- `kpis.csv` merges the KPI tables of all completed cells. It adds the UE count, the behaviour mix and the replication as leading columns.
+- `kpis.csv` merges the KPI tables of all completed cells. It adds the content catalogue, the UE count, the behaviour mix and the replication as leading columns.
 
 A cell is finished when it completed with an unchanged configuration. A new invocation skips finished cells and runs failed or changed ones. With `--force`, it runs all cells again. A failed cell writes `error.log` and does not stop the others.
 

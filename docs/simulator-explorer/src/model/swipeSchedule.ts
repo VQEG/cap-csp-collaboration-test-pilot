@@ -1,4 +1,4 @@
-import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
+import { selectedContentVideoCount } from "@/model/contentSelection";
 import type { ExplorerSettings } from "@/model/explorerSettings";
 
 // The swipe times SFV resolves for one session, computed as in
@@ -7,7 +7,7 @@ import type { ExplorerSettings } from "@/model/explorerSettings";
 
 /** Maximum number of swipes a session can make for the selected content catalogue. */
 export function maxSwipesPerSession(settings: ExplorerSettings): number {
-  return CONTENT_CATALOGUES[settings.contentId].videoCount - 1;
+  return selectedContentVideoCount(settings) - 1;
 }
 
 class SeededGenerator {

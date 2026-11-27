@@ -99,7 +99,10 @@ To run a whole grid of conditions, signaling levels, UE counts, behaviour mixes 
 uv run capcsp grid configs/grids/layered-core6.json --jobs 14
 uv run capcsp grid configs/grids/layered-m01-m11.json --jobs 14
 uv run capcsp grid configs/grids/parametric-load-sweep.json --jobs 14
+uv run capcsp grid configs/grids/aomctc-encoding-conditions.json --jobs 14
 ```
+
+The last grid varies the encoding: per-title ladders of five encoders at 1, 2, 4 and 5 s segments, from real encodes of the AOM CTC a2_2k long clips ([catalogue README](configs/content/aomctc-a2-2k-long/README.md)).
 
 The grid runner shows the progress of the grid and of every running cell. It writes to `output/grids/<grid_id>`: one directory per cell, an `index.csv` with the status of every cell and one merged `kpis.csv`. If you start it again, it skips the cells that already finished with the same configuration. Add `--force` to run them again. Add `--list` to only list the cells. The grid format is described in [Experiments and Configuration](docs/experiments.md#experiment-grid).
 

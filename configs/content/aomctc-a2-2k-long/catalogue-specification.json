@@ -1,0 +1,38 @@
+{
+  "source_csv": "per-title-ladder-encodes.csv",
+  "quality_metric": "vmaf_5h",
+  "vmaf_targets": [90, 80, 70, 60, 50],
+  "seed": 20261125,
+  "segment_size_coefficient_of_variation": 0.3,
+  "drop_last_segment_shorter_than_s": 0.05,
+  "codec_string_by_encoder": {
+    "x264": "avc1.640028",
+    "x265": "hvc1.1.6.L120.90",
+    "vp9": "vp09.00.40.08",
+    "libaom": "av01.0.08M.08",
+    "svtav1": "av01.0.08M.08"
+  },
+  "segment_durations_s": [1, 2, 4, 5],
+  "audio_codec": "mp4a.40.2",
+  "audio_bitrate_kbps": 64,
+  "output_file_pattern": "{encoder}-segment-{segment_duration_s}s.json",
+  "clips": [
+    {"video_id": "v01-vertical-carnaby", "source_clip": "Vertical_Carnaby_5994_1080x1920"},
+    {"video_id": "v02-crowd-run", "source_clip": "crowd_run_1080p50"},
+    {"video_id": "v03-meridian-talk", "source_clip": "Meridian_talk_sdr_1080p_10bit"},
+    {"video_id": "v04-ritual-dance", "source_clip": "RitualDance_1920x1080_60fps_10bit_420"},
+    {"video_id": "v05-walking-in-street", "source_clip": "raw_1080x1920@30.walking.in.street"},
+    {"video_id": "v06-world-cup", "source_clip": "WorldCup_1920x1080_30p"},
+    {"video_id": "v07-aerial", "source_clip": "Aerial3200_1920x1080_5994_10bit_420"},
+    {"video_id": "v08-food-market", "source_clip": "FoodMarket_1920x1080_60fps_10bit_420"},
+    {"video_id": "v09-vertical-bees", "source_clip": "Vertical_bees_2997_1080x1920"},
+    {"video_id": "v10-rush-field-cuts", "source_clip": "rush_field_cuts_1080p"},
+    {"video_id": "v11-skater", "source_clip": "Skater227_1920x1080_30fps"},
+    {"video_id": "v12-old-town-cross", "source_clip": "old_town_cross_1080p50"},
+    {"video_id": "v13-tunnel-flag", "source_clip": "TunnelFlag_1920x1080_60fps_10bit_420"},
+    {"video_id": "v14-pedestrian-area", "source_clip": "pedestrian_area_1080p25"},
+    {"video_id": "v15-boat", "source_clip": "Boat_1920x1080_60fps_10bit_420"},
+    {"video_id": "v16-world-cup-far", "source_clip": "WorldCup_far_1920x1080_30p"},
+    {"video_id": "v17-riverbed", "source_clip": "riverbed_1080p25"}
+  ]
+}

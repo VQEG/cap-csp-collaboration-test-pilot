@@ -7,7 +7,22 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlossaryTerm as T, InlineCode as C } from "@/components/GlossaryTerm";
 import { MultipleChoice, NumberField, SegmentedChoice, SettingControl } from "@/components/SettingControls";
-import { CONTENT_CATALOGUES, type ContentCatalogueId } from "@/data/contentCatalogue";
+import {
+  CONTENT_CATALOGUES,
+  CONTENT_CATALOGUE_IDS,
+  CONTENT_ENCODER_DETAILS,
+  CONTENT_ENCODERS,
+  CONTENT_SEGMENT_DURATIONS_S,
+  PER_TITLE_DIRECTORY,
+  PER_TITLE_LADDER_SUMMARIES,
+  PER_TITLE_QUALITY_METRIC,
+  PER_TITLE_VIDEOS,
+  perTitleCatalogueFileName,
+  type ContentCatalogueId,
+  type ContentEncoder,
+  type ContentSegmentDurationS,
+  type FixedLadderCatalogueId,
+} from "@/data/contentCatalogue";
 import { NETWORK_CONDITIONS, effectiveConditionView } from "@/data/networkConditions";
 import {
   ALL_LAYERED_CONDITION_IDS,
@@ -39,6 +54,7 @@ import {
   type GridAxes,
   type SignalingLevel,
 } from "@/model/explorerSettings";
+import { effectiveContentAxes, gridContentCatalogues, selectedContentVideoCount, shownPerTitleCatalogue, usesPerTitleContent } from "@/model/contentSelection";
 import { maxSwipesPerSession, parseSwipeTimes, resolveSwipeTimes } from "@/model/swipeSchedule";
 
 type UpdateSetting = <K extends keyof ExplorerSettings>(key: K, value: ExplorerSettings[K]) => void;
@@ -660,7 +676,7 @@ function SwipeSection({ settings, updateSetting }: SectionProps) {
   const durationS = runDurationSeconds(settings);
   const sequence = parseSwipeTimes(settings.swipeTimesS);
   const [low, high] = settings.watchDurationRangeS;
-  const catalogue = CONTENT_CATALOGUES[settings.contentId];
+  const videoCount = selectedContentVideoCount(settings);
   const maxSwipes = maxSwipesPerSession(settings);
   if (settings.networkBackend === "mock") {
     return (
@@ -674,7 +690,7 @@ function SwipeSection({ settings, updateSetting }: SectionProps) {
       title="Swipes"
       description={
         <>
-          The SFV <C>userModel</C> of every session. SFV resolves all swipe times before the session starts. The selected content has {catalogue.videoCount}{" "}
+          The SFV <C>userModel</C> of every session. SFV resolves all swipe times before the session starts. The selected content has {videoCount}{" "}
           videos, so a session swipes at most {maxSwipes} times.
         </>
       }
@@ -748,32 +764,132 @@ function GridAxesSection({ settings, updateSetting }: SectionProps) {
         </SettingControl>
       </div>
       <p className="text-xs text-muted-foreground">
-        {gridCellCount(settings)} cells. The diagram shows one cell: the condition, level, UE count and mix chosen for the run.
+        {gridCellCount(settings)} cells. The diagram shows one cell: the condition, level, UE count, mix and content chosen for the run.
       </p>
     </Section>
   );
 }
 
-function ContentSection({ settings, updateSetting }: SectionProps) {
-  const catalogue = CONTENT_CATALOGUES[settings.contentId];
+const CONTENT_CATALOGUE_LABELS: Record<ContentCatalogueId, string> = {
+  aomctc_per_title: "17 clips, per-title ladders",
+  portrait_hd_90s: "18×8s Full HD (provisional)",
+  fixture: "3×6s fixture",
+};
+
+const ENCODER_OPTIONS: [ContentEncoder, string][] = CONTENT_ENCODERS.map((encoder) => [encoder, CONTENT_ENCODER_DETAILS[encoder].label]);
+const SEGMENT_DURATION_OPTIONS: [string, string][] = CONTENT_SEGMENT_DURATIONS_S.map((duration) => [String(duration), `${duration} s`]);
+
+function formatKbps(value: number): string {
+  return value >= 1000 ? `${(value / 1000).toFixed(1)} Mbps` : `${value} kbps`;
+}
+
+function PerTitleContentDetails({ settings, updateSetting }: SectionProps) {
+  const grid = settings.configOutputKind === "grid";
+  const contentAxes = effectiveContentAxes(settings);
+  const catalogueCount = gridContentCatalogues(settings).length;
+  const shown = shownPerTitleCatalogue(settings);
+  const summary = PER_TITLE_LADDER_SUMMARIES[shown.encoder][shown.segmentDurationS];
+  const details = CONTENT_ENCODER_DETAILS[shown.encoder];
+  const totalDurationS = PER_TITLE_VIDEOS.reduce((sum, video) => sum + video.durationS, 0);
+  const portraitCount = PER_TITLE_VIDEOS.filter((video) => video.portrait).length;
+  const frameRates = [...new Set(PER_TITLE_VIDEOS.map((video) => video.frameRateFps))].sort((a, b) => a - b);
   return (
-    <Section
-      title="Content"
-      badge={settings.contentId === "portrait_hd_90s" ? "provisional" : undefined}
-      description={
-        <>
-          Select the content catalogue written to <C>content</C>: the provisional 18-video Full HD ladder (<C>sfv-portrait-hd-90s.json</C>, used until the final
-          pilot SFV catalogue lands) or the 3-video smoke-test fixture.
-        </>
-      }
-    >
-      <SettingControl title="Catalogue" hint={<C>{catalogue.filePath}</C>}>
-        <SegmentedChoice
-          value={settings.contentId}
-          options={(Object.keys(CONTENT_CATALOGUES) as ContentCatalogueId[]).map((id) => [id, id === "portrait_hd_90s" ? "18×8s Full HD (provisional)" : "3×6s fixture"])}
-          onChange={(contentId) => updateSetting("contentId", contentId)}
-        />
-      </SettingControl>
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SettingControl title={grid ? "Encoders in the grid" : "Encoder"} hint={grid ? undefined : <C>{details.codecString}</C>}>
+          {grid ? (
+            <MultipleChoice values={contentAxes.encoders} options={ENCODER_OPTIONS} onChange={(contentEncoders) => updateGridAxes(settings, updateSetting, { contentEncoders })} />
+          ) : (
+            <SegmentedChoice value={settings.contentEncoder} options={ENCODER_OPTIONS} onChange={(value) => updateSetting("contentEncoder", value)} />
+          )}
+        </SettingControl>
+        <SettingControl title={grid ? "Segment durations in the grid" : "Segment duration"} hint="Keyframe interval = segment duration">
+          {grid ? (
+            <MultipleChoice
+              values={contentAxes.segmentDurationsS.map(String)}
+              options={SEGMENT_DURATION_OPTIONS}
+              onChange={(values) => updateGridAxes(settings, updateSetting, { contentSegmentDurationsS: values.map(Number) as ContentSegmentDurationS[] })}
+            />
+          ) : (
+            <SegmentedChoice
+              value={String(settings.contentSegmentDurationS)}
+              options={SEGMENT_DURATION_OPTIONS}
+              onChange={(value) => updateSetting("contentSegmentDurationS", Number(value) as ContentSegmentDurationS)}
+            />
+          )}
+        </SettingControl>
+      </div>
+      {grid && (
+        <p className="text-xs text-muted-foreground">
+          {catalogueCount > 1 ? (
+            <>
+              {catalogueCount} catalogues on the <C>content_catalogues</C> axis. Cells that differ only in the catalogue see the same radio and the same users.
+            </>
+          ) : (
+            <>Select more than one encoder or segment duration to add a <C>content_catalogues</C> axis.</>
+          )}
+        </p>
+      )}
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
+        <dt className="text-muted-foreground">Videos</dt>
+        <dd>
+          {PER_TITLE_VIDEOS.length} AOM CTC a2_2k long clips, played in order: {totalDurationS.toFixed(0)} s in total, {portraitCount} portrait and{" "}
+          {PER_TITLE_VIDEOS.length - portraitCount} landscape
+        </dd>
+        <dt className="text-muted-foreground">Length</dt>
+        <dd>
+          {Math.min(...PER_TITLE_VIDEOS.map((video) => video.durationS))}–{Math.max(...PER_TITLE_VIDEOS.map((video) => video.durationS)).toFixed(0)} s each, in{" "}
+          {shown.segmentDurationS} s segments (the last one shorter)
+        </dd>
+        <dt className="text-muted-foreground">Video</dt>
+        <dd>
+          {details.codecFamily} ({details.label}), {frameRates.join(", ")} fps (source frame rate)
+        </dd>
+        <dt className="text-muted-foreground">Ladder</dt>
+        <dd>
+          Per title: one rung per {PER_TITLE_QUALITY_METRIC} target, the cheapest encode on the clip's convex hull that reaches it ({summary.representationCount}{" "}
+          representations over all videos)
+        </dd>
+        <dt className="text-muted-foreground">File</dt>
+        <dd>
+          <C>{`${PER_TITLE_DIRECTORY}/${perTitleCatalogueFileName(shown.encoder, shown.segmentDurationS)}`}</C>
+        </dd>
+      </dl>
+      <div className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
+        Ladder of {details.label} at {shown.segmentDurationS} s segments{grid ? " (the cell in the diagram)" : ""}
+      </div>
+      <table className="w-full text-xs">
+        <thead className="text-muted-foreground">
+          <tr className="border-b">
+            <th className="py-1 text-left font-normal">VMAF target</th>
+            <th className="py-1 text-right font-normal">Clips</th>
+            <th className="py-1 text-right font-normal">Typical resolution</th>
+            <th className="py-1 text-right font-normal">Median bitrate</th>
+          </tr>
+        </thead>
+        <tbody className="font-mono">
+          {summary.rungs.map((rung) => (
+            <tr key={rung.targetVmaf} className="border-b last:border-b-0">
+              <td className="py-1">{rung.targetVmaf}</td>
+              <td className="py-1 text-right">{rung.clipCount}</td>
+              <td className="py-1 text-right">{rung.typicalShortSidePx}p</td>
+              <td className="py-1 text-right">{formatKbps(rung.medianBitrateKbps)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="text-xs leading-snug text-muted-foreground">
+        Medians over the clips with a rung for that target. A clip has no rung for a target when no encode reaches it, or when the same encode already serves a lower
+        target. Representation sizes are measured; only their split into segments is synthetic.
+      </p>
+    </>
+  );
+}
+
+function FixedLadderContentDetails({ catalogueId }: { catalogueId: FixedLadderCatalogueId }) {
+  const catalogue = CONTENT_CATALOGUES[catalogueId];
+  return (
+    <>
       <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
         <dt className="text-muted-foreground">Videos</dt>
         <dd>
@@ -815,6 +931,35 @@ function ContentSection({ settings, updateSetting }: SectionProps) {
         </tbody>
       </table>
       <p className="text-xs leading-snug text-muted-foreground">Measured is the average bitrate over the segment sizes of all videos.</p>
+    </>
+  );
+}
+
+function ContentSection({ settings, updateSetting }: SectionProps) {
+  const perTitle = usesPerTitleContent(settings);
+  return (
+    <Section
+      title="Content"
+      badge={settings.contentId === "portrait_hd_90s" ? "provisional" : undefined}
+      description={
+        <>
+          Select the content catalogue written to <C>content</C>: per-title ladders from real encodes of the AOM CTC a2_2k long clips (one catalogue per encoder
+          and segment duration), the provisional synthetic 18-video Full HD ladder (<C>sfv-portrait-hd-90s.json</C>) or the 3-video smoke-test fixture.
+        </>
+      }
+    >
+      <SettingControl title="Catalogue" hint={perTitle ? <C>{PER_TITLE_DIRECTORY}</C> : <C>{CONTENT_CATALOGUES[settings.contentId as FixedLadderCatalogueId].filePath}</C>}>
+        <SegmentedChoice
+          value={settings.contentId}
+          options={CONTENT_CATALOGUE_IDS.map((id) => [id, CONTENT_CATALOGUE_LABELS[id]])}
+          onChange={(contentId) => updateSetting("contentId", contentId)}
+        />
+      </SettingControl>
+      {perTitle ? (
+        <PerTitleContentDetails settings={settings} updateSetting={updateSetting} />
+      ) : (
+        <FixedLadderContentDetails catalogueId={settings.contentId as FixedLadderCatalogueId} />
+      )}
     </Section>
   );
 }

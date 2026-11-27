@@ -4,7 +4,7 @@
 
 An interactive page that shows which harness components take part in a run, what flows between them in one 10 ms `NetworkStep`, and what the player and the network can see, for a chosen signaling level (L0–L4), backend (FikoRE, constant rate or mock), FikoRE condition or constant rate per UE, player behaviour and transport.
 
-The experiment design card lets you change the parameters of the parametric single-cell 5G presets (`M01`–`M11` / `CUSTOM` via `network.parametric_cell`), the behaviours (B1 and B2 rule and scheduling settings, and the mix over the UEs of a cell), the swipes (SFV user model) and the content catalogue (the provisional 18-video Full HD ladder `sfv-portrait-hd-90s.json` or the 3-video fixture). In Grid mode, parametric conditions also support one-click `load_rho` sweeps while keeping spatial distribution, per-UE background bitrate, session arrival/hold dynamics and mobility fixed. It shows the swipe times SFV resolves for each UE. The page renders the matching run config, or a grid config with an inline base experiment, and copies it to the clipboard when all inputs pass validation. Both run unchanged with `capcsp run` and `capcsp grid`. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
+The experiment design card lets you change the parameters of the parametric single-cell 5G presets (`M01`–`M11` / `CUSTOM` via `network.parametric_cell`), the behaviours (B1 and B2 rule and scheduling settings, and the mix over the UEs of a cell), the swipes (SFV user model) and the content catalogue (per-title ladders from real encodes of the AOM CTC a2_2k long clips with a choice of encoder and segment duration, the provisional 18-video Full HD ladder `sfv-portrait-hd-90s.json` or the 3-video fixture). In Grid mode, several encoders and segment durations become a `content_catalogues` axis. In Grid mode, parametric conditions also support one-click `load_rho` sweeps while keeping spatial distribution, per-UE background bitrate, session arrival/hold dynamics and mobility fixed. It shows the swipe times SFV resolves for each UE. The page renders the matching run config, or a grid config with an inline base experiment, and copies it to the clipboard when all inputs pass validation. Both run unchanged with `capcsp run` and `capcsp grid`. It compares two implementation states: the design in `docs/signaling.md` and `docs/architecture.md`, and the code on master.
 
 Diagram boxes are colored by the repository that holds the code. Every dotted-underlined term, and every arrow label, shows an explanation on hover.
 
@@ -32,7 +32,7 @@ Data, in `src/data/`:
 - `networkConditions.ts`: `M01`–`M11` and `CUSTOM` calibration bands, dominant cause, active background UEs, synthesized timeline and duration, from `configs/experiments/layered/README.md`; `defaultPlanDownlinkMbps` presets the plan rate
 - `parametricCells.ts`: `M01`–`M11` presets (`Core-6` marked), `CUSTOM` defaults, `load_rho` sweep parsing/slugs and analytical active-neighbor UE estimates for `network.parametric_cell`
 - `playerBehaviors.ts`: B1 and B2 parameters with the values of the condition configs and the SFV defaults, and the behaviour mixes
-- `contentCatalogue.ts`: the videos and representations of `configs/content/sfv-portrait-hd-90s.json` (provisional) and `sfv-reference-implementation/fixtures/content/content.json`
+- `contentCatalogue.ts`: the videos and representations of `configs/content/sfv-portrait-hd-90s.json` (provisional) and `sfv-reference-implementation/fixtures/content/content.json`, and a summary of the per-title catalogues in `configs/content/aomctc-a2-2k-long/` (videos, and per encoder and segment duration the median bitrate, clip count and typical resolution per VMAF target); recompute the summary when the catalogues are regenerated
 - `implementationStates.ts`: the states in the Implementation selector
 - `repositories.ts`: the three repositories and their names in the legend
 - `glossary.ts`: every hover text, keyed by term id
@@ -44,6 +44,7 @@ Logic, in `src/model/` (each function takes the `ExplorerSettings`):
 - `implementationStatus.ts`: banner text, is this level implemented in this state
 - `networkStepWalkthrough.tsx`: ordered steps of one `NetworkStep`, with the arrows and boxes to highlight
 - `playerVisibleFields.ts`: `CspFields` rows, their source and whether they are visible, filtered or null; values are midpoints of the calibration bands, not run data
+- `contentSelection.ts`: the content path of a run and the `content_catalogues` axis of a grid
 - `experimentConfig.ts`: the run and grid JSON, including the `network` settings per backend and the condition overrides; keep its keys in sync with `configs/experiments/`, `capcsp/runner/run.py` and `capcsp/runner/grid_specification.py`
 - `swipeSchedule.ts`: the swipe times SFV resolves per session (a copy of `resolveUserInteractions` and its seeded generator)
 - `runOutputFiles.ts`: files written to the output directory
