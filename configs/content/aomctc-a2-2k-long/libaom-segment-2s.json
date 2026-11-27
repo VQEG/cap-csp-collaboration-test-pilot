@@ -1,0 +1,5253 @@
+{
+  "schemaVersion": 1,
+  "encodingCondition": {
+    "encoder": "libaom",
+    "codec": "av01.0.08M.08",
+    "segmentDurationS": 2.0,
+    "qualityMetric": "vmaf_5h"
+  },
+  "videos": [
+    {
+      "videoId": "v01-vertical-carnaby",
+      "sourceClip": "Vertical_Carnaby_5994_1080x1920",
+      "manifestUrl": "/media/v01-vertical-carnaby/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 5.005,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 436.6,
+            "width": 480,
+            "height": 854,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 59.564,
+            "crf": 59,
+            "initUrl": "/media/v01-vertical-carnaby/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-0-00001.m4s",
+                "bytes": 75122
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-0-00002.m4s",
+                "bytes": 129761
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v01-vertical-carnaby/chunk-0-00003.m4s",
+                "bytes": 68288
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 447.5,
+            "width": 360,
+            "height": 640,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 60.199,
+            "crf": 55,
+            "initUrl": "/media/v01-vertical-carnaby/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-1-00001.m4s",
+                "bytes": 76988
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-1-00002.m4s",
+                "bytes": 132986
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v01-vertical-carnaby/chunk-1-00003.m4s",
+                "bytes": 69985
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 724.4,
+            "width": 540,
+            "height": 960,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 72.366,
+            "crf": 55,
+            "initUrl": "/media/v01-vertical-carnaby/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-2-00001.m4s",
+                "bytes": 124637
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-2-00002.m4s",
+                "bytes": 215292
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v01-vertical-carnaby/chunk-2-00003.m4s",
+                "bytes": 113298
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1231.2,
+            "width": 540,
+            "height": 960,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 82.0,
+            "crf": 47,
+            "initUrl": "/media/v01-vertical-carnaby/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-3-00001.m4s",
+                "bytes": 211823
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-3-00002.m4s",
+                "bytes": 365892
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v01-vertical-carnaby/chunk-3-00003.m4s",
+                "bytes": 192552
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 2577.3,
+            "width": 540,
+            "height": 960,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 90.587,
+            "crf": 35,
+            "initUrl": "/media/v01-vertical-carnaby/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-4-00001.m4s",
+                "bytes": 443421
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-4-00002.m4s",
+                "bytes": 765944
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v01-vertical-carnaby/chunk-4-00003.m4s",
+                "bytes": 403081
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v01-vertical-carnaby/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v01-vertical-carnaby/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v01-vertical-carnaby/chunk-audio-00003.m4s",
+                "bytes": 8040
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v02-crowd-run",
+      "sourceClip": "crowd_run_1080p50",
+      "manifestUrl": "/media/v02-crowd-run/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 927.2,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 50,
+            "vmaf": 52.7,
+            "crf": 59,
+            "initUrl": "/media/v02-crowd-run/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-0-00001.m4s",
+                "bytes": 227226
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-0-00002.m4s",
+                "bytes": 165570
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-0-00003.m4s",
+                "bytes": 200210
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-0-00004.m4s",
+                "bytes": 370832
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-0-00005.m4s",
+                "bytes": 195187
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 1536.7,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 60,
+            "vmaf": 65.469,
+            "crf": 55,
+            "initUrl": "/media/v02-crowd-run/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-1-00001.m4s",
+                "bytes": 376586
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-1-00002.m4s",
+                "bytes": 274402
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-1-00003.m4s",
+                "bytes": 331813
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-1-00004.m4s",
+                "bytes": 614587
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-1-00005.m4s",
+                "bytes": 323487
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 1903.2,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 70,
+            "vmaf": 71.068,
+            "crf": 59,
+            "initUrl": "/media/v02-crowd-run/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-2-00001.m4s",
+                "bytes": 466402
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-2-00002.m4s",
+                "bytes": 339847
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-2-00003.m4s",
+                "bytes": 410950
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-2-00004.m4s",
+                "bytes": 761166
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-2-00005.m4s",
+                "bytes": 400639
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 3071.3,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 80,
+            "vmaf": 80.541,
+            "crf": 55,
+            "initUrl": "/media/v02-crowd-run/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-3-00001.m4s",
+                "bytes": 752655
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-3-00002.m4s",
+                "bytes": 548426
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-3-00003.m4s",
+                "bytes": 663168
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-3-00004.m4s",
+                "bytes": 1228329
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-3-00005.m4s",
+                "bytes": 646529
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 5640.0,
+            "width": 1920,
+            "height": 1080,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 90,
+            "vmaf": 90.394,
+            "crf": 55,
+            "initUrl": "/media/v02-crowd-run/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-4-00001.m4s",
+                "bytes": 1382159
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-4-00002.m4s",
+                "bytes": 1007119
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-4-00003.m4s",
+                "bytes": 1217828
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-4-00004.m4s",
+                "bytes": 2255677
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-4-00005.m4s",
+                "bytes": 1187272
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v02-crowd-run/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v02-crowd-run/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v03-meridian-talk",
+      "sourceClip": "Meridian_talk_sdr_1080p_10bit",
+      "manifestUrl": "/media/v03-meridian-talk/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 6.373033,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 36.9,
+            "width": 640,
+            "height": 360,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 52.661,
+            "crf": 63,
+            "initUrl": "/media/v03-meridian-talk/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-0-00001.m4s",
+                "bytes": 7373
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-0-00002.m4s",
+                "bytes": 12279
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-0-00003.m4s",
+                "bytes": 7576
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 0.373033,
+                "url": "/media/v03-meridian-talk/chunk-0-00004.m4s",
+                "bytes": 2143
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 52.9,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 61.443,
+            "crf": 63,
+            "initUrl": "/media/v03-meridian-talk/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-1-00001.m4s",
+                "bytes": 10578
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-1-00002.m4s",
+                "bytes": 17616
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-1-00003.m4s",
+                "bytes": 10868
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 0.373033,
+                "url": "/media/v03-meridian-talk/chunk-1-00004.m4s",
+                "bytes": 3074
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 94.7,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 71.904,
+            "crf": 59,
+            "initUrl": "/media/v03-meridian-talk/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-2-00001.m4s",
+                "bytes": 18948
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-2-00002.m4s",
+                "bytes": 31554
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-2-00003.m4s",
+                "bytes": 19468
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 0.373033,
+                "url": "/media/v03-meridian-talk/chunk-2-00004.m4s",
+                "bytes": 5506
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 204.0,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 81.574,
+            "crf": 55,
+            "initUrl": "/media/v03-meridian-talk/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-3-00001.m4s",
+                "bytes": 40790
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-3-00002.m4s",
+                "bytes": 67931
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-3-00003.m4s",
+                "bytes": 41911
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 0.373033,
+                "url": "/media/v03-meridian-talk/chunk-3-00004.m4s",
+                "bytes": 11852
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 1367.3,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 90.77,
+            "crf": 27,
+            "initUrl": "/media/v03-meridian-talk/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-4-00001.m4s",
+                "bytes": 273444
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-4-00002.m4s",
+                "bytes": 455390
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-4-00003.m4s",
+                "bytes": 280956
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 0.373033,
+                "url": "/media/v03-meridian-talk/chunk-4-00004.m4s",
+                "bytes": 79445
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v03-meridian-talk/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v03-meridian-talk/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 0.373033,
+                "url": "/media/v03-meridian-talk/chunk-audio-00004.m4s",
+                "bytes": 2984
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v04-ritual-dance",
+      "sourceClip": "RitualDance_1920x1080_60fps_10bit_420",
+      "manifestUrl": "/media/v04-ritual-dance/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 490.6,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 55.678,
+            "crf": 59,
+            "initUrl": "/media/v04-ritual-dance/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-0-00001.m4s",
+                "bytes": 67765
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-0-00002.m4s",
+                "bytes": 210619
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-0-00003.m4s",
+                "bytes": 118367
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-0-00004.m4s",
+                "bytes": 125005
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-0-00005.m4s",
+                "bytes": 91496
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 564.8,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 60.007,
+            "crf": 59,
+            "initUrl": "/media/v04-ritual-dance/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-1-00001.m4s",
+                "bytes": 78013
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-1-00002.m4s",
+                "bytes": 242471
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-1-00003.m4s",
+                "bytes": 136268
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-1-00004.m4s",
+                "bytes": 143909
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-1-00005.m4s",
+                "bytes": 105334
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 854.0,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 70.565,
+            "crf": 55,
+            "initUrl": "/media/v04-ritual-dance/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-2-00001.m4s",
+                "bytes": 117956
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-2-00002.m4s",
+                "bytes": 366618
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-2-00003.m4s",
+                "bytes": 206037
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-2-00004.m4s",
+                "bytes": 217591
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-2-00005.m4s",
+                "bytes": 159265
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1495.8,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 82.257,
+            "crf": 47,
+            "initUrl": "/media/v04-ritual-dance/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-3-00001.m4s",
+                "bytes": 206614
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-3-00002.m4s",
+                "bytes": 642177
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-3-00003.m4s",
+                "bytes": 360899
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-3-00004.m4s",
+                "bytes": 381139
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-3-00005.m4s",
+                "bytes": 278972
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 2703.7,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 91.624,
+            "crf": 43,
+            "initUrl": "/media/v04-ritual-dance/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-4-00001.m4s",
+                "bytes": 373445
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-4-00002.m4s",
+                "bytes": 1160704
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-4-00003.m4s",
+                "bytes": 652308
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-4-00004.m4s",
+                "bytes": 688889
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-4-00005.m4s",
+                "bytes": 504227
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v04-ritual-dance/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v04-ritual-dance/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v05-walking-in-street",
+      "sourceClip": "raw_1080x1920@30.walking.in.street",
+      "manifestUrl": "/media/v05-walking-in-street/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 16.666667,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 514.3,
+            "width": 480,
+            "height": 854,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 50,
+            "vmaf": 58.669,
+            "crf": 59,
+            "initUrl": "/media/v05-walking-in-street/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00001.m4s",
+                "bytes": 137789
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00002.m4s",
+                "bytes": 142950
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00003.m4s",
+                "bytes": 78937
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00004.m4s",
+                "bytes": 126383
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00005.m4s",
+                "bytes": 122685
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00006.m4s",
+                "bytes": 97508
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00007.m4s",
+                "bytes": 105557
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-0-00008.m4s",
+                "bytes": 209078
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 0.666667,
+                "url": "/media/v05-walking-in-street/chunk-0-00009.m4s",
+                "bytes": 50557
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 606.8,
+            "width": 540,
+            "height": 960,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 60,
+            "vmaf": 63.18,
+            "crf": 59,
+            "initUrl": "/media/v05-walking-in-street/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00001.m4s",
+                "bytes": 162562
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00002.m4s",
+                "bytes": 168651
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00003.m4s",
+                "bytes": 93129
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00004.m4s",
+                "bytes": 149106
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00005.m4s",
+                "bytes": 144743
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00006.m4s",
+                "bytes": 115039
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00007.m4s",
+                "bytes": 124535
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-1-00008.m4s",
+                "bytes": 246668
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 0.666667,
+                "url": "/media/v05-walking-in-street/chunk-1-00009.m4s",
+                "bytes": 59646
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 815.8,
+            "width": 480,
+            "height": 854,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 70,
+            "vmaf": 70.185,
+            "crf": 55,
+            "initUrl": "/media/v05-walking-in-street/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00001.m4s",
+                "bytes": 218576
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00002.m4s",
+                "bytes": 226763
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00003.m4s",
+                "bytes": 125219
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00004.m4s",
+                "bytes": 200482
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00005.m4s",
+                "bytes": 194616
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00006.m4s",
+                "bytes": 154677
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00007.m4s",
+                "bytes": 167445
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-2-00008.m4s",
+                "bytes": 331661
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 0.666667,
+                "url": "/media/v05-walking-in-street/chunk-2-00009.m4s",
+                "bytes": 80198
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1336.0,
+            "width": 540,
+            "height": 960,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 80,
+            "vmaf": 80.05,
+            "crf": 51,
+            "initUrl": "/media/v05-walking-in-street/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00001.m4s",
+                "bytes": 357942
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00002.m4s",
+                "bytes": 371349
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00003.m4s",
+                "bytes": 205059
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00004.m4s",
+                "bytes": 328311
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00005.m4s",
+                "bytes": 318705
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00006.m4s",
+                "bytes": 253301
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00007.m4s",
+                "bytes": 274209
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-3-00008.m4s",
+                "bytes": 543132
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 0.666667,
+                "url": "/media/v05-walking-in-street/chunk-3-00009.m4s",
+                "bytes": 131332
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 2639.2,
+            "width": 720,
+            "height": 1280,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 90,
+            "vmaf": 90.058,
+            "crf": 47,
+            "initUrl": "/media/v05-walking-in-street/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00001.m4s",
+                "bytes": 707093
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00002.m4s",
+                "bytes": 733578
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00003.m4s",
+                "bytes": 405081
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00004.m4s",
+                "bytes": 648560
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00005.m4s",
+                "bytes": 629583
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00006.m4s",
+                "bytes": 500381
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00007.m4s",
+                "bytes": 541685
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-4-00008.m4s",
+                "bytes": 1072927
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 0.666667,
+                "url": "/media/v05-walking-in-street/chunk-4-00009.m4s",
+                "bytes": 259439
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v05-walking-in-street/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00005.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00006.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00007.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v05-walking-in-street/chunk-audio-00008.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 0.666667,
+                "url": "/media/v05-walking-in-street/chunk-audio-00009.m4s",
+                "bytes": 5333
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v06-world-cup",
+      "sourceClip": "WorldCup_1920x1080_30p",
+      "manifestUrl": "/media/v06-world-cup/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 5.033333,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 201.0,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 50,
+            "vmaf": 57.539,
+            "crf": 63,
+            "initUrl": "/media/v06-world-cup/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-0-00001.m4s",
+                "bytes": 56574
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-0-00002.m4s",
+                "bytes": 49379
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v06-world-cup/chunk-0-00003.m4s",
+                "bytes": 20528
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 289.3,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 60,
+            "vmaf": 69.3,
+            "crf": 59,
+            "initUrl": "/media/v06-world-cup/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-1-00001.m4s",
+                "bytes": 81423
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-1-00002.m4s",
+                "bytes": 71067
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v06-world-cup/chunk-1-00003.m4s",
+                "bytes": 29544
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 402.8,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 70,
+            "vmaf": 76.496,
+            "crf": 59,
+            "initUrl": "/media/v06-world-cup/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-2-00001.m4s",
+                "bytes": 113365
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-2-00002.m4s",
+                "bytes": 98946
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v06-world-cup/chunk-2-00003.m4s",
+                "bytes": 41134
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 566.8,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 80,
+            "vmaf": 82.533,
+            "crf": 55,
+            "initUrl": "/media/v06-world-cup/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-3-00001.m4s",
+                "bytes": 159513
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-3-00002.m4s",
+                "bytes": 139224
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v06-world-cup/chunk-3-00003.m4s",
+                "bytes": 57878
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 1129.5,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 90,
+            "vmaf": 91.096,
+            "crf": 43,
+            "initUrl": "/media/v06-world-cup/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-4-00001.m4s",
+                "bytes": 317872
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-4-00002.m4s",
+                "bytes": 277439
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v06-world-cup/chunk-4-00003.m4s",
+                "bytes": 115336
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v06-world-cup/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v06-world-cup/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v06-world-cup/chunk-audio-00003.m4s",
+                "bytes": 8267
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v07-aerial",
+      "sourceClip": "Aerial3200_1920x1080_5994_10bit_420",
+      "manifestUrl": "/media/v07-aerial/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 9.192517,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 127.3,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 50.937,
+            "crf": 63,
+            "initUrl": "/media/v07-aerial/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-0-00001.m4s",
+                "bytes": 28179
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-0-00002.m4s",
+                "bytes": 18690
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-0-00003.m4s",
+                "bytes": 26261
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-0-00004.m4s",
+                "bytes": 36152
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 1.192517,
+                "url": "/media/v07-aerial/chunk-0-00005.m4s",
+                "bytes": 36979
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 180.6,
+            "width": 640,
+            "height": 360,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 60.099,
+            "crf": 59,
+            "initUrl": "/media/v07-aerial/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-1-00001.m4s",
+                "bytes": 39981
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-1-00002.m4s",
+                "bytes": 26519
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-1-00003.m4s",
+                "bytes": 37261
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-1-00004.m4s",
+                "bytes": 51294
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 1.192517,
+                "url": "/media/v07-aerial/chunk-1-00005.m4s",
+                "bytes": 52468
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 273.0,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 70.259,
+            "crf": 59,
+            "initUrl": "/media/v07-aerial/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-2-00001.m4s",
+                "bytes": 60428
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-2-00002.m4s",
+                "bytes": 40081
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-2-00003.m4s",
+                "bytes": 56316
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-2-00004.m4s",
+                "bytes": 77526
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 1.192517,
+                "url": "/media/v07-aerial/chunk-2-00005.m4s",
+                "bytes": 79301
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 481.5,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 81.158,
+            "crf": 59,
+            "initUrl": "/media/v07-aerial/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-3-00001.m4s",
+                "bytes": 106586
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-3-00002.m4s",
+                "bytes": 70696
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-3-00003.m4s",
+                "bytes": 99333
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-3-00004.m4s",
+                "bytes": 136746
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 1.192517,
+                "url": "/media/v07-aerial/chunk-3-00005.m4s",
+                "bytes": 139875
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 1039.4,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 90.562,
+            "crf": 51,
+            "initUrl": "/media/v07-aerial/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-4-00001.m4s",
+                "bytes": 230107
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-4-00002.m4s",
+                "bytes": 152625
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-4-00003.m4s",
+                "bytes": 214448
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-4-00004.m4s",
+                "bytes": 295219
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 1.192517,
+                "url": "/media/v07-aerial/chunk-4-00005.m4s",
+                "bytes": 301975
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v07-aerial/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v07-aerial/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 1.192517,
+                "url": "/media/v07-aerial/chunk-audio-00005.m4s",
+                "bytes": 9540
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v08-food-market",
+      "sourceClip": "FoodMarket_1920x1080_60fps_10bit_420",
+      "manifestUrl": "/media/v08-food-market/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 243.0,
+            "width": 640,
+            "height": 360,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 51.879,
+            "crf": 59,
+            "initUrl": "/media/v08-food-market/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-0-00001.m4s",
+                "bytes": 75123
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-0-00002.m4s",
+                "bytes": 78913
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-0-00003.m4s",
+                "bytes": 49245
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-0-00004.m4s",
+                "bytes": 37103
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-0-00005.m4s",
+                "bytes": 63418
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 377.0,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 62.476,
+            "crf": 59,
+            "initUrl": "/media/v08-food-market/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-1-00001.m4s",
+                "bytes": 116518
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-1-00002.m4s",
+                "bytes": 122395
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-1-00003.m4s",
+                "bytes": 76379
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-1-00004.m4s",
+                "bytes": 57547
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-1-00005.m4s",
+                "bytes": 98363
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 583.1,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 71.243,
+            "crf": 55,
+            "initUrl": "/media/v08-food-market/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-2-00001.m4s",
+                "bytes": 180243
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-2-00002.m4s",
+                "bytes": 189336
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-2-00003.m4s",
+                "bytes": 118152
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-2-00004.m4s",
+                "bytes": 89021
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-2-00005.m4s",
+                "bytes": 152160
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1040.7,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 80.715,
+            "crf": 55,
+            "initUrl": "/media/v08-food-market/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-3-00001.m4s",
+                "bytes": 321672
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-3-00002.m4s",
+                "bytes": 337899
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-3-00003.m4s",
+                "bytes": 210860
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-3-00004.m4s",
+                "bytes": 158870
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-3-00005.m4s",
+                "bytes": 271552
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 2522.1,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 90.625,
+            "crf": 43,
+            "initUrl": "/media/v08-food-market/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-4-00001.m4s",
+                "bytes": 779584
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-4-00002.m4s",
+                "bytes": 818912
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-4-00003.m4s",
+                "bytes": 511025
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-4-00004.m4s",
+                "bytes": 385028
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-4-00005.m4s",
+                "bytes": 658116
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v08-food-market/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v08-food-market/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v09-vertical-bees",
+      "sourceClip": "Vertical_bees_2997_1080x1920",
+      "manifestUrl": "/media/v09-vertical-bees/manifest.mpd",
+      "manifestBytes": 3150,
+      "durationS": 5.005,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 88.8,
+            "width": 480,
+            "height": 854,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 50,
+            "vmaf": 61.694,
+            "crf": 63,
+            "initUrl": "/media/v09-vertical-bees/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-0-00001.m4s",
+                "bytes": 22537
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-0-00002.m4s",
+                "bytes": 18526
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v09-vertical-bees/chunk-0-00003.m4s",
+                "bytes": 14515
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 145.3,
+            "width": 720,
+            "height": 1280,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 70,
+            "vmaf": 75.55,
+            "crf": 63,
+            "initUrl": "/media/v09-vertical-bees/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-1-00001.m4s",
+                "bytes": 36863
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-1-00002.m4s",
+                "bytes": 30301
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v09-vertical-bees/chunk-1-00003.m4s",
+                "bytes": 23741
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 205.2,
+            "width": 540,
+            "height": 960,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 80,
+            "vmaf": 81.723,
+            "crf": 59,
+            "initUrl": "/media/v09-vertical-bees/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-2-00001.m4s",
+                "bytes": 52071
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-2-00002.m4s",
+                "bytes": 42802
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v09-vertical-bees/chunk-2-00003.m4s",
+                "bytes": 33535
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 393.9,
+            "width": 720,
+            "height": 1280,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 90,
+            "vmaf": 90.632,
+            "crf": 55,
+            "initUrl": "/media/v09-vertical-bees/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-3-00001.m4s",
+                "bytes": 99944
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-3-00002.m4s",
+                "bytes": 82154
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v09-vertical-bees/chunk-3-00003.m4s",
+                "bytes": 64366
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v09-vertical-bees/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v09-vertical-bees/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v09-vertical-bees/chunk-audio-00003.m4s",
+                "bytes": 8040
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v10-rush-field-cuts",
+      "sourceClip": "rush_field_cuts_1080p",
+      "manifestUrl": "/media/v10-rush-field-cuts/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 19.019,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 461.9,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 50,
+            "vmaf": 54.594,
+            "crf": 59,
+            "initUrl": "/media/v10-rush-field-cuts/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00001.m4s",
+                "bytes": 103116
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00002.m4s",
+                "bytes": 132562
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00003.m4s",
+                "bytes": 60418
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00004.m4s",
+                "bytes": 176404
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00005.m4s",
+                "bytes": 91306
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00006.m4s",
+                "bytes": 74943
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00007.m4s",
+                "bytes": 168260
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00008.m4s",
+                "bytes": 78817
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00009.m4s",
+                "bytes": 159958
+              },
+              {
+                "index": 9,
+                "startS": 18.0,
+                "durationS": 1.019,
+                "url": "/media/v10-rush-field-cuts/chunk-0-00010.m4s",
+                "bytes": 52438
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 710.8,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 60,
+            "vmaf": 65.325,
+            "crf": 55,
+            "initUrl": "/media/v10-rush-field-cuts/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00001.m4s",
+                "bytes": 158660
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00002.m4s",
+                "bytes": 203965
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00003.m4s",
+                "bytes": 92961
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00004.m4s",
+                "bytes": 271423
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00005.m4s",
+                "bytes": 140488
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00006.m4s",
+                "bytes": 115310
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00007.m4s",
+                "bytes": 258892
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00008.m4s",
+                "bytes": 121271
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00009.m4s",
+                "bytes": 246119
+              },
+              {
+                "index": 9,
+                "startS": 18.0,
+                "durationS": 1.019,
+                "url": "/media/v10-rush-field-cuts/chunk-1-00010.m4s",
+                "bytes": 80683
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 956.8,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 70,
+            "vmaf": 72.019,
+            "crf": 51,
+            "initUrl": "/media/v10-rush-field-cuts/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00001.m4s",
+                "bytes": 213579
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00002.m4s",
+                "bytes": 274567
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00003.m4s",
+                "bytes": 125139
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00004.m4s",
+                "bytes": 365374
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00005.m4s",
+                "bytes": 189117
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00006.m4s",
+                "bytes": 155224
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00007.m4s",
+                "bytes": 348506
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00008.m4s",
+                "bytes": 163248
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00009.m4s",
+                "bytes": 331312
+              },
+              {
+                "index": 9,
+                "startS": 18.0,
+                "durationS": 1.019,
+                "url": "/media/v10-rush-field-cuts/chunk-2-00010.m4s",
+                "bytes": 108611
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1582.3,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 80,
+            "vmaf": 81.766,
+            "crf": 51,
+            "initUrl": "/media/v10-rush-field-cuts/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00001.m4s",
+                "bytes": 353203
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00002.m4s",
+                "bytes": 454061
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00003.m4s",
+                "bytes": 206947
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00004.m4s",
+                "bytes": 604232
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00005.m4s",
+                "bytes": 312748
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00006.m4s",
+                "bytes": 256700
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00007.m4s",
+                "bytes": 576337
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00008.m4s",
+                "bytes": 269969
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00009.m4s",
+                "bytes": 547903
+              },
+              {
+                "index": 9,
+                "startS": 18.0,
+                "durationS": 1.019,
+                "url": "/media/v10-rush-field-cuts/chunk-3-00010.m4s",
+                "bytes": 179613
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 3242.7,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 29.97003,
+            "targetVmaf": 90,
+            "vmaf": 91.196,
+            "crf": 39,
+            "initUrl": "/media/v10-rush-field-cuts/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00001.m4s",
+                "bytes": 723851
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00002.m4s",
+                "bytes": 930550
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00003.m4s",
+                "bytes": 424114
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00004.m4s",
+                "bytes": 1238310
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00005.m4s",
+                "bytes": 640944
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00006.m4s",
+                "bytes": 526078
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00007.m4s",
+                "bytes": 1181141
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00008.m4s",
+                "bytes": 553272
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00009.m4s",
+                "bytes": 1122868
+              },
+              {
+                "index": 9,
+                "startS": 18.0,
+                "durationS": 1.019,
+                "url": "/media/v10-rush-field-cuts/chunk-4-00010.m4s",
+                "bytes": 368097
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v10-rush-field-cuts/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00005.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00006.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00007.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00008.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 8,
+                "startS": 16.0,
+                "durationS": 2.0,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00009.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 9,
+                "startS": 18.0,
+                "durationS": 1.019,
+                "url": "/media/v10-rush-field-cuts/chunk-audio-00010.m4s",
+                "bytes": 8152
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v11-skater",
+      "sourceClip": "Skater227_1920x1080_30fps",
+      "manifestUrl": "/media/v11-skater/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 68.9,
+            "width": 480,
+            "height": 270,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 50,
+            "vmaf": 51.013,
+            "crf": 55,
+            "initUrl": "/media/v11-skater/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-0-00001.m4s",
+                "bytes": 23774
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-0-00002.m4s",
+                "bytes": 16358
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-0-00003.m4s",
+                "bytes": 16597
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-0-00004.m4s",
+                "bytes": 14659
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-0-00005.m4s",
+                "bytes": 14785
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 115.4,
+            "width": 640,
+            "height": 360,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 60,
+            "vmaf": 64.887,
+            "crf": 51,
+            "initUrl": "/media/v11-skater/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-1-00001.m4s",
+                "bytes": 39783
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-1-00002.m4s",
+                "bytes": 27372
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-1-00003.m4s",
+                "bytes": 27773
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-1-00004.m4s",
+                "bytes": 24530
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-1-00005.m4s",
+                "bytes": 24739
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 181.4,
+            "width": 640,
+            "height": 360,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 70,
+            "vmaf": 74.03,
+            "crf": 43,
+            "initUrl": "/media/v11-skater/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-2-00001.m4s",
+                "bytes": 62557
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-2-00002.m4s",
+                "bytes": 43041
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-2-00003.m4s",
+                "bytes": 43671
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-2-00004.m4s",
+                "bytes": 38572
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-2-00005.m4s",
+                "bytes": 38901
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 280.9,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 80,
+            "vmaf": 81.191,
+            "crf": 43,
+            "initUrl": "/media/v11-skater/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-3-00001.m4s",
+                "bytes": 96869
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-3-00002.m4s",
+                "bytes": 66650
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-3-00003.m4s",
+                "bytes": 67624
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-3-00004.m4s",
+                "bytes": 59728
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-3-00005.m4s",
+                "bytes": 60238
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 631.1,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 90,
+            "vmaf": 90.064,
+            "crf": 31,
+            "initUrl": "/media/v11-skater/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-4-00001.m4s",
+                "bytes": 217660
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-4-00002.m4s",
+                "bytes": 149758
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-4-00003.m4s",
+                "bytes": 151946
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-4-00004.m4s",
+                "bytes": 134206
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-4-00005.m4s",
+                "bytes": 135351
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v11-skater/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v11-skater/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v12-old-town-cross",
+      "sourceClip": "old_town_cross_1080p50",
+      "manifestUrl": "/media/v12-old-town-cross/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 109.9,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 50,
+            "vmaf": 55.738,
+            "crf": 63,
+            "initUrl": "/media/v12-old-town-cross/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-0-00001.m4s",
+                "bytes": 31202
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-0-00002.m4s",
+                "bytes": 20096
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-0-00003.m4s",
+                "bytes": 24963
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-0-00004.m4s",
+                "bytes": 29608
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-0-00005.m4s",
+                "bytes": 31516
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 168.9,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 60,
+            "vmaf": 66.426,
+            "crf": 63,
+            "initUrl": "/media/v12-old-town-cross/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-1-00001.m4s",
+                "bytes": 47936
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-1-00002.m4s",
+                "bytes": 30875
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-1-00003.m4s",
+                "bytes": 38352
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-1-00004.m4s",
+                "bytes": 45487
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-1-00005.m4s",
+                "bytes": 48420
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 245.0,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 70,
+            "vmaf": 75.875,
+            "crf": 59,
+            "initUrl": "/media/v12-old-town-cross/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-2-00001.m4s",
+                "bytes": 69561
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-2-00002.m4s",
+                "bytes": 44802
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-2-00003.m4s",
+                "bytes": 55652
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-2-00004.m4s",
+                "bytes": 66007
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-2-00005.m4s",
+                "bytes": 70262
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 360.3,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 80,
+            "vmaf": 83.679,
+            "crf": 59,
+            "initUrl": "/media/v12-old-town-cross/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-3-00001.m4s",
+                "bytes": 102290
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-3-00002.m4s",
+                "bytes": 65882
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-3-00003.m4s",
+                "bytes": 81837
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-3-00004.m4s",
+                "bytes": 97065
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-3-00005.m4s",
+                "bytes": 103321
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 576.7,
+            "width": 1920,
+            "height": 1080,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 50.0,
+            "targetVmaf": 90,
+            "vmaf": 90.211,
+            "crf": 59,
+            "initUrl": "/media/v12-old-town-cross/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-4-00001.m4s",
+                "bytes": 163717
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-4-00002.m4s",
+                "bytes": 105445
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-4-00003.m4s",
+                "bytes": 130982
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-4-00004.m4s",
+                "bytes": 155353
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-4-00005.m4s",
+                "bytes": 165367
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v12-old-town-cross/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v12-old-town-cross/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v13-tunnel-flag",
+      "sourceClip": "TunnelFlag_1920x1080_60fps_10bit_420",
+      "manifestUrl": "/media/v13-tunnel-flag/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 421.7,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 54.926,
+            "crf": 63,
+            "initUrl": "/media/v13-tunnel-flag/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-0-00001.m4s",
+                "bytes": 105023
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-0-00002.m4s",
+                "bytes": 135309
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-0-00003.m4s",
+                "bytes": 141036
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-0-00004.m4s",
+                "bytes": 64547
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-0-00005.m4s",
+                "bytes": 81271
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 511.4,
+            "width": 640,
+            "height": 360,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 61.832,
+            "crf": 59,
+            "initUrl": "/media/v13-tunnel-flag/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-1-00001.m4s",
+                "bytes": 127348
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-1-00002.m4s",
+                "bytes": 164071
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-1-00003.m4s",
+                "bytes": 171016
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-1-00004.m4s",
+                "bytes": 78267
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-1-00005.m4s",
+                "bytes": 98545
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 718.1,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 73.099,
+            "crf": 59,
+            "initUrl": "/media/v13-tunnel-flag/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-2-00001.m4s",
+                "bytes": 178820
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-2-00002.m4s",
+                "bytes": 230388
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-2-00003.m4s",
+                "bytes": 240139
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-2-00004.m4s",
+                "bytes": 109902
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-2-00005.m4s",
+                "bytes": 138377
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1111.4,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 84.445,
+            "crf": 55,
+            "initUrl": "/media/v13-tunnel-flag/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-3-00001.m4s",
+                "bytes": 276767
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-3-00002.m4s",
+                "bytes": 356580
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-3-00003.m4s",
+                "bytes": 371672
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-3-00004.m4s",
+                "bytes": 170099
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-3-00005.m4s",
+                "bytes": 214171
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 1880.3,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 92.743,
+            "crf": 51,
+            "initUrl": "/media/v13-tunnel-flag/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-4-00001.m4s",
+                "bytes": 468231
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-4-00002.m4s",
+                "bytes": 603257
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-4-00003.m4s",
+                "bytes": 628791
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-4-00004.m4s",
+                "bytes": 287771
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-4-00005.m4s",
+                "bytes": 362331
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v13-tunnel-flag/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v13-tunnel-flag/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v14-pedestrian-area",
+      "sourceClip": "pedestrian_area_1080p25",
+      "manifestUrl": "/media/v14-pedestrian-area/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 15.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 172.5,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 50,
+            "vmaf": 51.08,
+            "crf": 59,
+            "initUrl": "/media/v14-pedestrian-area/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00001.m4s",
+                "bytes": 58458
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00002.m4s",
+                "bytes": 36473
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00003.m4s",
+                "bytes": 37646
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00004.m4s",
+                "bytes": 56136
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00005.m4s",
+                "bytes": 30468
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00006.m4s",
+                "bytes": 50941
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00007.m4s",
+                "bytes": 23829
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 1.0,
+                "url": "/media/v14-pedestrian-area/chunk-0-00008.m4s",
+                "bytes": 29442
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 277.4,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 60,
+            "vmaf": 64.97,
+            "crf": 55,
+            "initUrl": "/media/v14-pedestrian-area/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00001.m4s",
+                "bytes": 94022
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00002.m4s",
+                "bytes": 58661
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00003.m4s",
+                "bytes": 60548
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00004.m4s",
+                "bytes": 90286
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00005.m4s",
+                "bytes": 49004
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00006.m4s",
+                "bytes": 81931
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00007.m4s",
+                "bytes": 38326
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 1.0,
+                "url": "/media/v14-pedestrian-area/chunk-1-00008.m4s",
+                "bytes": 47353
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 360.3,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 70,
+            "vmaf": 71.439,
+            "crf": 51,
+            "initUrl": "/media/v14-pedestrian-area/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00001.m4s",
+                "bytes": 122126
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00002.m4s",
+                "bytes": 76195
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00003.m4s",
+                "bytes": 78645
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00004.m4s",
+                "bytes": 117273
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00005.m4s",
+                "bytes": 63651
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00006.m4s",
+                "bytes": 106421
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00007.m4s",
+                "bytes": 49782
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 1.0,
+                "url": "/media/v14-pedestrian-area/chunk-2-00008.m4s",
+                "bytes": 61507
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 571.9,
+            "width": 960,
+            "height": 540,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 80,
+            "vmaf": 80.623,
+            "crf": 43,
+            "initUrl": "/media/v14-pedestrian-area/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00001.m4s",
+                "bytes": 193835
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00002.m4s",
+                "bytes": 120934
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00003.m4s",
+                "bytes": 124824
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00004.m4s",
+                "bytes": 186132
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00005.m4s",
+                "bytes": 101025
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00006.m4s",
+                "bytes": 168908
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00007.m4s",
+                "bytes": 79012
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 1.0,
+                "url": "/media/v14-pedestrian-area/chunk-3-00008.m4s",
+                "bytes": 97623
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 1252.4,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 90,
+            "vmaf": 91.343,
+            "crf": 35,
+            "initUrl": "/media/v14-pedestrian-area/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00001.m4s",
+                "bytes": 424497
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00002.m4s",
+                "bytes": 264843
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00003.m4s",
+                "bytes": 273362
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00004.m4s",
+                "bytes": 407628
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00005.m4s",
+                "bytes": 221243
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00006.m4s",
+                "bytes": 369907
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00007.m4s",
+                "bytes": 173034
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 1.0,
+                "url": "/media/v14-pedestrian-area/chunk-4-00008.m4s",
+                "bytes": 213792
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v14-pedestrian-area/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00005.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 5,
+                "startS": 10.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00006.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 6,
+                "startS": 12.0,
+                "durationS": 2.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00007.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 7,
+                "startS": 14.0,
+                "durationS": 1.0,
+                "url": "/media/v14-pedestrian-area/chunk-audio-00008.m4s",
+                "bytes": 8000
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v15-boat",
+      "sourceClip": "Boat_1920x1080_60fps_10bit_420",
+      "manifestUrl": "/media/v15-boat/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 5.005,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 269.6,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 50,
+            "vmaf": 52.231,
+            "crf": 63,
+            "initUrl": "/media/v15-boat/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-0-00001.m4s",
+                "bytes": 68321
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-0-00002.m4s",
+                "bytes": 69800
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v15-boat/chunk-0-00003.m4s",
+                "bytes": 30574
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 538.7,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 60,
+            "vmaf": 67.366,
+            "crf": 63,
+            "initUrl": "/media/v15-boat/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-1-00001.m4s",
+                "bytes": 136502
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-1-00002.m4s",
+                "bytes": 139456
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v15-boat/chunk-1-00003.m4s",
+                "bytes": 61084
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 771.7,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 70,
+            "vmaf": 73.942,
+            "crf": 59,
+            "initUrl": "/media/v15-boat/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-2-00001.m4s",
+                "bytes": 195537
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-2-00002.m4s",
+                "bytes": 199768
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v15-boat/chunk-2-00003.m4s",
+                "bytes": 87502
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 1435.8,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 80,
+            "vmaf": 84.955,
+            "crf": 59,
+            "initUrl": "/media/v15-boat/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-3-00001.m4s",
+                "bytes": 363807
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-3-00002.m4s",
+                "bytes": 371679
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v15-boat/chunk-3-00003.m4s",
+                "bytes": 162802
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 2488.0,
+            "width": 1920,
+            "height": 1080,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 59.94006,
+            "targetVmaf": 90,
+            "vmaf": 91.501,
+            "crf": 59,
+            "initUrl": "/media/v15-boat/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-4-00001.m4s",
+                "bytes": 630399
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-4-00002.m4s",
+                "bytes": 644038
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v15-boat/chunk-4-00003.m4s",
+                "bytes": 282100
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v15-boat/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v15-boat/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.005,
+                "url": "/media/v15-boat/chunk-audio-00003.m4s",
+                "bytes": 8040
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v16-world-cup-far",
+      "sourceClip": "WorldCup_far_1920x1080_30p",
+      "manifestUrl": "/media/v16-world-cup-far/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 5.033333,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 148.1,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 50,
+            "vmaf": 50.093,
+            "crf": 63,
+            "initUrl": "/media/v16-world-cup-far/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-0-00001.m4s",
+                "bytes": 30723
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-0-00002.m4s",
+                "bytes": 31733
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v16-world-cup-far/chunk-0-00003.m4s",
+                "bytes": 30740
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 271.7,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 60,
+            "vmaf": 66.661,
+            "crf": 63,
+            "initUrl": "/media/v16-world-cup-far/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-1-00001.m4s",
+                "bytes": 56353
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-1-00002.m4s",
+                "bytes": 58206
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v16-world-cup-far/chunk-1-00003.m4s",
+                "bytes": 56383
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 353.1,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 70,
+            "vmaf": 72.173,
+            "crf": 59,
+            "initUrl": "/media/v16-world-cup-far/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-2-00001.m4s",
+                "bytes": 73234
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-2-00002.m4s",
+                "bytes": 75643
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v16-world-cup-far/chunk-2-00003.m4s",
+                "bytes": 73274
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 618.4,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 80,
+            "vmaf": 83.666,
+            "crf": 59,
+            "initUrl": "/media/v16-world-cup-far/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-3-00001.m4s",
+                "bytes": 128265
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-3-00002.m4s",
+                "bytes": 132485
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v16-world-cup-far/chunk-3-00003.m4s",
+                "bytes": 128335
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 1046.6,
+            "width": 1920,
+            "height": 1080,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 30.0,
+            "targetVmaf": 90,
+            "vmaf": 90.585,
+            "crf": 59,
+            "initUrl": "/media/v16-world-cup-far/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-4-00001.m4s",
+                "bytes": 217073
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-4-00002.m4s",
+                "bytes": 224215
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v16-world-cup-far/chunk-4-00003.m4s",
+                "bytes": 217192
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v16-world-cup-far/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v16-world-cup-far/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 1.033333,
+                "url": "/media/v16-world-cup-far/chunk-audio-00003.m4s",
+                "bytes": 8267
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "videoId": "v17-riverbed",
+      "sourceClip": "riverbed_1080p25",
+      "manifestUrl": "/media/v17-riverbed/manifest.mpd",
+      "manifestBytes": 3600,
+      "durationS": 10.0,
+      "segmentDurationS": 2.0,
+      "representations": {
+        "video": [
+          {
+            "id": "0",
+            "bitrateKbps": 1705.7,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 50,
+            "vmaf": 51.654,
+            "crf": 51,
+            "initUrl": "/media/v17-riverbed/init-0.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-0-00001.m4s",
+                "bytes": 390076
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-0-00002.m4s",
+                "bytes": 318840
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-0-00003.m4s",
+                "bytes": 468343
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-0-00004.m4s",
+                "bytes": 516578
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-0-00005.m4s",
+                "bytes": 438337
+              }
+            ]
+          },
+          {
+            "id": "1",
+            "bitrateKbps": 2364.5,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 60,
+            "vmaf": 60.506,
+            "crf": 47,
+            "initUrl": "/media/v17-riverbed/init-1.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-1-00001.m4s",
+                "bytes": 540721
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-1-00002.m4s",
+                "bytes": 441973
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-1-00003.m4s",
+                "bytes": 649214
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-1-00004.m4s",
+                "bytes": 716077
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-1-00005.m4s",
+                "bytes": 607618
+              }
+            ]
+          },
+          {
+            "id": "2",
+            "bitrateKbps": 4332.8,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 70,
+            "vmaf": 76.598,
+            "crf": 39,
+            "initUrl": "/media/v17-riverbed/init-2.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-2-00001.m4s",
+                "bytes": 990841
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-2-00002.m4s",
+                "bytes": 809891
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-2-00003.m4s",
+                "bytes": 1189649
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-2-00004.m4s",
+                "bytes": 1312171
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-2-00005.m4s",
+                "bytes": 1113427
+              }
+            ]
+          },
+          {
+            "id": "3",
+            "bitrateKbps": 6015.3,
+            "width": 854,
+            "height": 480,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 80,
+            "vmaf": 84.698,
+            "crf": 27,
+            "initUrl": "/media/v17-riverbed/init-3.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-3-00001.m4s",
+                "bytes": 1375597
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-3-00002.m4s",
+                "bytes": 1124383
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-3-00003.m4s",
+                "bytes": 1651606
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-3-00004.m4s",
+                "bytes": 1821706
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-3-00005.m4s",
+                "bytes": 1545786
+              }
+            ]
+          },
+          {
+            "id": "4",
+            "bitrateKbps": 9723.4,
+            "width": 1280,
+            "height": 720,
+            "codec": "av01.0.08M.08",
+            "frameRateFps": 25.0,
+            "targetVmaf": 90,
+            "vmaf": 94.104,
+            "crf": 27,
+            "initUrl": "/media/v17-riverbed/init-4.m4s",
+            "initBytes": 830,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-4-00001.m4s",
+                "bytes": 2223593
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-4-00002.m4s",
+                "bytes": 1817516
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-4-00003.m4s",
+                "bytes": 2669748
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-4-00004.m4s",
+                "bytes": 2944708
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-4-00005.m4s",
+                "bytes": 2498696
+              }
+            ]
+          }
+        ],
+        "audio": [
+          {
+            "id": "audio-0",
+            "bitrateKbps": 64.0,
+            "codec": "mp4a.40.2",
+            "initUrl": "/media/v17-riverbed/init-audio.m4s",
+            "initBytes": 760,
+            "segments": [
+              {
+                "index": 0,
+                "startS": 0.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-audio-00001.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 1,
+                "startS": 2.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-audio-00002.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 2,
+                "startS": 4.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-audio-00003.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 3,
+                "startS": 6.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-audio-00004.m4s",
+                "bytes": 16000
+              },
+              {
+                "index": 4,
+                "startS": 8.0,
+                "durationS": 2.0,
+                "url": "/media/v17-riverbed/chunk-audio-00005.m4s",
+                "bytes": 16000
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

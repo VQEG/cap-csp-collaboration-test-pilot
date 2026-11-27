@@ -202,7 +202,12 @@ def write_grid_kpis(cells: list[GridCell], output_dir: Path) -> list[dict[str, A
             continue
         with open(cell_kpis, newline="", encoding="utf-8") as file:
             for row in csv.DictReader(file):
-                axis_values = {"ue_count": cell.ue_count, "behavior_mix": cell.behavior_mix, "replication": cell.replication}
+                axis_values = {
+                    "content_catalogue": cell.content_catalogue,
+                    "ue_count": cell.ue_count,
+                    "behavior_mix": cell.behavior_mix,
+                    "replication": cell.replication,
+                }
                 rows.append({**axis_values, **row})
     if rows:
         write_kpis(rows, output_dir / "kpis.csv")

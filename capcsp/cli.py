@@ -1,4 +1,4 @@
-"""Command-line interface: `capcsp run`, `capcsp grid` and `capcsp report`."""
+"""Command-line interface: `capcsp run`, `capcsp grid`, `capcsp report` and `capcsp generate-content`."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from pathlib import Path
 
 from rich.console import Console
 
+from capcsp.content.per_title_ladder_catalogue import write_per_title_ladder_catalogues
 from capcsp.runner.grid_execution import cell_is_finished, run_grid
 from capcsp.runner.grid_specification import GridSpecification
 from capcsp.runner.kpis import collect_kpis, write_kpis
@@ -46,6 +47,11 @@ def main() -> None:
     report = commands.add_parser("report", help="Write one report for several runs")
     report.add_argument("runs", type=Path, nargs="+", help="Output directories of runs")
     report.add_argument("-o", "--output", type=Path, default=Path("report.md"), help="Report file")
+    generate_content = commands.add_parser(
+        "generate-content",
+        help="Write the content catalogues of a per-title ladder specification, one per encoder and segment duration",
+    )
+    generate_content.add_argument("specification", type=Path, help="Catalogue specification (JSON)")
     args = parser.parse_args()
     console = Console(log_path=False)
 
@@ -62,6 +68,9 @@ def main() -> None:
         console.print(f"Results in {args.output}")
     elif args.command == "grid":
         sys.exit(run_grid_command(args, console))
+    elif args.command == "generate-content":
+        for path in write_per_title_ladder_catalogues(args.specification):
+            console.print(f"Wrote {path}")
     else:
         write_report(args.runs, args.output)
         console.print(f"Report written to {args.output}")
