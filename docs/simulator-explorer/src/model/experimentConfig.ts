@@ -1,4 +1,3 @@
-import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import {
   PARAMETRIC_PRESET_DEFAULTS,
@@ -19,6 +18,7 @@ import {
   type ExplorerSettings,
   type SignalingLevel,
 } from "@/model/explorerSettings";
+import { gridContentCatalogues, selectedContentPath } from "@/model/contentSelection";
 import { parseSwipeTimes, watchDurationRange } from "@/model/swipeSchedule";
 
 // The experiment and grid JSON for the chosen settings. Keep the keys in sync
@@ -247,7 +247,7 @@ function experimentConfig(settings: ExplorerSettings, shape: ExperimentShape, id
     condition: fikore ? shape.conditionId : "example-only",
     signaling_level: shape.signalingLevels[0],
     clock_mode: "simulation",
-    content: CONTENT_CATALOGUES[settings.contentId].pathFromConfigsChild,
+    content: selectedContentPath(settings),
   };
   if (Math.max(...levels) >= 1 && settings.planDownlinkMbps !== "") {
     config.plan_downlink_mbps_by_ue = Object.fromEntries(shape.ueIdsWithPlanRate.map((ueId) => [String(ueId), Number(settings.planDownlinkMbps)]));
@@ -356,7 +356,8 @@ export function effectiveGridAxes(settings: ExplorerSettings) {
 export function gridCellCount(settings: ExplorerSettings): number {
   const axes = effectiveGridAxes(settings);
   if (usesParametricLoadSweep(settings) && axes.conditionIds.length === 0) return 0;
-  return Math.max(1, axes.conditionIds.length) * axes.signalingLevels.length * axes.ueCounts.length * axes.behaviorMixes.length * axes.replications;
+  const contentCount = Math.max(1, gridContentCatalogues(settings).length);
+  return Math.max(1, axes.conditionIds.length) * contentCount * axes.signalingLevels.length * axes.ueCounts.length * axes.behaviorMixes.length * axes.replications;
 }
 
 /** The grid file: an inline base experiment plus the axes. `capcsp grid` runs it as it is. */
@@ -393,6 +394,8 @@ export function buildGridConfig(settings: ExplorerSettings): JsonObject {
   } else if (axes.conditionIds.length) {
     grid.conditions = Object.fromEntries(axes.conditionIds.map((id) => [id, gridConditionOverlay(gridSettings, id)]));
   }
+  const contentCatalogues = gridContentCatalogues(gridSettings);
+  if (contentCatalogues.length) grid.content_catalogues = Object.fromEntries(contentCatalogues.map(({ name, path }) => [name, path]));
   grid.signaling_levels = axes.signalingLevels;
   grid.ue_counts = axes.ueCounts;
   grid.behavior_mixes = Object.fromEntries(axes.behaviorMixes.map((mix) => [mix, BEHAVIOR_MIXES[mix].pattern]));

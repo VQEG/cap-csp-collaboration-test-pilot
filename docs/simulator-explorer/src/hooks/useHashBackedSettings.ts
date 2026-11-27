@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CONTENT_CATALOGUES } from "@/data/contentCatalogue";
+import { CONTENT_CATALOGUE_IDS, CONTENT_ENCODERS, CONTENT_SEGMENT_DURATIONS_S } from "@/data/contentCatalogue";
 import { IMPLEMENTATION_STATES } from "@/data/implementationStates";
 import { NETWORK_CONDITIONS } from "@/data/networkConditions";
 import { isParametricCondition } from "@/data/parametricCells";
@@ -44,7 +44,17 @@ function readSettingsFromHash(): ExplorerSettings {
   };
   if (!BEHAVIOR_MIXES[settings.behaviorMix]) settings.behaviorMix = DEFAULT_EXPLORER_SETTINGS.behaviorMix;
   if (!NETWORK_CONDITIONS[settings.conditionId]) settings.conditionId = DEFAULT_EXPLORER_SETTINGS.conditionId;
-  if (!CONTENT_CATALOGUES[settings.contentId]) settings.contentId = DEFAULT_EXPLORER_SETTINGS.contentId;
+  if (!CONTENT_CATALOGUE_IDS.includes(settings.contentId)) settings.contentId = DEFAULT_EXPLORER_SETTINGS.contentId;
+  if (!CONTENT_ENCODERS.includes(settings.contentEncoder)) settings.contentEncoder = DEFAULT_EXPLORER_SETTINGS.contentEncoder;
+  if (!CONTENT_SEGMENT_DURATIONS_S.includes(settings.contentSegmentDurationS)) {
+    settings.contentSegmentDurationS = DEFAULT_EXPLORER_SETTINGS.contentSegmentDurationS;
+  }
+  // Links from before the content axis lack these keys or may hold unknown values
+  settings.gridAxes = {
+    ...settings.gridAxes,
+    contentEncoders: (settings.gridAxes.contentEncoders ?? []).filter((encoder) => CONTENT_ENCODERS.includes(encoder)),
+    contentSegmentDurationsS: (settings.gridAxes.contentSegmentDurationsS ?? []).filter((duration) => CONTENT_SEGMENT_DURATIONS_S.includes(duration)),
+  };
   if (!NETWORK_BACKEND_KINDS.includes(settings.networkBackend)) settings.networkBackend = DEFAULT_EXPLORER_SETTINGS.networkBackend;
   if (!TCP_CONNECTION_MODES.includes(settings.tcpConnectionMode)) settings.tcpConnectionMode = DEFAULT_EXPLORER_SETTINGS.tcpConnectionMode;
   if (!IMPLEMENTATION_STATES[settings.implementationState]) settings.implementationState = DEFAULT_EXPLORER_SETTINGS.implementationState;

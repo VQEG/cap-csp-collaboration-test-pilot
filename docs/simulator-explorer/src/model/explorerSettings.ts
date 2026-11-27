@@ -1,4 +1,4 @@
-import type { ContentCatalogueId } from "@/data/contentCatalogue";
+import type { ContentCatalogueId, ContentEncoder, ContentSegmentDurationS } from "@/data/contentCatalogue";
 import { CORE6_CONDITION_IDS, type ParametricCellValues } from "@/data/parametricCells";
 import { PLAYER_BEHAVIORS, type BehaviorMixId, type BehaviorParameterValues, type PlayerBehavior } from "@/data/playerBehaviors";
 
@@ -21,6 +21,10 @@ export interface GridAxes {
   signalingLevels: SignalingLevel[];
   ueCounts: number[];
   behaviorMixes: BehaviorMixId[];
+  /** Encoders of the per-title catalogues on the content_catalogues axis; empty means the run's encoder. */
+  contentEncoders: ContentEncoder[];
+  /** Segment durations of the per-title catalogues on the content_catalogues axis; empty means the run's duration. */
+  contentSegmentDurationsS: ContentSegmentDurationS[];
   replications: number;
 }
 
@@ -32,6 +36,10 @@ export interface ExplorerSettings {
   conditionId: string;
   /** Content catalogue used by the sessions. */
   contentId: ContentCatalogueId;
+  /** Encoder of the per-title catalogue; only used with contentId aomctc_per_title. */
+  contentEncoder: ContentEncoder;
+  /** Segment duration of the per-title catalogue; only used with contentId aomctc_per_title. */
+  contentSegmentDurationS: ContentSegmentDurationS;
   /** `downlink_rate_mbps` of the constant_rate backend, the same for every UE. */
   constantRateDownlinkMbps: string;
   /** Behaviour pattern over the UEs of the run, and of the cell shown in grid mode. */
@@ -64,6 +72,8 @@ export const DEFAULT_EXPLORER_SETTINGS: ExplorerSettings = {
   networkBackend: "transport_fikore",
   conditionId: "M04",
   contentId: "portrait_hd_90s",
+  contentEncoder: "svtav1",
+  contentSegmentDurationS: 2,
   constantRateDownlinkMbps: "1",
   behaviorMix: "b1",
   videoUeCount: 1,
@@ -75,7 +85,7 @@ export const DEFAULT_EXPLORER_SETTINGS: ExplorerSettings = {
   configOutputKind: "run",
   gridSweepMode: "conditions",
   loadSweepValues: "0, 0.25, 0.5, 0.75, 1.0",
-  gridAxes: { conditionIds: [...CORE6_CONDITION_IDS], signalingLevels: ["L0"], ueCounts: [1], behaviorMixes: ["b1", "b2"], replications: 5 },
+  gridAxes: { conditionIds: [...CORE6_CONDITION_IDS], signalingLevels: ["L0"], ueCounts: [1], behaviorMixes: ["b1", "b2"], contentEncoders: [], contentSegmentDurationsS: [], replications: 5 },
   acksOverFikoreUplink: true,
   tcpConnectionMode: "persistent",
   planDownlinkMbps: "",
